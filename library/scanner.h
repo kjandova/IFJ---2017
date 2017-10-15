@@ -45,7 +45,7 @@ Reserved reserved[35] = {
 typedef struct {
 	int   token;
 	char *value;
-} Token 
+} Token;
 
 void set_source_file(FILE *f);
 int get_next_token(string *word);
