@@ -1,4 +1,5 @@
 #include <malloc.h>
+#include <string.h>
 #include <strings.h>
 #include "str.h"
 

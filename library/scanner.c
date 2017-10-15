@@ -62,7 +62,7 @@ int get_next_token(string *word){
 						printf("%c = krát\n",c);
 						return TOKEN_MUL; 					// Multiplication
 						break;
-					case TOKEN_BACKSLASH:					// \\
+					case TOKEN_BACKSLASH:					// "\\"
 						state = SCANNER_BACKSLASH; 			// Can be for integer dividing or escape sequence
 						break;
 					case TOKEN_EQUALS:						// =
@@ -157,7 +157,7 @@ int get_next_token(string *word){
 				
 				for(int i = 0; i<35; i++) {
 					if (strCmpConstStrI(word, reserved[i].word) == 0) {
-						printf("%s = reserved (%D) \n", word->str, reserved[i].token);
+						printf("%s = reserved (%d) \n", word->str, reserved[i].token);
 						return reserved[i].token;
 						break;
 					}			

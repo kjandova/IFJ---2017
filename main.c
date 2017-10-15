@@ -1,4 +1,4 @@
-#include "library\init.h"
+#include "./library/init.h"
 
 string word;
 
