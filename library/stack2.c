@@ -73,7 +73,8 @@ int stack_peek(struct stack2 **stack, void **result)
 	}
 
 	index = (*stack)->members -1;
-	*result = (*stack)->arr[index];
+	if (result)
+		*result = (*stack)->arr[index];
 	return 1;
 }
 
