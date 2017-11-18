@@ -15,33 +15,39 @@
 
 
 //
-// RESERVED WORDS:
+// TOKENS
 //
 
 
-// ASCII DEFINED
-#define TOKEN_END_OF_FILE           -1  // EOF
-
-#define TOKEN_MUL 					42  // *
-#define TOKEN_ADD 					43  // +
-#define TOKEN_SUB 					45  // -
-#define TOKEN_DIV 					47  // /
-#define TOKEN_LESS 					60  // <
-#define TOKEN_EQUALS 				61  // =
-#define TOKEN_MORE 					62  // >
-
-#define TOKEN_EXCLAMATION_MARK		33  // !
-#define TOKEN_DOUBLE_QUOTE			34  // "
-#define TOKEN_QUOTE 				39  // '
-#define TOKEN_SLASH					47  // /
-#define TOKEN_BACKSLASH				92  // '\'
-
-#define TOKEN_NON_EQUAL      		128 // <>
-#define TOKEN_MORE_OR_EQUAL 		129 // >=
-#define TOKEN_LESS_OR_EQUAL 		130 // <=
-
 enum tokens {
 
+    TOKEN_END_OF_FILE             = -1,  // EOF
+
+    // DATA TYPE
+    DATA_TYPE_INT                 = 0, 	 // DataType Integer
+    DATA_TYPE_DOUBLE, 	                 // DataType Double
+    DATA_TYPE_STRING, 	                 // DataType String
+
+    // ASCII DEFINED
+    TOKEN_MUL 					  = 42,  // *
+    TOKEN_ADD 					  = 43,  // +
+    TOKEN_SUB 					  = 45,  // -
+    TOKEN_DIV 			          = 47,  // /
+    TOKEN_LESS 					  = 60,  // <
+    TOKEN_EQUALS                  = 61,  // =
+    TOKEN_MORE 					  = 62,  // >
+
+    TOKEN_EXCLAMATION_MARK		  = 33,  // !
+    TOKEN_DOUBLE_QUOTE			  = 34,  // "
+    TOKEN_QUOTE 				  = 39,  // '
+    TOKEN_SLASH					  = 47,  // /
+    TOKEN_BACKSLASH				  = 92,  // '\'
+
+    TOKEN_NON_EQUAL      		  = 128, // <>
+    TOKEN_MORE_OR_EQUAL 		  = 129, // >=
+    TOKEN_LESS_OR_EQUAL 		  = 130, // <=
+
+    // RESERVED WORDS:
     TOKEN_ID 					  = 200,
     TOKEN_AS,
     TOKEN_DIM,
@@ -90,15 +96,4 @@ enum tokens {
     TOKEN_LENGTH,
     TOKEN_CHR,
     TOKEN_ASC
-};
-
-
-//
-// DATA TYPE
-//
-
-enum dataTypes {
-    DATA_TYPE_INT, 	    // DataType Integer
-    DATA_TYPE_DOUBLE, 	// DataType Double
-    DATA_TYPE_STRING 	// DataType String
 };
