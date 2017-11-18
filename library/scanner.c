@@ -1,3 +1,18 @@
+///////////////////////////////////////////////////////////////////////////////////
+//
+//	@Project 			IFJ 2017
+//
+//  @Authors
+//  Jandová Krisnýna 	xjando04
+//  Vilém Faigel		xfaige00
+//  Nikola Timková		xtimko01
+//	Bc. Váslav Doležal	xdolez76
+//
+//	@File				scanner.h
+//	@Description		
+//			
+///////////////////////////////////////////////////////////////////////////////////
+
 #include <stdio.h>
 #include <errno.h>
 #include <ctype.h>
@@ -5,22 +20,26 @@
 
 #include "scanner.h"
 
-FILE * file;
+FILE *__scanner_file;
 
-void set_source_file(FILE *f) {
-    file = f;
+void scanner_init(FILE *f) {
+    if (!f) {
+       __scanner_file = f;
+    } else {
+       ErrorException(ERROR_RUNTIME, "NO FILE");     
+    }
 }
 
-int get_next_token(string *word){
+int scanner_next_token(string *word){
 	
 	char c;
-	
+	int i;
 	strClear(word);
 	
 	int state = SCANNER_START;	//because start
 	
 	while(1) {
-		c = getc(file);
+		c = getc(__scanner_file);
 		switch(state){
 			case SCANNER_START: //every new statement 
 				if(isspace(c)) {  //blank makes it start again
@@ -32,8 +51,7 @@ int get_next_token(string *word){
 					state = SCANNER_DIGIT;
 					strAddChar(word, c);
 									
-				}
-				else if(isalpha(c) || c =='_') { // Getting first letter
+				} else if(isalpha(c) || c =='_') { // Getting first letter
 				
 					state =  SCANNER_WORD;
 					strAddChar(word, c);
@@ -98,7 +116,7 @@ int get_next_token(string *word){
 					strAddChar(word, c);
 					
 				} else {
-					ungetc(c, file);
+					ungetc(c, __scanner_file);
 					printf("%s = ÄÃ­slo(int)\n", word->str);
 					return TOKEN_INTEGER;			// TODO struct	
 				}
@@ -107,7 +125,7 @@ int get_next_token(string *word){
 				if(isdigit(c)) {
 					strAddChar(word, c);
 				} else {
-					ungetc(c, file);
+					ungetc(c, __scanner_file);
 					printf("%s = ÄÃ­slo(double)\n", word->str);
 					return DATA_TYPE_DOUBLE; 		// TODO struct				
 				}
@@ -124,7 +142,7 @@ int get_next_token(string *word){
 				if(isdigit(c)) {
 					strAddChar(word, c);
 				} else {
-					ungetc(c, file);
+					ungetc(c, __scanner_file);
 					printf("%s = ÄÃ­slo(double)\n", word->str);
 					return DATA_TYPE_DOUBLE; 		// TODO struct				
 				}
@@ -147,15 +165,14 @@ int get_next_token(string *word){
 			break;
 			case SCANNER_WORD:
 				if(!(isalnum(c) || c == '_')){ 
-                	ungetc(c, file); 				// TODO - not working here, for some reason ungetc(int char, File * stream);
+                	ungetc(c, __scanner_file); 				// TODO - not working here, for some reason ungetc(int char, File * stream);
 					state = SCANNER_WORD_END;
 				} else {
 					strAddChar(word, c); 			// Saving next char to word			
 				}
 			break;
 			case SCANNER_WORD_END:
-				
-				for(int i = 0; i<35; i++) {
+				for(i = 0; i<35; i++) {
 					if (strCmpConstStrI(word, reserved[i].word) == 0) {
 						printf("%s = reserved (%d) \n", word->str, reserved[i].token);
 						return reserved[i].token;

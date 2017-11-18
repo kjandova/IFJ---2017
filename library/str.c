@@ -1,3 +1,18 @@
+///////////////////////////////////////////////////////////////////////////////////
+//
+//	@Project 			IFJ 2017
+//
+//  @Authors
+//  Jandová Krisnýna 	xjando04
+//  Vilém Faigel		xfaige00
+//  Nikola Timková		xtimko01
+//	Bc. Váslav Doležal	xdolez76
+//
+//	@File				str.h
+//	@Description		
+//			
+///////////////////////////////////////////////////////////////////////////////////
+
 #include <malloc.h>
 #include <string.h>
 #include <strings.h>

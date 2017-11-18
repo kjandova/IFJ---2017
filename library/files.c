@@ -8,33 +8,24 @@
 //  Nikola Timková		xtimko01
 //	Bc. Váslav Doležal	xdolez76
 //
-//	@File				main.c
+//	@File				files.c
 //	@Description		
 //			
 ///////////////////////////////////////////////////////////////////////////////////
 
-#include "./library/init.h"
+#include "files.h"
 
-//string word;
-
-int main() {
-    //int token = 0;
-    
+FILE * loadFile(char * path) {
     FILE * f;
     
-    f = loadFile("./tests/scanner_test.txt");
+    f = fopen (path, "rt");
     
-    /*
-    strInit(&word);
-    scanner_init(f);
-	
-	int i;	
-	
-	for (i = 0; i < 22; i++) {
-		int token = scanner_next_token(&word);
-		printf("%d\n",token);
+    if (f == NULL){
+       ErrorException(ERROR_INTERN, "Error opening file");
 	}
-	*/
- 
-    return 0;
+
+	return f;
 }
+	
+
+

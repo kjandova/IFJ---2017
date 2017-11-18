@@ -1,3 +1,47 @@
+///////////////////////////////////////////////////////////////////////////////////
+//
+//	@Project 			IFJ 2017
+//
+//  @Authors
+//  Jandová Krisnýna 	xjando04
+//  Vilém Faigel		xfaige00
+//  Nikola Timková		xtimko01
+//	Bc. Váslav Doležal	xdolez76
+//
+//	@File				scanner.h
+//	@Description		
+//			
+///////////////////////////////////////////////////////////////////////////////////
+
+#include <stdio.h>
+#include <errno.h>
+#include <ctype.h>
+#include <stdlib.h>
+
+//
+// SCANNER STATES:
+//
+
+enum scanner {
+	SCANNER_START = 1,
+	SCANNER_DIGIT,
+	SCANNER_WORD,
+	SCANNER_EXCLAMATION_MARK,
+	SCANNER_LINE_COMMENT,
+	SCANNER_SLASH,
+	SCANNER_BACKSLASH,
+	SCANNER_LESS_THAN,
+	SCANNER_MORE_THAN,
+	
+	SCANNER_FLOAT, 			// State as float (decimal point) 
+	SCANNER_EXPONENT_TRY, 	// Trying if exponent is right 
+	SCANNER_EXPONENT, 		// Ending exponential number
+	SCANNER_STRING,
+	SCANNER_WORD_END,
+	SCANNER_COMMENT,
+	SCANNER_COMMENT_TRY 	// Trying if comment is ending
+};
+
 typedef struct {
 	char * word;
 	int token;
@@ -47,6 +91,6 @@ typedef struct {
 	char *value;
 } Token;
 
-void set_source_file(FILE *f);
-int get_next_token(string *word);
+void scanner_init(FILE *f);
+int  scanner_next_token(string *word);
 

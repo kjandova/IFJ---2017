@@ -8,33 +8,26 @@
 //  Nikola Timková		xtimko01
 //	Bc. Váslav Doležal	xdolez76
 //
-//	@File				main.c
+//	@File				error.c
 //	@Description		
 //			
 ///////////////////////////////////////////////////////////////////////////////////
 
-#include "./library/init.h"
 
-//string word;
+/*
+*	@function ErrorException
+*	@param    e      - Error Flag
+*	@param    format - Fprint format
+*   @param    ...    - Arguments
+*/
+void ErrorException (int e, char* format, ...) {
 
-int main() {
-    //int token = 0;
+    va_list arg;
+    va_start(arg, format);
+    vfprintf(stderr, format, arg);
+    va_end(arg);
     
-    FILE * f;
-    
-    f = loadFile("./tests/scanner_test.txt");
-    
-    /*
-    strInit(&word);
-    scanner_init(f);
-	
-	int i;	
-	
-	for (i = 0; i < 22; i++) {
-		int token = scanner_next_token(&word);
-		printf("%d\n",token);
-	}
-	*/
- 
-    return 0;
+    if (e) {
+       exit(e);
+    }
 }
