@@ -3,16 +3,19 @@
 //	@Project 			IFJ 2017
 //
 //  @Authors
-//  Jandová Krisnýna 	xjando04
+//  Kristýna Jandová  	xjando04
 //  Vilém Faigel		xfaige00
 //  Nikola Timková		xtimko01
-//	Bc. Váslav Doležal	xdolez76
+//	Bc. Václav Doležal	xdolez76
 //
 //	@File				error.c
-//	@Description		
-//			
+//	@Description
+//
 ///////////////////////////////////////////////////////////////////////////////////
 
+#include <stdio.h>
+#include <stdarg.h>
+#include "error.h"
 
 /*
 *	@function ErrorException
@@ -26,7 +29,7 @@ void ErrorException (int e, char* format, ...) {
     va_start(arg, format);
     vfprintf(stderr, format, arg);
     va_end(arg);
-    
+
     if (e) {
        exit(e);
     }

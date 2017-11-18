@@ -3,61 +3,67 @@
 //	@Project 			IFJ 2017
 //
 //  @Authors
-//  Jandová Krisnýna 	xjando04
+//  Kristýna Jandová  	xjando04
 //  Vilém Faigel		xfaige00
 //  Nikola Timková		xtimko01
-//	Bc. Váslav Doležal	xdolez76
+//	Bc. Václav Doležal	xdolez76
 //
 //	@File				scanner.h
-//	@Description		
-//			
+//	@Description
+//
 ///////////////////////////////////////////////////////////////////////////////////
-
-#include <stdio.h>
-#include <errno.h>
-#include <ctype.h>
-#include <stdlib.h>
 
 #include "scanner.h"
 
 FILE *__scanner_file;
 
-void scanner_init(FILE *f) {
-    if (!f) {
+void scanner_init(char * path) {
+    FILE * f;
+    f = loadFile(path);
+    if (f) {
        __scanner_file = f;
     } else {
-       ErrorException(ERROR_RUNTIME, "NO FILE");     
+       ErrorException(ERROR_RUNTIME, "NO FILE");
     }
 }
 
-int scanner_next_token(string *word){
-	
+Token scanner_next_token() {
+    Token t;
+    string word;
+    strInit(&word);
+    t.flag = _scanner_next(&word);
+    t.ID   = word;
+    return t;
+}
+
+int _scanner_next(string *word){
+
 	char c;
 	int i;
 	strClear(word);
-	
+
 	int state = SCANNER_START;	//because start
-	
+
 	while(1) {
 		c = getc(__scanner_file);
 		switch(state){
-			case SCANNER_START: //every new statement 
+			case SCANNER_START: //every new statement
 				if(isspace(c)) {  //blank makes it start again
-                    
+
 					state = SCANNER_START;
-					
+
                 } else if(isdigit(c)) {  		 // Getting first digit
-					
+
 					state = SCANNER_DIGIT;
 					strAddChar(word, c);
-									
+
 				} else if(isalpha(c) || c =='_') { // Getting first letter
-				
+
 					state =  SCANNER_WORD;
 					strAddChar(word, c);
-					
+
 				} else {
-					
+
 				switch(c) {
 					case TOKEN_EXCLAMATION_MARK: 			// !
 						state = SCANNER_EXCLAMATION_MARK; 	// Can be string
@@ -87,7 +93,7 @@ int scanner_next_token(string *word){
 						printf("%c = rovnÃ¡ se\n",c);		// Equals
 						return TOKEN_EQUALS;
 						break;
-					case TOKEN_LESS:						// < 
+					case TOKEN_LESS:						// <
 						state = SCANNER_LESS_THAN; 			// Can be less than or less than_or_equal or not equal
 						break;
 					case TOKEN_MORE:						// >
@@ -99,26 +105,26 @@ int scanner_next_token(string *word){
 					default:
 						return ERROR_LEXICAL; 				// Something else, what is this? Can this happen || not?
 					break;
-				}	
+				}
 			}
-			
+
 			break;
 			case SCANNER_DIGIT:
 				if(isdigit(c)) { 					// Getting next digit
 					strAddChar(word, c);
-					
+
 				} else if(c == '.') { 				// Getting point
-					state = SCANNER_FLOAT; 
+					state = SCANNER_FLOAT;
 					strAddChar(word, c);
-					
+
 				} else if(c == 'e' || c == 'E') { 	// Getting E or e
 					state = SCANNER_EXPONENT_TRY;
 					strAddChar(word, c);
-					
+
 				} else {
 					ungetc(c, __scanner_file);
 					printf("%s = ÄÃ­slo(int)\n", word->str);
-					return TOKEN_INTEGER;			// TODO struct	
+					return TOKEN_INTEGER;			// TODO struct
 				}
 			break;
 			case SCANNER_FLOAT:
@@ -127,7 +133,7 @@ int scanner_next_token(string *word){
 				} else {
 					ungetc(c, __scanner_file);
 					printf("%s = ÄÃ­slo(double)\n", word->str);
-					return DATA_TYPE_DOUBLE; 		// TODO struct				
+					return DATA_TYPE_DOUBLE; 		// TODO struct
 				}
 			break;
 			case SCANNER_EXPONENT_TRY:
@@ -135,7 +141,7 @@ int scanner_next_token(string *word){
 					strAddChar(word, c);
 					state = SCANNER_EXPONENT;
 				} else {
-					return ERROR_LEXICAL; 			// Digit is looking like [0-9]+(e|E) and then something bad			
+					return ERROR_LEXICAL; 			// Digit is looking like [0-9]+(e|E) and then something bad
 				}
 			break;
 			case SCANNER_EXPONENT:
@@ -144,7 +150,7 @@ int scanner_next_token(string *word){
 				} else {
 					ungetc(c, __scanner_file);
 					printf("%s = ÄÃ­slo(double)\n", word->str);
-					return DATA_TYPE_DOUBLE; 		// TODO struct				
+					return DATA_TYPE_DOUBLE; 		// TODO struct
 				}
 			break;
 			case SCANNER_EXCLAMATION_MARK:
@@ -152,7 +158,7 @@ int scanner_next_token(string *word){
 					state = SCANNER_STRING;
 				}
 				else{
-					return ERROR_LEXICAL; 			// Only ! standing alone			
+					return ERROR_LEXICAL; 			// Only ! standing alone
 				}
 			break;
 			case SCANNER_STRING:
@@ -160,15 +166,15 @@ int scanner_next_token(string *word){
 					printf("%s = string\n",word->str);
 					return DATA_TYPE_STRING; 		// TODO struct
 				} else {
-					strAddChar(word, c); 			// Saving next char to word			
+					strAddChar(word, c); 			// Saving next char to word
 				}
 			break;
 			case SCANNER_WORD:
-				if(!(isalnum(c) || c == '_')){ 
+				if(!(isalnum(c) || c == '_')){
                 	ungetc(c, __scanner_file); 				// TODO - not working here, for some reason ungetc(int char, File * stream);
 					state = SCANNER_WORD_END;
 				} else {
-					strAddChar(word, c); 			// Saving next char to word			
+					strAddChar(word, c); 			// Saving next char to word
 				}
 			break;
 			case SCANNER_WORD_END:
@@ -177,57 +183,57 @@ int scanner_next_token(string *word){
 						printf("%s = reserved (%d) \n", word->str, reserved[i].token);
 						return reserved[i].token;
 						break;
-					}			
+					}
 				}
-				
-				return TOKEN_ID;			
+
+				return TOKEN_ID;
 			break;
 			case SCANNER_SLASH:
-				if(c == TOKEN_SLASH) { 
+				if(c == TOKEN_SLASH) {
 					state = SCANNER_COMMENT; 		// As /'
 					printf("starting of commentary\n");
 				} else {
-					return TOKEN_DIV; 				// Slash used for dividing		
+					return TOKEN_DIV; 				// Slash used for dividing
 				}
 			break;
 			case SCANNER_COMMENT:
-				if(c == TOKEN_QUOTE) { 
+				if(c == TOKEN_QUOTE) {
 					state = SCANNER_COMMENT_TRY;
 				} else {
-					state = SCANNER_COMMENT; 		// Still commentary			
+					state = SCANNER_COMMENT; 		// Still commentary
 				}
 			break;
 			case SCANNER_COMMENT_TRY:
-				if(c == TOKEN_SLASH) { 
+				if(c == TOKEN_SLASH) {
 					state = SCANNER_START; 			// '/
 					printf("ending of comentary\n");
 				} else {
-					state = SCANNER_COMMENT; 		// There was just ', returning to state of comment		
+					state = SCANNER_COMMENT; 		// There was just ', returning to state of comment
 				}
 			break;
 			case SCANNER_LESS_THAN:
-				if (c == TOKEN_EQUALS) { 
+				if (c == TOKEN_EQUALS) {
 					printf("-> LESS THAN OR EQUAL\n");
 					return TOKEN_LESS_OR_EQUAL;
 				} else {
 					printf("-> LESS THAN\n");
-					return TOKEN_LESS; 				// There was just ', returning to state of comment		
+					return TOKEN_LESS; 				// There was just ', returning to state of comment
 				}
 			break;
 			case SCANNER_MORE_THAN:
-				if (c == TOKEN_EQUALS) { 
+				if (c == TOKEN_EQUALS) {
 					printf("-> MORE THAN OR EQUAL\n");
 					return TOKEN_MORE_OR_EQUAL;
 				} else {
 					printf("-> MORE THAN\n");
-					return TOKEN_MORE; 				// There was just ', returning to state of comment		
+					return TOKEN_MORE; 				// There was just ', returning to state of comment
 				}
-			break;		
+			break;
 		}
 	}
 return 0;
 }
-    
-  
+
+
 
 

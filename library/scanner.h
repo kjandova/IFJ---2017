@@ -3,15 +3,16 @@
 //	@Project 			IFJ 2017
 //
 //  @Authors
-//  Jandová Krisnýna 	xjando04
+//  Kristýna Jandová  	xjando04
 //  Vilém Faigel		xfaige00
 //  Nikola Timková		xtimko01
-//	Bc. Váslav Doležal	xdolez76
+//	Bc. Václav Doležal	xdolez76
 //
 //	@File				scanner.h
-//	@Description		
-//			
+//	@Description
+//
 ///////////////////////////////////////////////////////////////////////////////////
+
 
 #include <stdio.h>
 #include <errno.h>
@@ -32,9 +33,9 @@ enum scanner {
 	SCANNER_BACKSLASH,
 	SCANNER_LESS_THAN,
 	SCANNER_MORE_THAN,
-	
-	SCANNER_FLOAT, 			// State as float (decimal point) 
-	SCANNER_EXPONENT_TRY, 	// Trying if exponent is right 
+
+	SCANNER_FLOAT, 			// State as float (decimal point)
+	SCANNER_EXPONENT_TRY, 	// Trying if exponent is right
 	SCANNER_EXPONENT, 		// Ending exponential number
 	SCANNER_STRING,
 	SCANNER_WORD_END,
@@ -48,7 +49,7 @@ typedef struct {
 } Reserved;
 
 Reserved reserved[35] = {
-	{"AS", 			TOKEN_AS}, 
+	{"AS", 			TOKEN_AS},
 	{"ASC", 		TOKEN_ASC},
 	{"DECLARE", 	TOKEN_DECLARE},
 	{"DIM", 		TOKEN_DIM},
@@ -74,23 +75,24 @@ Reserved reserved[35] = {
 	{"BOOLEAN", 	TOKEN_BOOLEAN},
 	{"CONTINUE", 	TOKEN_CONTINUE},
 	{"ELSEIF", 		TOKEN_ELSEIF},
-	{"EXIT", 		TOKEN_EXIT}, 
-	{"FALSE", 		TOKEN_FALSE}, 
-	{"FOR", 		TOKEN_FOR}, 
-	{"NEXT", 		TOKEN_NEXT}, 
-	{"NOT", 		TOKEN_NOT}, 
-	{"OR", 			TOKEN_OR}, 
-	{"SHARED", 		TOKEN_SHARED}, 
-	{"STATIC", 		TOKEN_STATIC}, 
-	{"TRUE", 		TOKEN_TRUE} 
-}; 
+	{"EXIT", 		TOKEN_EXIT},
+	{"FALSE", 		TOKEN_FALSE},
+	{"FOR", 		TOKEN_FOR},
+	{"NEXT", 		TOKEN_NEXT},
+	{"NOT", 		TOKEN_NOT},
+	{"OR", 			TOKEN_OR},
+	{"SHARED", 		TOKEN_SHARED},
+	{"STATIC", 		TOKEN_STATIC},
+	{"TRUE", 		TOKEN_TRUE}
+};
 
 
 typedef struct {
-	int   token;
-	char *value;
+	int    flag;
+	string ID;
 } Token;
 
-void scanner_init(FILE *f);
-int  scanner_next_token(string *word);
+void scanner_init(char * path);
+Token scanner_next_token();
+int _scanner_next(string *word);
 

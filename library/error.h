@@ -3,18 +3,17 @@
 //	@Project 			IFJ 2017
 //
 //  @Authors
-//  Jandová Krisnýna 	xjando04
+//  Kristýna Jandová  	xjando04
 //  Vilém Faigel		xfaige00
 //  Nikola Timková		xtimko01
-//	Bc. Váslav Doležal	xdolez76
+//	Bc. Václav Doležal	xdolez76
 //
 //	@File				error.h
-//	@Description		
-//			
+//	@Description
+//
 //
 ///////////////////////////////////////////////////////////////////////////////////
 
-void ErrorException(int e, char* format, ...);
 
 //
 // ERROR CODE
@@ -33,7 +32,7 @@ enum Errors {
 	ERROR_ZERO_DIV, 	// Deleni nuou
 	ERROR_RUNTIME,      // Ostatni behove chyby
 	ERROR_INTERN  =	99  // Interni chyba interpretu
-}
+};
 
 
 

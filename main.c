@@ -3,38 +3,27 @@
 //	@Project 			IFJ 2017
 //
 //  @Authors
-//  Jandová Krisnýna 	xjando04
+//  Kristýna Jandová  	xjando04
 //  Vilém Faigel		xfaige00
 //  Nikola Timková		xtimko01
-//	Bc. Váslav Doležal	xdolez76
+//	Bc. Václav Doležal	xdolez76
 //
 //	@File				main.c
-//	@Description		
-//			
+//	@Description
+//
 ///////////////////////////////////////////////////////////////////////////////////
 
 #include "./library/init.h"
 
-//string word;
-
 int main() {
-    //int token = 0;
-    
-    FILE * f;
-    
-    f = loadFile("./tests/scanner_test.txt");
-    
-    /*
-    strInit(&word);
-    scanner_init(f);
-	
-	int i;	
-	
-	for (i = 0; i < 22; i++) {
-		int token = scanner_next_token(&word);
-		printf("%d\n",token);
+
+    scanner_init("./tests/scanner_test.txt");
+
+	for (int i = 0; i < 22; i++) {
+
+		Token token = scanner_next_token();
+		printf("%d  :: %s \n", token.flag, token.ID);
 	}
-	*/
- 
+
     return 0;
 }
