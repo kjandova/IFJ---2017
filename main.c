@@ -13,17 +13,23 @@
 //
 ///////////////////////////////////////////////////////////////////////////////////
 
+#define DEBUG 0
+
 #include "./library/init.h"
 
+
+
 int main() {
+    Dump("Ahoj");
 
-    scanner_init("./tests/scanner_test.txt");
+    scanner_init("./tests/Test 0.bas");
 
-	for (int i = 0; i < 22; i++) {
+    Token tok;
 
-		Token token = scanner_next_token();
-		printf("%d  :: %s \n", token.flag, token.ID);
-	}
+	do {
+        tok = scanner_next_token();
+		printf("%d  :: %s \n", tok.flag, tok.ID);
+	} while( tok.flag != TOKEN_END_OF_FILE);
 
     return 0;
 }

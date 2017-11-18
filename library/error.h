@@ -14,6 +14,8 @@
 //
 ///////////////////////////////////////////////////////////////////////////////////
 
+#include <stdio.h>
+#include <stdarg.h>
 
 //
 // ERROR CODE
@@ -34,5 +36,7 @@ enum Errors {
 	ERROR_INTERN  =	99  // Interni chyba interpretu
 };
 
+void ErrorException (int e, char* format, ...);
 
+void Debug (char* format, ...);
 

@@ -13,8 +13,6 @@
 //
 ///////////////////////////////////////////////////////////////////////////////////
 
-#include <stdio.h>
-#include <stdarg.h>
 #include "error.h"
 
 /*
@@ -32,5 +30,14 @@ void ErrorException (int e, char* format, ...) {
 
     if (e) {
        exit(e);
+    }
+}
+
+void Dump (char* format, ...) {
+    if (DEBUG) {
+        va_list arg;
+        va_start(arg, format);
+        vprintf(format, arg);
+        va_end(arg);
     }
 }

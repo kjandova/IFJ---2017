@@ -23,7 +23,7 @@ void scanner_init(char * path) {
     if (f) {
        __scanner_file = f;
     } else {
-       ErrorException(ERROR_RUNTIME, "NO FILE");
+       ErrorException(ERROR_RUNTIME, "NO FILE: %s", path);
     }
 }
 
