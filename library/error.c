@@ -33,6 +33,8 @@ void ErrorException (int e, char* format, ...) {
     }
 }
 
+static int __dump_counter = 1;
+
 void Dump (char* format, ...) {
     #ifdef DEBUG
     if (DEBUG) {
@@ -45,7 +47,7 @@ void Dump (char* format, ...) {
             printf("%d-%d-%d %d:%d:%d ", tm.tm_mon + 1, tm.tm_mday, tm.tm_year + 1900, tm.tm_hour, tm.tm_min, tm.tm_sec);
         }
         #endif
-        printf("DUMP :: ");
+        printf("(%d) DUMP :: ", __dump_counter++);
         vprintf(format, arg);
         printf("\n");
         va_end(arg);
