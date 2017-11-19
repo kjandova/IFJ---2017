@@ -49,7 +49,7 @@ void Dump (char* format, ...) {
         #endif
         #ifdef DEBUG_LINE
         if (DEBUG_LINE) {
-            printf("%3-d. ", __dump_counter++);
+            printf("%3d. ", __dump_counter++);
         }
         #endif
         printf("DUMP :: ");
