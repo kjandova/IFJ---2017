@@ -20,6 +20,7 @@
 const char* getTokenName(int flag) {
     switch (flag) {
         case TOKEN_END_OF_FILE:      return "EOF";
+        case TOKEN_END_OF_LINE:      return "EOL";
         case DATA_TYPE_INT:          return "DT_INT";
         case DATA_TYPE_DOUBLE:       return "DT_DOUBLE";
         case DATA_TYPE_STRING:       return "DT_STRING";

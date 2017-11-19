@@ -21,31 +21,32 @@
 
 enum tokens {
 
-    TOKEN_END_OF_FILE             = -1,  // EOF
+    TOKEN_END_OF_FILE             = EOF,  // EOF
+    TOKEN_END_OF_LINE             = '\n', // EOL
 
     // DATA TYPE
-    DATA_TYPE_INT                 = 0, 	 // DataType Integer
-    DATA_TYPE_DOUBLE, 	                 // DataType Double
-    DATA_TYPE_STRING, 	                 // DataType String
+    DATA_TYPE_INT                 = 0, 	  // DataType Integer
+    DATA_TYPE_DOUBLE, 	                  // DataType Double
+    DATA_TYPE_STRING, 	                  // DataType String
 
     // ASCII DEFINED
-    TOKEN_MUL 					  = 42,  // *
-    TOKEN_ADD 					  = 43,  // +
-    TOKEN_SUB 					  = 45,  // -
-    TOKEN_DIV 			          = 47,  // /
-    TOKEN_LESS 					  = 60,  // <
-    TOKEN_EQUALS                  = 61,  // =
-    TOKEN_MORE 					  = 62,  // >
+    TOKEN_MUL 					  = 42,   // *
+    TOKEN_ADD 					  = 43,   // +
+    TOKEN_SUB 					  = 45,   // -
+    TOKEN_DIV 			          = 47,   // /
+    TOKEN_LESS 					  = 60,   // <
+    TOKEN_EQUALS                  = 61,   // =
+    TOKEN_MORE 					  = 62,   // >
 
-    TOKEN_EXCLAMATION_MARK		  = 33,  // !
-    TOKEN_DOUBLE_QUOTE			  = 34,  // "
-    TOKEN_QUOTE 				  = 39,  // '
-    TOKEN_SLASH					  = 47,  // /
-    TOKEN_BACKSLASH				  = 92,  // '\'
+    TOKEN_EXCLAMATION_MARK		  = 33,   // !
+    TOKEN_DOUBLE_QUOTE			  = 34,   // "
+    TOKEN_QUOTE 				  = 39,   // '
+    TOKEN_SLASH					  = 47,   // /
+    TOKEN_BACKSLASH				  = 92,   // '\'
 
-    TOKEN_NON_EQUAL      		  = 128, // <>
-    TOKEN_MORE_OR_EQUAL 		  = 129, // >=
-    TOKEN_LESS_OR_EQUAL 		  = 130, // <=
+    TOKEN_NON_EQUAL      		  = 128,  // <>
+    TOKEN_MORE_OR_EQUAL 		  = 129,  // >=
+    TOKEN_LESS_OR_EQUAL 		  = 130,  // <=
 
     // RESERVED WORDS:
     TOKEN_ID 					  = 200,
