@@ -48,7 +48,7 @@ int _scanner_next(string *word){
 		c = getc(__scanner_file);
 		switch(state){
 			case SCANNER_START: //every new statement
-				if(isspace(c)) {  //blank makes it start again
+				if(isspace(c) && c != '\n') {  //blank makes it start again
 
 					state = SCANNER_START;
 
@@ -97,7 +97,7 @@ int _scanner_next(string *word){
 						break;
 					case TOKEN_END_OF_LINE:						// end of line TODO - not working
 						Dump("EOL");
-						return TOKEN_END_OF_FILE;		
+						return TOKEN_MUL;		
 						break;
 				   	case EOF :
 						return TOKEN_END_OF_FILE;
