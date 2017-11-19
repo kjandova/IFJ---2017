@@ -51,13 +51,13 @@ int _scanner_next(string *word){
 				if(isspace(c)) {  //blank makes it start again
 					if(c == TOKEN_END_OF_LINE){
 						if((c = fgetc(__scanner_file)) == TOKEN_END_OF_LINE){
-							state = SCANNER_START;						
-						}						
+							state = SCANNER_START;
+						}
 						else{
 							ungetc(c, __scanner_file);
 							return TOKEN_END_OF_LINE;
 						}
-					}						
+					}
 				state = SCANNER_START;
 				}
                 	 else if(isdigit(c)) {  		 // Getting first digit
@@ -85,7 +85,7 @@ int _scanner_next(string *word){
 					case TOKEN_ADD:		// +
 						return TOKEN_ADD; 					// Adding
 						break;
-					case TOKEN_SUB:							// -		
+					case TOKEN_SUB:							// -
 						return TOKEN_SUB;					// Subtracting
 						break;
 					case TOKEN_MUL:							// *
@@ -130,7 +130,7 @@ int _scanner_next(string *word){
 
 				} else {
 					ungetc(c, __scanner_file);
-					return TOKEN_INTEGER;			
+					return TOKEN_INTEGER;
 				}
 			break;
 			case SCANNER_FLOAT:
@@ -138,7 +138,7 @@ int _scanner_next(string *word){
 					strAddChar(word, c);
 				} else {
 					ungetc(c, __scanner_file);
-					return DATA_TYPE_DOUBLE; 		
+					return DATA_TYPE_DOUBLE;
 				}
 			break;
 			case SCANNER_EXPONENT_TRY:
@@ -154,7 +154,7 @@ int _scanner_next(string *word){
 					strAddChar(word, c);
 				} else {
 					ungetc(c, __scanner_file);
-					return DATA_TYPE_DOUBLE; 		
+					return DATA_TYPE_DOUBLE;
 				}
 			break;
 			case SCANNER_EXCLAMATION_MARK:
@@ -167,29 +167,30 @@ int _scanner_next(string *word){
 			break;
 			case SCANNER_STRING:
 				if(c == TOKEN_DOUBLE_QUOTE) {  		// " after ! (!")
-					return DATA_TYPE_STRING; 		
+					return DATA_TYPE_STRING;
 				} else {
-										
-					
-					
+
+
+
 					strAddChar(word, c); 			// Saving next char to word
 				}
 			break;
 			case SCANNER_WORD:
 				if(!(isalnum(c) || c == '_')){
-					ungetc(c, __scanner_file); 	
-					strUpper(word);			
-				
+					ungetc(c, __scanner_file);
+
+
 					for(i = 0; i<35; i++) {
 						if (strCmpConstStrI(word, reserved[i].word) == 0) {
 							return reserved[i].token;
 							break;
 						}
 					}
-							
+
+                    strUpper(word);
 					return TOKEN_ID;
-					
-					
+
+
 				} else {
 					strAddChar(word, c); 			// Saving next char to word
 				}
@@ -243,6 +244,31 @@ int _scanner_next(string *word){
 return 0;
 }
 
+void scanner_debug(char * path) {
 
+    scanner_init(path);
+
+    Token tok;
+
+	do {
+        tok = scanner_next_token();
+
+        const char * nameToken = getTokenName(tok.flag);
+
+        switch(tok.flag) {
+            case TOKEN_ID:
+            case DATA_TYPE_INT:
+            case DATA_TYPE_DOUBLE:
+            case DATA_TYPE_STRING:
+
+                Dump("%13s (%3d) :: %s", nameToken, tok.flag, tok.ID);
+            break;
+            default:
+                Dump("%13s (%3d)", nameToken, tok.flag);
+        }
+
+	} while( tok.flag != TOKEN_END_OF_FILE);
+
+}
 
 

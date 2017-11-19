@@ -21,25 +21,7 @@
 
 int main() {
 
-
-    scanner_init("./tests/Test_0.bas");
-
-    Token tok;
-
-	do {
-        tok = scanner_next_token();
-	const char * nameToken = getTokenName(tok.flag);
-		/*if (tok.flag == TOKEN_ID) {
-		    
-
-		    //////////////////////////////
-		    tok.ID = strUpper(&(tok.ID));
-		    //////////////////////////////
-		    
-		}*/
-	Dump("%d (%s) :: %s", tok.flag, nameToken, tok.ID);
-
-	} while( tok.flag != TOKEN_END_OF_FILE);
+    scanner_debug("./tests/Test_0.bas");
 
     return 0;
 }
