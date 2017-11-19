@@ -71,7 +71,7 @@ int _scanner_next(string *word){
 					case TOKEN_QUOTE:						// '
 						state = SCANNER_LINE_COMMENT;	    // Make it ignore whole line
 						break;
-					case TOKEN_SLASH:						// /
+					case TOKEN_SLASH:								// /
 						state =  SCANNER_SLASH; 			// can be for dividing or comments
 						break;
 					case TOKEN_ADD:
@@ -83,14 +83,14 @@ int _scanner_next(string *word){
 						return TOKEN_SUB;
 						break;
 					case TOKEN_MUL:							// *
-						printf("%c = krát\n",c);
+						printf("%c = krat\n",c);
 						return TOKEN_MUL; 					// Multiplication
 						break;
 					case TOKEN_BACKSLASH:					// "\\"
 						state = SCANNER_BACKSLASH; 			// Can be for integer dividing or escape sequence
 						break;
 					case TOKEN_EQUALS:						// =
-						printf("%c = rovná se\n",c);		// Equals
+						printf("%c = rovna se\n",c);		// Equals
 						return TOKEN_EQUALS;
 						break;
 					case TOKEN_LESS:						// <
@@ -171,29 +171,37 @@ int _scanner_next(string *word){
 			break;
 			case SCANNER_WORD:
 				if(!(isalnum(c) || c == '_')){
-                	ungetc(c, __scanner_file); 				// TODO - not working here, for some reason ungetc(int char, File * stream);
+                			ungetc(c, __scanner_file); 				// TODO - not working here, for some reason ungetc(int char, File * stream);
 					state = SCANNER_WORD_END;
 				} else {
 					strAddChar(word, c); 			// Saving next char to word
 				}
 			break;
 			case SCANNER_WORD_END:
+				
 				for(i = 0; i<35; i++) {
 					if (strCmpConstStrI(word, reserved[i].word) == 0) {
+
 						printf("%s = reserved (%d) \n", word->str, reserved[i].token);
 						return reserved[i].token;
 						break;
 					}
 				}
-
+							
 				return TOKEN_ID;
 			break;
 			case SCANNER_SLASH:
-				if(c == TOKEN_SLASH) {
+				if(c == TOKEN_QUOTE) {
 					state = SCANNER_COMMENT; 		// As /'
 					printf("starting of commentary\n");
 				} else {
 					return TOKEN_DIV; 				// Slash used for dividing
+				}
+			break;
+			case SCANNER_LINE_COMMENT:
+				if(c == TOKEN_END_OF_LINE) {
+					printf("end of line comentary\n");
+					state = SCANNER_START;
 				}
 			break;
 			case SCANNER_COMMENT:

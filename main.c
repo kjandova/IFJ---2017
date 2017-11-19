@@ -19,7 +19,7 @@
 #include "./library/init.h"
 
 int main() {
-    scanner_init("./tests/Test 0.bas");
+    scanner_init("./tests/Test_0.bas");
 
     Token tok;
 
