@@ -3,10 +3,10 @@
 //	@Project 			IFJ 2017
 //
 //  @Authors
-//  Kristına Jandová  	xjando04
-//  Vilém Faigel		xfaige00
-//  Nikola Timková		xtimko01
-//	Bc. Václav Doleal	xdolez76
+//  KristÃ½na JandovÃ¡  	xjando04
+//  VilÃ©m Faigel		xfaige00
+//  Nikola TimkovÃ¡		xtimko01
+//	Bc. VÃ¡clav DoleÅ¾al	xdolez76
 //
 //	@File				init.h
 //	@Description
@@ -18,8 +18,8 @@
 #include <stdbool.h>
 #include <stdarg.h>
 
-#include "define.h"		// Definice konstant
-#include "error.c"      // Error   - Knihovna pro odchytávání errorù
-#include "files.c"      // Files   - Knihovna pro práci se soubory
-#include "str.c"		// Strings - Knihovna pro práci s øetìzci
-#include "scanner.c"	// Scanner - Knihovna pro skenování vstupního øetìzce a vytváøení tokenù
+#include "tokens.c"		// Definice konstant tokenÅ¯
+#include "error.c"      // Error   - Knihovna pro odchytÃ¡vÃ¡nÃ­ errorÃ¹
+#include "files.c"      // Files   - Knihovna pro prÃ¡ci se soubory
+#include "str.c"		// Strings - Knihovna pro prÃ¡ci s Ã¸etÃ¬zci
+#include "scanner.c"	// Scanner - Knihovna pro skenovÃ¡nÃ­ vstupnÃ­ho Ã¸etÃ¬zce a vytvÃ¡Ã¸enÃ­ tokenÃ¹

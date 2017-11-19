@@ -97,3 +97,6 @@ enum tokens {
     TOKEN_CHR,
     TOKEN_ASC
 };
+
+
+const char * getTokenName(int flag);

@@ -6,10 +6,10 @@ scope
     If a < 0 THEN
         print !"\nFaktorial nelze spocitat\n";
     ELSE
-    Vysl = 1
+    Vysl = 1e-30
     Do WHile A > 0
     VYSL = vysl * a
-        a = A - 1
+        a = A - 42
     LooP
         Print !"\nVysledek je:" ; vYsl ; !"\n";
     end IF

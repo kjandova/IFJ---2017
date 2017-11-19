@@ -13,22 +13,19 @@
 //
 ///////////////////////////////////////////////////////////////////////////////////
 
-#define DEBUG 0
+#define DEBUG 1
 
 #include "./library/init.h"
 
-
-
 int main() {
-    Dump("Ahoj");
-
     scanner_init("./tests/Test 0.bas");
 
     Token tok;
 
 	do {
         tok = scanner_next_token();
-		printf("%d  :: %s \n", tok.flag, tok.ID);
+        const char * nameToken = getTokenName(tok.flag);
+		Dump("%d (%s) :: %s", tok.flag, nameToken, tok.ID);
 	} while( tok.flag != TOKEN_END_OF_FILE);
 
     return 0;

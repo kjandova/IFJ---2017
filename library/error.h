@@ -16,6 +16,7 @@
 
 #include <stdio.h>
 #include <stdarg.h>
+#include <time.h>
 
 //
 // ERROR CODE
@@ -38,5 +39,5 @@ enum Errors {
 
 void ErrorException (int e, char* format, ...);
 
-void Debug (char* format, ...);
+void Dump (char* format, ...);
 

@@ -34,10 +34,22 @@ void ErrorException (int e, char* format, ...) {
 }
 
 void Dump (char* format, ...) {
+    #ifdef DEBUG
     if (DEBUG) {
+        time_t t = time(NULL);
+        struct tm tm = *localtime(&t);
+
         va_list arg;
         va_start(arg, format);
+        printf("%d-%d-%d %d:%d:%d", tm.tm_mon + 1, tm.tm_mday, tm.tm_year + 1900, tm.tm_hour, tm.tm_min, tm.tm_sec);
+        printf(" DUMP :: ");
         vprintf(format, arg);
+        printf("\n");
         va_end(arg);
     }
+    #else
+        va_list arg;
+        va_start(arg, format);
+        va_end(arg);
+    #endif
 }
