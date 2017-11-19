@@ -47,7 +47,12 @@ void Dump (char* format, ...) {
             printf("%d-%d-%d %d:%d:%d ", tm.tm_mon + 1, tm.tm_mday, tm.tm_year + 1900, tm.tm_hour, tm.tm_min, tm.tm_sec);
         }
         #endif
-        printf("(%d) DUMP :: ", __dump_counter++);
+        #ifdef DEBUG_LINE
+        if (DEBUG_LINE) {
+            printf("%3-d. ", __dump_counter++);
+        }
+        #endif
+        printf("DUMP :: ");
         vprintf(format, arg);
         printf("\n");
         va_end(arg);
