@@ -188,7 +188,7 @@ int _scanner_next(string *word){
 					strAddChar(word, '\\');		//escape sequence for backslash
                 			state = SCANNER_STRING;
 				} else if (c == '"'){			//escpe sequence for double quote
-//              			strAddChar(word, c);
+              			strAddChar(word, c);
                 			state = SCANNER_STRING;
 				} else if (isdigit(c)){
                 			state = SCANNER_DECIMAL_CHAR;		//escape sequence for decimal char -> moving to resolve (TODO)
