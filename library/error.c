@@ -64,11 +64,7 @@ void Dump (char* format, ...) {
         #endif
         #ifdef DEBUG_LINE
         if (DEBUG_LINE) {
-<<<<<<< HEAD
-            printf("%3d. ", __dump_counter++);
-=======
             printf("%3d. ", __dump_counter);
->>>>>>> 1c0764e4c9a7c0a361ad8ea954eb1bc3956061a2
         }
         #endif
         printf("DUMP :: ");
