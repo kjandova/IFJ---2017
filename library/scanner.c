@@ -103,6 +103,9 @@ int _scanner_next(string *word){
 					case TOKEN_MORE:						// >
 						state = SCANNER_MORE_THAN; 			// Can be more than or more than_or_equal
 						break;
+					case TOKEN_SEMICOLON:								// ;
+						return TOKEN_SEMICOLON;			// semicolon
+						break;
 				   	case EOF :
 						return TOKEN_END_OF_FILE;
 					break;
