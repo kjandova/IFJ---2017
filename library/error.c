@@ -15,6 +15,8 @@
 
 #include "error.h"
 
+static int __dump_counter = 1;
+
 /*
 *	@function ErrorException
 *	@param    e      - Error Flag
@@ -25,15 +27,28 @@ void ErrorException (int e, char* format, ...) {
 
     va_list arg;
     va_start(arg, format);
-    vfprintf(stderr, format, arg);
-    va_end(arg);
 
+
+    #ifdef DEBUG
+    if (DEBUG) {
+        #ifdef DEBUG_LINE
+        if (DEBUG_LINE) {
+            printf("%3d. ", __dump_counter);
+        }
+        #endif
+        fprintf(stderr, "ERROR (%d) :: ", e);
+        va_end(arg);
+    }
+    #endif
+    vfprintf(stderr, format, arg);
+    printf("\n");
+    va_end(arg);
     if (e) {
        exit(e);
     }
+    __dump_counter++;
 }
 
-static int __dump_counter = 1;
 
 void Dump (char* format, ...) {
     #ifdef DEBUG
@@ -49,7 +64,7 @@ void Dump (char* format, ...) {
         #endif
         #ifdef DEBUG_LINE
         if (DEBUG_LINE) {
-            printf("%3d. ", __dump_counter++);
+            printf("%3d. ", __dump_counter);
         }
         #endif
         printf("DUMP :: ");
@@ -62,4 +77,5 @@ void Dump (char* format, ...) {
         va_start(arg, format);
         va_end(arg);
     #endif
+    __dump_counter++;
 }
