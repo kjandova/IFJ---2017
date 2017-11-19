@@ -32,7 +32,7 @@ Token scanner_next_token() {
     string word;
     strInit(&word);
     t.flag = _scanner_next(&word);
-    t.ID   = word;
+    t.ID   = strUpper(&(word));
     return t;
 }
 
