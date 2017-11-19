@@ -171,23 +171,23 @@ int _scanner_next(string *word){
 			break;
 			case SCANNER_WORD:
 				if(!(isalnum(c) || c == '_')){
-                			ungetc(c, __scanner_file); 				// TODO - not working here, for some reason ungetc(int char, File * stream);
-					state = SCANNER_WORD_END;
+		        		ungetc(c, __scanner_file); 				
+				
+					for(i = 0; i<35; i++) {
+						if (strCmpConstStrI(word, reserved[i].word) == 0) {
+							return reserved[i].token;
+							break;
+						}
+					}
+							
+					return TOKEN_ID;
+					
+					
 				} else {
 					strAddChar(word, c); 			// Saving next char to word
 				}
 			break;
-			case SCANNER_WORD_END:
-				
-				for(i = 0; i<35; i++) {
-					if (strCmpConstStrI(word, reserved[i].word) == 0) {
-						return reserved[i].token;
-						break;
-					}
-				}
-							
-				return TOKEN_ID;
-			break;
+
 			case SCANNER_SLASH:
 				if(c == TOKEN_QUOTE) {
 					state = SCANNER_COMMENT; 		// As /'
