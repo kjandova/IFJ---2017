@@ -34,6 +34,7 @@ const char* getTokenName(int flag) {
         case TOKEN_EXCLAMATION_MARK: return "T_EXCLAMATION_MARK";
         case TOKEN_DOUBLE_QUOTE:     return "T_DOUBLE_QUOTE";
         case TOKEN_QUOTE:            return "T_QUOTE";
+        case TOKEN_SEMICOLON:        return "T_SEMICOLON";
         case TOKEN_BACKSLASH:        return "T_BACKSLASH";
         case TOKEN_NON_EQUAL:        return "T_NON_EQUAL";
         case TOKEN_MORE_OR_EQUAL:    return "T_MORE_OR_EQUAL";
