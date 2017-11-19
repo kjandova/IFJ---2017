@@ -168,12 +168,37 @@ int _scanner_next(string *word){
 			case SCANNER_STRING:
 				if(c == TOKEN_DOUBLE_QUOTE) {  		// " after ! (!")
 					return DATA_TYPE_STRING;
-				} else {
+				} if(c == TOKEN_BACKSLASH) {  		// " after ! (!")
+					state = SCANNER_ESCAPE_SEQUENCE;
+				}else {
 
 
 
 					strAddChar(word, c); 			// Saving next char to word
 				}
+			break;
+			case SCANNER_ESCAPE_SEQUENCE:			// escape sequence
+				if(c == 'n'){
+         				strAddChar(word, '\n');		// new line
+                			state = SCANNER_STRING;
+				} else if (c == 't'){
+					strAddChar(word, '\t');		// tabulator
+                			state = SCANNER_STRING;
+				} else if (c == TOKEN_BACKSLASH){
+					strAddChar(word, '\\');		//escape sequence for backslash
+                			state = SCANNER_STRING;
+				} else if (c == '"'){			//escpe sequence for double quote
+//              			strAddChar(word, c);
+                			state = SCANNER_STRING;
+				} else if (isdigit(c)){
+                			state = SCANNER_DECIMAL_CHAR;		//escape sequence for decimal char -> moving to resolve (TODO)
+				} else {
+                			ungetc(c, __scanner_file);
+                			ErrorException(ERROR_LEXICAL, "Lexical error, wrong escape sequence"); //error with escape sequence
+			}
+			break;
+			case SCANNER_DECIMAL_CHAR:
+				state = SCANNER_STRING;
 			break;
 			case SCANNER_WORD:
 				if(!(isalnum(c) || c == '_')){

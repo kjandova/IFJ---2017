@@ -38,6 +38,8 @@ enum scanner {
 	SCANNER_EXPONENT_TRY, 	// Trying if exponent is right
 	SCANNER_EXPONENT, 		// Ending exponential number
 	SCANNER_STRING,
+	SCANNER_ESCAPE_SEQUENCE,
+	SCANNER_DECIMAL_CHAR,
 	SCANNER_WORD_END,
 	SCANNER_COMMENT,
 	SCANNER_COMMENT_TRY 	// Trying if comment is ending
