@@ -28,15 +28,16 @@ int main() {
 
 	do {
         tok = scanner_next_token();
+	const char * nameToken = getTokenName(tok.flag);
+		if (tok.flag == TOKEN_ID) {
+		    
 
-        if (tok.flag == TOKEN_ID) {
-            const char * nameToken = getTokenName(tok.flag);
-
-            //////////////////////////////
-            tok.ID = strUpper(&(tok.ID));
-            //////////////////////////////
-            Dump("%d (%s) :: %s", tok.flag, nameToken, tok.ID);
-        }
+		    //////////////////////////////
+		    tok.ID = strUpper(&(tok.ID));
+		    //////////////////////////////
+		    
+		}
+	Dump("%d (%s) :: %s", tok.flag, nameToken, tok.ID);
 
 	} while( tok.flag != TOKEN_END_OF_FILE);
 
