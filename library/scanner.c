@@ -32,7 +32,7 @@ Token scanner_next_token() {
     string word;
     strInit(&word);
     t.flag = _scanner_next(&word);
-    t.ID   = strUpper(&(word));
+    t.ID   = word;
     return t;
 }
 
@@ -169,12 +169,16 @@ int _scanner_next(string *word){
 				if(c == TOKEN_DOUBLE_QUOTE) {  		// " after ! (!")
 					return DATA_TYPE_STRING; 		
 				} else {
+										
+					
+					
 					strAddChar(word, c); 			// Saving next char to word
 				}
 			break;
 			case SCANNER_WORD:
 				if(!(isalnum(c) || c == '_')){
-		        		ungetc(c, __scanner_file); 				
+					ungetc(c, __scanner_file); 	
+					strUpper(word);			
 				
 					for(i = 0; i<35; i++) {
 						if (strCmpConstStrI(word, reserved[i].word) == 0) {
