@@ -110,7 +110,7 @@ int _scanner_next(string *word){
 						return TOKEN_END_OF_FILE;
 					break;
 					default:
-						return ERROR_LEXICAL; 				// Something else, what is this? Can this happen || not?
+						ErrorException(ERROR_LEXICAL, "Lexical error, lexeme unknown");				// Something else, what is this? Can this happen || not?
 					break;
 				}
 			}
@@ -146,7 +146,7 @@ int _scanner_next(string *word){
 					strAddChar(word, c);
 					state = SCANNER_EXPONENT;
 				} else {
-					return ERROR_LEXICAL; 			// Digit is looking like [0-9]+(e|E) and then something bad
+					ErrorException(ERROR_LEXICAL, "Lexical error, wrong double exponent");			// Digit is looking like [0-9]+(e|E) and then something bad
 				}
 			break;
 			case SCANNER_EXPONENT:
@@ -162,7 +162,7 @@ int _scanner_next(string *word){
 					state = SCANNER_STRING;
 				}
 				else{
-					return ERROR_LEXICAL; 			// Only ! standing alone
+					ErrorException(ERROR_LEXICAL, "Lexical error, ! standing alone"); 			// Only ! standing alone
 				}
 			break;
 			case SCANNER_STRING:
