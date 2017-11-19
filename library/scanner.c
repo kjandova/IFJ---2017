@@ -48,11 +48,19 @@ int _scanner_next(string *word){
 		c = getc(__scanner_file);
 		switch(state){
 			case SCANNER_START: //every new statement
-				if(isspace(c) && c != TOKEN_END_OF_LINE) {  //blank makes it start again
-
-					state = SCANNER_START;
-
-                } else if(isdigit(c)) {  		 // Getting first digit
+				if(isspace(c)) {  //blank makes it start again
+					if(c == TOKEN_END_OF_LINE){
+						if((c = fgetc(__scanner_file)) == TOKEN_END_OF_LINE){
+							state = SCANNER_START;						
+						}						
+						else{
+							ungetc(c, __scanner_file);
+							return TOKEN_END_OF_LINE;
+						}
+					}						
+				state = SCANNER_START;
+				}
+                	 else if(isdigit(c)) {  		 // Getting first digit
 
 					state = SCANNER_DIGIT;
 					strAddChar(word, c);
@@ -94,9 +102,6 @@ int _scanner_next(string *word){
 						break;
 					case TOKEN_MORE:						// >
 						state = SCANNER_MORE_THAN; 			// Can be more than or more than_or_equal
-						break;
-					case TOKEN_END_OF_LINE:						// end of line TODO - not working
-						return TOKEN_END_OF_LINE;		
 						break;
 				   	case EOF :
 						return TOKEN_END_OF_FILE;
