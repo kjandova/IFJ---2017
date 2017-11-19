@@ -3,10 +3,10 @@
 //	@Project 			IFJ 2017
 //
 //  @Authors
-//  Krist˝na Jandov·  	xjando04
-//  VilÈm Faigel		xfaige00
-//  Nikola Timkov·		xtimko01
-//	Bc. V·clav Doleûal	xdolez76
+//  Krist√Ωna Jandov√°  	xjando04
+//  Vil√©m Faigel		xfaige00
+//  Nikola Timkov√°		xtimko01
+//	Bc. V√°clav Dole≈æal	xdolez76
 //
 //	@File				str.h
 //	@Description
@@ -14,6 +14,7 @@
 ///////////////////////////////////////////////////////////////////////////////////
 
 #include "str.h"
+#include <ctype.h>
 
 /*
 *	@function strInit
@@ -140,4 +141,19 @@ char *strGetStr(string *s) {
 */
 int strGetLength(string *s) {
    return s->length;
+}
+
+
+/*
+*	@function strUpper
+*	@param string *s
+*	@description Hlaviƒçkuje znaky
+*/
+string strUpper(string *s) {
+    char *str = s->str;
+    while (*str) {
+        *str = toupper((unsigned char) *str);
+        str++;
+    }
+    return *s;
 }
