@@ -25,7 +25,7 @@ enum tokens {
     TOKEN_END_OF_LINE             = '\n', // EOL
 
     // DATA TYPE
-    DATA_TYPE_INT                 = 0, 	  // DataType Integer
+    DATA_TYPE_INT                  = 0,	  // DataType Integer
     DATA_TYPE_DOUBLE, 	                  // DataType Double
     DATA_TYPE_STRING, 	                  // DataType String
 
@@ -40,10 +40,10 @@ enum tokens {
 
     TOKEN_EXCLAMATION_MARK		  = 33,   // !
     TOKEN_DOUBLE_QUOTE			  = 34,   // "
-    TOKEN_QUOTE 				  = 39,   // '
-    TOKEN_SLASH					  = 47,   // /
-    TOKEN_BACKSLASH				  = 92,   // '\'
-
+    TOKEN_QUOTE 			  = 39,   // '
+    TOKEN_SLASH				  = 47,   // /
+    TOKEN_BACKSLASH		          = 92,   // '\'
+  
     TOKEN_NON_EQUAL      		  = 128,  // <>
     TOKEN_MORE_OR_EQUAL 		  = 129,  // >=
     TOKEN_LESS_OR_EQUAL 		  = 130,  // <=

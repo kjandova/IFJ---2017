@@ -74,24 +74,20 @@ int _scanner_next(string *word){
 					case TOKEN_SLASH:								// /
 						state =  SCANNER_SLASH; 			// can be for dividing or comments
 						break;
-					case TOKEN_ADD:
-						printf("%c = plus\n", c);			// +
+					case TOKEN_ADD:		// +
 						return TOKEN_ADD; 					// Adding
 						break;
-					case TOKEN_SUB:							// -
-						printf("%c = minus\n",c);			// Subtracting
-						return TOKEN_SUB;
+					case TOKEN_SUB:							// -		
+						return TOKEN_SUB;					// Subtracting
 						break;
 					case TOKEN_MUL:							// *
-						printf("%c = krat\n",c);
 						return TOKEN_MUL; 					// Multiplication
 						break;
 					case TOKEN_BACKSLASH:					// "\\"
 						state = SCANNER_BACKSLASH; 			// Can be for integer dividing or escape sequence
 						break;
 					case TOKEN_EQUALS:						// =
-						printf("%c = rovna se\n",c);		// Equals
-						return TOKEN_EQUALS;
+						return TOKEN_EQUALS;					// Equals
 						break;
 					case TOKEN_LESS:						// <
 						state = SCANNER_LESS_THAN; 			// Can be less than or less than_or_equal or not equal
@@ -99,13 +95,13 @@ int _scanner_next(string *word){
 					case TOKEN_MORE:						// >
 						state = SCANNER_MORE_THAN; 			// Can be more than or more than_or_equal
 						break;
-					case TOKEN_END_OF_LINE:						// end of line
-						state = SCANNER_START; 			
-						return TOKEN_END_OF_LINE;
+					case TOKEN_END_OF_LINE:						// end of line TODO - not working
+						Dump("EOL");
+						return TOKEN_END_OF_FILE;		
 						break;
-                   	case EOF :
-                		return TOKEN_END_OF_FILE;
-                	break;
+				   	case EOF :
+						return TOKEN_END_OF_FILE;
+					break;
 					default:
 						return ERROR_LEXICAL; 				// Something else, what is this? Can this happen || not?
 					break;
@@ -127,8 +123,7 @@ int _scanner_next(string *word){
 
 				} else {
 					ungetc(c, __scanner_file);
-					printf("%s = číslo(int)\n", word->str);
-					return TOKEN_INTEGER;			// TODO struct
+					return TOKEN_INTEGER;			
 				}
 			break;
 			case SCANNER_FLOAT:
@@ -136,8 +131,7 @@ int _scanner_next(string *word){
 					strAddChar(word, c);
 				} else {
 					ungetc(c, __scanner_file);
-					printf("%s = číslo(double)\n", word->str);
-					return DATA_TYPE_DOUBLE; 		// TODO struct
+					return DATA_TYPE_DOUBLE; 		
 				}
 			break;
 			case SCANNER_EXPONENT_TRY:
@@ -153,8 +147,7 @@ int _scanner_next(string *word){
 					strAddChar(word, c);
 				} else {
 					ungetc(c, __scanner_file);
-					printf("%s = číslo(double)\n", word->str);
-					return DATA_TYPE_DOUBLE; 		// TODO struct
+					return DATA_TYPE_DOUBLE; 		
 				}
 			break;
 			case SCANNER_EXCLAMATION_MARK:
@@ -167,8 +160,7 @@ int _scanner_next(string *word){
 			break;
 			case SCANNER_STRING:
 				if(c == TOKEN_DOUBLE_QUOTE) {  		// " after ! (!")
-					printf("%s = string\n",word->str);
-					return DATA_TYPE_STRING; 		// TODO struct
+					return DATA_TYPE_STRING; 		
 				} else {
 					strAddChar(word, c); 			// Saving next char to word
 				}
@@ -185,8 +177,6 @@ int _scanner_next(string *word){
 				
 				for(i = 0; i<35; i++) {
 					if (strCmpConstStrI(word, reserved[i].word) == 0) {
-
-						printf("%s = reserved (%d) \n", word->str, reserved[i].token);
 						return reserved[i].token;
 						break;
 					}
@@ -197,14 +187,14 @@ int _scanner_next(string *word){
 			case SCANNER_SLASH:
 				if(c == TOKEN_QUOTE) {
 					state = SCANNER_COMMENT; 		// As /'
-					printf("starting of commentary\n");
+					Dump("starting of commentary");
 				} else {
 					return TOKEN_DIV; 				// Slash used for dividing
 				}
 			break;
 			case SCANNER_LINE_COMMENT:
 				if(c == TOKEN_END_OF_LINE) {
-					printf("end of line comentary\n");
+					Dump("end of line comentary");
 					state = SCANNER_START;
 				}
 			break;
@@ -218,26 +208,22 @@ int _scanner_next(string *word){
 			case SCANNER_COMMENT_TRY:
 				if(c == TOKEN_SLASH) {
 					state = SCANNER_START; 			// '/
-					printf("ending of comentary\n");
+					Dump("ending of comentary");
 				} else {
 					state = SCANNER_COMMENT; 		// There was just ', returning to state of comment
 				}
 			break;
 			case SCANNER_LESS_THAN:
 				if (c == TOKEN_EQUALS) {
-					printf("-> LESS THAN OR EQUAL\n");
 					return TOKEN_LESS_OR_EQUAL;
 				} else {
-					printf("-> LESS THAN\n");
 					return TOKEN_LESS; 				// There was just ', returning to state of comment
 				}
 			break;
 			case SCANNER_MORE_THAN:
 				if (c == TOKEN_EQUALS) {
-					printf("-> MORE THAN OR EQUAL\n");
 					return TOKEN_MORE_OR_EQUAL;
 				} else {
-					printf("-> MORE THAN\n");
 					return TOKEN_MORE; 				// There was just ', returning to state of comment
 				}
 			break;
