@@ -35,7 +35,7 @@ unsigned int getTableIndex(int i) {
 		case TOKEN_SUB: 					return 1;	// -
 		case TOKEN_MUL: 					return 2;	// *
 		case TOKEN_DIV:		 				return 3;	// /
-		case TOKEN_DIV_B:	 				return 4;	// \ 
+		case TOKEN_DIV_B:	 				return 4;	// \.  
 		case TOKEN_MORE:			 		return 5;	// >
 		case TOKEN_LESS:	 				return 6;	// <
 		case TOKEN_MORE_OR_EQUAL: 			return 7;	// >=
@@ -69,7 +69,7 @@ int isOperations(int type) {
 		case TOKEN_SUB:			// -
 		case TOKEN_MUL:			// *
 		case TOKEN_DIV:			// /
-		case TOKEN_DIV_B:		// \
+		case TOKEN_DIV_B:		// \.  
 		// COMPARISON
 		case TOKEN_LESS: 			// <
 		case TOKEN_MORE:			// >
