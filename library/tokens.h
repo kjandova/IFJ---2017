@@ -34,6 +34,7 @@ enum tokens {
     TOKEN_ADD 					  = 43,   // +
     TOKEN_SUB 					  = 45,   // -
     TOKEN_DIV 			          = 47,   // /
+    TOKEN_DIV_B				=92,   // backslash
     TOKEN_LESS 					  = 60,   // <
     TOKEN_EQUALS                  = 61,   // =
     TOKEN_MORE 					  = 62,   // >

@@ -92,7 +92,7 @@ int _scanner_next(string *word){
 						return TOKEN_MUL; 					// Multiplication
 						break;
 					case TOKEN_BACKSLASH:					// "\\"
-						state = SCANNER_BACKSLASH; 			// Can be for integer dividing or escape sequence
+						return TOKEN_DIV_B; 			// Can be for integer dividing or escape sequence
 						break;
 					case TOKEN_EQUALS:						// =
 						return TOKEN_EQUALS;					// Equals
