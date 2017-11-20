@@ -38,6 +38,8 @@ enum tokens {
     TOKEN_LESS 					  = 60,   // <
     TOKEN_EQUALS                  = 61,   // =
     TOKEN_MORE 					  = 62,   // >
+    TOKEN_BRACKET_RIGHT		=40, // (
+    TOKEN_BRACKET_LEFT          =41, // )
 
     TOKEN_EXCLAMATION_MARK		  = 33,   // !
     TOKEN_DOUBLE_QUOTE			  = 34,   // "
