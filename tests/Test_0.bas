@@ -14,7 +14,7 @@ scope
         Print !"\nVysledek je:" ; vYsl ; !"\n";
     end IF
 END SCOPE
-/' Testing big comment'/
+/' Testing big comment '/
 'testing line comment
 !
 a<=
