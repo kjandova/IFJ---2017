@@ -92,7 +92,7 @@ int _scanner_next(string *word){
 						return TOKEN_MUL; 					// Multiplication
 						break;
 					case TOKEN_BACKSLASH:					// "\\"
-						state = SCANNER_BACKSLASH; 			// Can be for integer dividing or escape sequence
+						return TOKEN_DIV_B; 			// Can be for integer dividing or escape sequence
 						break;
 					case TOKEN_EQUALS:						// =
 						return TOKEN_EQUALS;					// Equals
@@ -105,6 +105,12 @@ int _scanner_next(string *word){
 						break;
 					case TOKEN_SEMICOLON:								// ;
 						return TOKEN_SEMICOLON;			// semicolon
+						break;
+					case TOKEN_BRACKET_RIGHT:								// ;
+						return TOKEN_BRACKET_RIGHT;			// (
+						break;
+					case TOKEN_BRACKET_LEFT:								// ;
+						return TOKEN_BRACKET_LEFT;			// )
 						break;
 				   	case EOF :
 						return TOKEN_END_OF_FILE;
@@ -253,8 +259,10 @@ int _scanner_next(string *word){
 			case SCANNER_LESS_THAN:
 				if (c == TOKEN_EQUALS) {
 					return TOKEN_LESS_OR_EQUAL;
+				} else if (c == TOKEN_MORE) {
+					return TOKEN_NON_EQUAL; 				// <> inequality
 				} else {
-					return TOKEN_LESS; 				// There was just ', returning to state of comment
+					return TOKEN_LESS; 				// jus less than <
 				}
 			break;
 			case SCANNER_MORE_THAN:

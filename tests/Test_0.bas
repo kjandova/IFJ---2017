@@ -16,7 +16,12 @@ scope
 END SCOPE
 /' Testing big comment '/
 'testing line comment
-!
+
 a<=
 b>=
 25<=
+
+!"Ahoj\nSve'te\\\034\""
+
+a<>b
+abcd(jkl);

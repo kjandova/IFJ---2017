@@ -39,6 +39,8 @@ const char* getTokenName(int flag) {
         case TOKEN_NON_EQUAL:        return "T_NON_EQUAL";
         case TOKEN_MORE_OR_EQUAL:    return "T_MORE_OR_EQUAL";
         case TOKEN_LESS_OR_EQUAL:    return "T_LESS_OR_EQUAL";
+        case TOKEN_BRACKET_RIGHT:    return "T_BRACKET_RIGHT";
+        case TOKEN_BRACKET_LEFT:     return "T_BRACKET_LEFT";
         case TOKEN_ID:               return "T_ID";
         case TOKEN_AS:               return "T_AS";
         case TOKEN_DIM:              return "T_DIM";
