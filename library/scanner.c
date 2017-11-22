@@ -106,6 +106,9 @@ int _scanner_next(string *word){
 					case TOKEN_SEMICOLON:								// ;
 						return TOKEN_SEMICOLON;			// semicolon
 						break;
+					case TOKEN_COMMA:
+						return TOKEN_COMMA;
+						break;
 					case TOKEN_BRACKET_RIGHT:								// ;
 						return TOKEN_BRACKET_RIGHT;			// (
 						break;
