@@ -21,7 +21,7 @@
 
 int main() {
 
-    scanner_debug("./tests/Test_0.bas");
+    scanner_debug("./tests/Scanner/Test_1.bas");
 
     return 0;
 }

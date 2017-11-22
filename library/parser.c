@@ -8,7 +8,7 @@
 //  Nikola Timková		xtimko01
 //	Bc. Václav Doležal	xdolez76
 //
-//	@File				parser.c
+//	@File				tokens.c
 //	@Description
 //
 ///////////////////////////////////////////////////////////////////////////////////
@@ -34,6 +34,7 @@ enum ParserStats {
 */
 parserInit(char * fileNameSource) {
     Token       tok;
+    Token       tokID;
     TFunctions  fceTable;
 
     scanner_init(fileNamePath);
@@ -62,31 +63,34 @@ parserInit(char * fileNameSource) {
             //
             case PARSER_DECLARE_FUNCTION: {
 
-                // Declare "Function"
+                // Declare >Function<
                 tok = scanner_next_token();
                 if (tok.flag != TOKEN_FUNCTION) {
-                    ErrorException(ERROR_SYNTAX, "ERROR_SYNTAX :: Function is miss")
+                    ErrorException(ERROR_SYNTAX, "ERROR_SYNTAX :: Function is miss");
                 }
 
-                // Declare Function "ID"
+                // Declare Function >ID<
                 tok = scanner_next_token();
                 if (tok.flag != TOKEN_ID) {
-                    ErrorException(ERROR_SYNTAX, "ERROR_SYNTAX :: ID id miss")
+                    ErrorException(ERROR_SYNTAX, "ERROR_SYNTAX :: ID id miss");
                 }
 
                 // Create Function
                 functionsAdd(&fceTable, tok.name);
 
-
-                // Declare Function "ID"
+                // Declare Function ID >(<
                 tok = scanner_next_token();
+                if (tok.flag == TOKEN_BRACKET_LEFT) {
+                    // Declare Function ID (>)<
 
-                switch (tok.flag) {
-
+                    tok = scanner_next_token();
                 }
+
                 if (tok.flag != TOKEN_ID) {
-                    ErrorException(ERROR_SYNTAX, "ERROR_SYNTAX :: ID is missing")
+                    ErrorException(ERROR_SYNTAX, "ERROR_SYNTAX :: ID is missing");
                 }
+
+
             } break;
 
             ///////////////////////////////////////////////////////////////////////
@@ -94,36 +98,40 @@ parserInit(char * fileNameSource) {
             //
             case PARSER_DECLARE_VARIABLE: {
 
-                // "ID" As DT
-                tok = scanner_next_token();
+                LABEL_DataType:
+
+                // >ID< As DT
+                tokID = scanner_next_token();
                 if (tok.flag != TOKEN_ID) {
-                    ErrorException(ERROR_SYNTAX, "ERROR_SYNTAX :: ID is missing")
+                    ErrorException(ERROR_SYNTAX, "ERROR_SYNTAX :: ID is missing");
                 }
 
-                // ID "As" DT
+                // ID >As< DT
                 tok = scanner_next_token();
                 if (tok.flag != TOKEN_AS) {
-                    ErrorException(ERROR_SYNTAX, "ERROR_SYNTAX :: AS is missing")
+                    ErrorException(ERROR_SYNTAX, "ERROR_SYNTAX :: AS is missing");
                 }
 
+                // ID As >DT<
                 tok = scanner_next_token();
-                if (tok.flag != TOKEN_AS) {
-                    ErrorException(ERROR_SYNTAX, "ERROR_SYNTAX :: AS is missing")
-                }
-
-                // Create Function
-                functionsAdd(&fceTable, tok.name);
-
-
-                // Declare Function "ID"
-                tok = scanner_next_token();
-
                 switch (tok.flag) {
+                    case TOKEN_INTEGER:
+                    case TOKEN_DOUBLE:
+                    case TOKEN_STRING: {
+                        functionAddParam(&function, );
+                    } break;
 
+                    default: {
+                        ErrorException(ERROR_SYNTAX, "ERROR_SYNTAX :: Data Type is missing");
+                    }
                 }
-                if (tok.flag != TOKEN_ID) {
-                    ErrorException(ERROR_SYNTAX, "ERROR_SYNTAX :: ID id miss")
-                }
+
+                // ID As DT>[, ID As DT ..]<
+                tok = scanner_next_token();
+
+                if (tok.flag == TOKEN_COMMA) goto LABEL_DataType;
+                if (stateReturn == )
+
             } break;
 
         }
