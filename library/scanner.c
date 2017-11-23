@@ -16,6 +16,8 @@
 #include "scanner.h"
 
 FILE *__scanner_file;
+int line_counter = 1;
+int position_counter = 0;
 
 void scanner_init(char * path) {
     FILE * f;
@@ -33,6 +35,8 @@ Token scanner_next_token() {
     strInit(&word);
     t.flag = _scanner_next(&word);
     t.ID   = word;
+    t.line = line_counter;
+    t.position = position_counter;
     return t;
 }
 
@@ -40,12 +44,14 @@ int _scanner_next(string *word){
 
 	char c;
 	int i;
+
 	strClear(word);
 
 	int state = SCANNER_START;	//because start
 
 	while(1) {
 		c = getc(__scanner_file);
+		position_counter++;
 		switch(state){
 			case SCANNER_START: //every new statement
 				if(isspace(c)) {  //blank makes it start again
@@ -55,6 +61,8 @@ int _scanner_next(string *word){
 						}
 						else{
 							ungetc(c, __scanner_file);
+							line_counter++;
+							position_counter = 0;
 							return TOKEN_END_OF_LINE;
 						}
 					}
@@ -295,12 +303,12 @@ void scanner_debug(char * path) {
             case TOKEN_ID:
             case DATA_TYPE_INT:
             case DATA_TYPE_DOUBLE:
+	    break;
             case DATA_TYPE_STRING:
-
-                Dump("%13s (%3d) :: %s", nameToken, tok.flag, tok.ID);
+		 Dump("%13s (%3d) :: %s  (%3d:%3d)", nameToken, tok.flag, tok.ID, tok.line, tok.position);
             break;
             default:
-                Dump("%13s (%3d)", nameToken, tok.flag);
+                 Dump("%13s (%3d) (%3d:%3d)", nameToken, tok.flag, tok.line, tok.position);
         }
 
 	} while( tok.flag != TOKEN_END_OF_FILE);

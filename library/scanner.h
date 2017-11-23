@@ -92,6 +92,8 @@ Reserved reserved[35] = {
 typedef struct {
 	int    flag;
 	string ID;
+	int line;
+	int position;
 } Token;
 
 void scanner_init(char * path);
