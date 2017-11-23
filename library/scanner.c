@@ -6,10 +6,10 @@
 //  Kristýna Jandová  	xjando04
 //  Vilém Faigel		xfaige00
 //  Nikola Timková		xtimko01
-//	Bc. Václav Doležal	xdolez76
+//  Bc. Václav Dole¸al	xdolez76
 //
-//	@File				scanner.h
-//	@Description
+//  @File				scanner.h
+//  @Description
 //
 ///////////////////////////////////////////////////////////////////////////////////
 

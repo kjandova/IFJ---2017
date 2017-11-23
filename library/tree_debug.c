@@ -1,3 +1,20 @@
+///////////////////////////////////////////////////////////////////////////////////
+//
+//	@Project 			IFJ 2017
+//
+//  @Authors
+//  Kristýna Jandová  	xjando04
+//  Vilém Faigel		xfaige00
+//  Nikola Timková		xtimko01
+//  Bc. Václav Doležal	xdolez76
+//
+//  @File				tree_debug.c
+//  @Description
+//
+///////////////////////////////////////////////////////////////////////////////////
+
+
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
