@@ -18,18 +18,15 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
-#include <err.h>
 
 #include "tree.h"
-#include "tree_p.h"
-#include "define.h"
 
 struct tree *new_tree(enum tree_type type)
 {
 	struct tree *ret = NULL;
 	ret = malloc(sizeof(*ret));
 	if (!ret)
-		err(RUNTIME_ERROR, "runtime error");
+		ErrorException(ERROR_RUNTIME, "RUNTIME ERROR :: NewTree");
 
 	tree_init(ret, type);
 	return ret;
@@ -111,7 +108,7 @@ static struct tree_node *tree_node_new(char *key, void *payload)
 
 	ret = calloc(1, sizeof(*ret));
 	if (!ret)
-		err(RUNTIME_ERROR, "runtime error");
+		ErrorException(ERROR_RUNTIME, "RUNTIME ERROR :: Tree New Node");
 
 	ret->key = key;
 	ret->payload = payload;
@@ -268,7 +265,7 @@ static int dsw_tree2vine(struct tree_node **root)
  */
 static void dsw_vine2tree(struct tree_node **root, int length)
 {
-	unsigned n, i;
+	int n, i;
 	struct tree_node **tmp;
 
 	if (length < 0) {

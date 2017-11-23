@@ -14,6 +14,9 @@
 //
 ///////////////////////////////////////////////////////////////////////////////////
 
+#ifndef IFJ_ERROR_H
+#define IFJ_ERROR_H
+
 #include <stdio.h>
 #include <stdarg.h>
 #include <time.h>
@@ -41,3 +44,4 @@ void ErrorException (int e, char* format, ...);
 
 void Dump (char* format, ...);
 
+#endif

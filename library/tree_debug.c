@@ -20,7 +20,6 @@
 #include <assert.h>
 
 #include "tree_debug.h"
-#include "tree_p.h"
 
 static void tree_node_dump(struct tree_node *node, size_t level, int dir)
 {
