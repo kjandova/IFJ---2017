@@ -21,6 +21,22 @@
 
 #include "tree.h"
 
+static char *xstrdup(const char *s)
+{
+	char *ret;
+	size_t len;
+
+	assert(s != NULL);
+
+	len = strlen(s);
+	ret = malloc(len + 1);
+	if (!ret)
+		return NULL;
+
+	strcpy(ret, s);
+	return ret;
+}
+
 struct tree *new_tree(enum tree_type type)
 {
 	struct tree *ret = NULL;
@@ -110,7 +126,10 @@ static struct tree_node *tree_node_new(char *key, void *payload)
 	if (!ret)
 		ErrorException(ERROR_RUNTIME, "RUNTIME ERROR :: Tree New Node");
 
-	ret->key = key;
+	ret->key = xstrdup(key);
+	if (!ret->key)
+		ErrorException(ERROR_RUNTIME, "RUNTIME ERROR :: Tree New Node");
+
 	ret->payload = payload;
 
 	return ret;
@@ -188,6 +207,7 @@ static int rmnode(struct tree_node **node)
 		*node = tgt->right;
 	}
 	// TODO: unref payload
+	free(tgt->key);
 	free(tgt);
 	return 1;
 }
