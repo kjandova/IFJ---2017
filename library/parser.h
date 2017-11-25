@@ -16,45 +16,29 @@
 
 // Vytvoreni promenne
 struct DIM {
-    string Name;
-    string value_string;
-    int    value_int;
-    double value_double;
+    string            name;          // ID
+    short int         dataType;      // DT
+    string            valueString;   // String
+    int               valueInteger;  // Integer
+    double            valueDouble;   // Double
 };
 
-struct TVariable DIM;
-
-// Parametry
-struct TParameters {
-
-};
 
 // Prikaz
-struct Comand {
-    short int instruction
-functionCreate
-};
-
-struct TCommands {
-
-};
-
-// Founkce
-struct TFunctions {
-
-} TFunctions;
+struct Command        TWCode;        // Three Way Code (instruction.h)
 
 // Telo funkce
-typedef struct Function {
-    string       Name;
-    short int    priority;
-    TParameters  parameters;
-    TVariables   variables;
-    TCommands    commands;
-    DIM          _return;
+struct Function {
+    string            name;          // ID
+    short int         priority;      // Priorite
+    struct tree *     parameters;
+    struct tree *     variables;
+    struct tree *     commands;
+    DIM               _return;
 };
 
-typedef struct TFunctions {
-    int        count;
-    Function * functions;
-}
+struct Program {
+    struct Function   scope;
+    struct tree *     functions;
+    struct tree *     globalVariables;
+};

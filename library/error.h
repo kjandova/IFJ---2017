@@ -40,8 +40,9 @@ enum Errors {
 	ERROR_INTERN  =	99  // Interni chyba interpretu
 };
 
-void ErrorException (int e, char* format, ...);
-
+void ErrorException     (int e, char* format, ...);
+void LineErrorException (Token tok, int e, char* format, ...);
 void Dump (char* format, ...);
+const char * getErrorName(short int e);
 
 #endif

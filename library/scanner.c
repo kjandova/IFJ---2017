@@ -127,7 +127,7 @@ int _scanner_next(string *word){
 						return TOKEN_END_OF_FILE;
 					break;
 					default:
-						ErrorException(ERROR_LEXICAL, "Lexical error, lexeme unknown");				// Something else, what is this? Can this happen || not?
+						ErrorException(ERROR_LEXICAL, "Lexeme Unknown");				// Something else, what is this? Can this happen || not?
 					break;
 				}
 			}
@@ -163,7 +163,7 @@ int _scanner_next(string *word){
 					strAddChar(word, c);
 					state = SCANNER_EXPONENT;
 				} else {
-					ErrorException(ERROR_LEXICAL, "Lexical error, wrong double exponent");			// Digit is looking like [0-9]+(e|E) and then something bad
+					ErrorException(ERROR_LEXICAL, "Wrong double exponent");			// Digit is looking like [0-9]+(e|E) and then something bad
 				}
 			break;
 			case SCANNER_EXPONENT:
@@ -179,7 +179,7 @@ int _scanner_next(string *word){
 					state = SCANNER_STRING;
 				}
 				else{
-					ErrorException(ERROR_LEXICAL, "Lexical error, ! standing alone"); 			// Only ! standing alone
+					ErrorException(ERROR_LEXICAL, "Standing alone!"); 			// Only ! standing alone
 				}
 			break;
 			case SCANNER_STRING:
@@ -211,7 +211,7 @@ int _scanner_next(string *word){
                 			state = SCANNER_DECIMAL_CHAR;		//escape sequence for decimal char -> moving to resolve (TODO)
 				} else {
                 			ungetc(c, __scanner_file);
-                			ErrorException(ERROR_LEXICAL, "Lexical error, wrong escape sequence"); //error with escape sequence
+                			ErrorException(ERROR_LEXICAL, "Wrong escape sequence"); //error with escape sequence
 			}
 			break;
 			case SCANNER_DECIMAL_CHAR:
@@ -305,10 +305,10 @@ void scanner_debug(char * path) {
             case DATA_TYPE_DOUBLE:
 	    break;
             case DATA_TYPE_STRING:
-		 Dump("%13s (%3d) :: %s  (%3d:%3d)", nameToken, tok.flag, tok.ID, tok.line, tok.position);
+                Dump("%13s (%3d) :: %s  (%3d:%3d)", nameToken, tok.flag, tok.ID, tok.line, tok.position);
             break;
             default:
-                 Dump("%13s (%3d) (%3d:%3d)", nameToken, tok.flag, tok.line, tok.position);
+                Dump("%13s (%3d) (%3d:%3d)", nameToken, tok.flag, tok.line, tok.position);
         }
 
 	} while( tok.flag != TOKEN_END_OF_FILE);

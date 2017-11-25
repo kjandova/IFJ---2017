@@ -1,3 +1,10 @@
+struct TWCode {
+    enum Instructions   instruction;
+    struct DIM          variable0;
+    struct DIM          variable1;
+    struct DIM          variable2;
+}
+
 enum Instructions {
    I_MOVE,
    I_CREATEFRAME, I_PUSHFRAME, I_POPFRAME,

@@ -36,8 +36,8 @@ void ErrorException (int e, char* format, ...) {
             printf("%3d. ", __dump_counter);
         }
         #endif
-        fprintf(stderr, "ERROR (%d) :: ", e);
-        va_end(arg);
+        fprintf(stderr, "%s (%d) :: ", getErrorName(e), e);
+
     }
     #endif
     vfprintf(stderr, format, arg);
@@ -46,6 +46,31 @@ void ErrorException (int e, char* format, ...) {
     if (e) {
        exit(e);
     }
+    __dump_counter++;
+}
+
+
+/*
+*	@function ErrorException
+*	@param    e      - Error Flag
+*	@param    format - Fprint format
+*   @param    ...    - Arguments
+*/
+void LineErrorException (Token tok, int e, char* format, ...) {
+
+    va_list arg;
+    va_start(arg, format);
+
+    printf("%3d. [line:%3d (%3d)]", __dump_counter, tok.line, tok.position);
+    fprintf(stderr, "%s (%d) :: ", getErrorName(e), e);
+    vfprintf(stderr, format, arg);
+    printf("\n");
+    va_end(arg);
+
+    if (e) {
+       exit(e);
+    }
+
     __dump_counter++;
 }
 
@@ -78,4 +103,23 @@ void Dump (char* format, ...) {
         va_end(arg);
     #endif
     __dump_counter++;
+}
+
+const char * getErrorName(short int e) {
+    switch(e) {
+        case SUCCESS:        return "SUCCESS";
+        case ERROR_LEXICAL:  return "ERROR_LEXICAL";
+        case ERROR_SYNTAX:   return "ERROR_SYNTAX";
+        case ERROR_DEFINE:   return "ERROR_DEFINE";
+        case ERROR_TYPE:     return "ERROR_TYPE";
+        case ERROR_CONVERT:  return "ERROR_CONVERT";
+        case ERROR_SEMANTIC: return "ERROR_SEMANTIC";
+        case ERROR_READ_NUM: return "ERROR_READ_NUM";
+        case ERROR_UNINIT:   return "ERROR_UNINIT";
+        case ERROR_ZERO_DIV: return "ERROR_ZERO_DIV";
+        case ERROR_RUNTIME:  return "ERROR_RUNTIME";
+        case ERROR_INTERN:   return "ERROR_INTERN";
+    }
+
+    return "ERROR_UNKNOW";
 }

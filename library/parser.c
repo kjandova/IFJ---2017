@@ -66,13 +66,13 @@ parserInit(char * fileNameSource) {
                 // Declare >Function<
                 tok = scanner_next_token();
                 if (tok.flag != TOKEN_FUNCTION) {
-                    ErrorException(ERROR_SYNTAX, "ERROR_SYNTAX :: Function is miss");
+                    LineErrorException(tok, ERROR_SYNTAX, "Function is missing");
                 }
 
                 // Declare Function >ID<
                 tok = scanner_next_token();
                 if (tok.flag != TOKEN_ID) {
-                    ErrorException(ERROR_SYNTAX, "ERROR_SYNTAX :: ID id miss");
+                    LineErrorException(tok, ERROR_SYNTAX, "ID of function is missing");
                 }
 
                 // Create Function
@@ -85,11 +85,6 @@ parserInit(char * fileNameSource) {
 
                     tok = scanner_next_token();
                 }
-
-                if (tok.flag != TOKEN_ID) {
-                    ErrorException(ERROR_SYNTAX, "ERROR_SYNTAX :: ID is missing");
-                }
-
 
             } break;
 
@@ -148,9 +143,9 @@ parserInit(char * fileNameSource) {
 *   @function      functionsInit
 *   @description
 */
-void functionsInit(TFunctions *table) {
-    table.count     = 0;
-    table.functions = NULL;
+void programInit(Program * p) {
+    p.functions       = new_tree(TREE_PLAIN);
+    p.globalVariables = new_tree(TREE_PLAIN);
 }
 
 
@@ -160,38 +155,20 @@ void functionsInit(TFunctions *table) {
 *   @param         string       name
 *   @description
 */
-Function functionsAdd(TFunctions * fceTable, string name) {
+Function * functionsAdd(Program * p, string name) {
 
-    if (fceTable == NULL || !name.length) {
-        ErrorException(ERROR_INTER, "Parser :: FunctionAdd");
+    if (p == NULL || !name.length) {
+        ErrorException(ERROR_INTER, "Parser :: Function Add");
     }
 
-    fceTable.count++;
+    struct Function f;
+    f.name = name;
+    tree_add(p, name.str, &f);
 
-    Function functionsTmp = (Function*) realloc (fceTable.functions, fceTable.count * sizeof(Function));
-
-     if (functionsTmp != NULL) {
-       fceTable.functions                   = functionsTmp;
-       fceTable.functions[fceTable.count-1] = functionCreate(name);
-
-     } else {
-
-         free (numbers);
-         ErrorException(ERROR_INTER, "Parser :: FunctionAdd (re)allocating memory");
-     }
+    return &f;
 }
 
 
-/*
-*   @function      functionCreate
-*   @param         string       name
-*   @description
-*/
-Function functionCreate(string name) {
-    Function fce;
-    fce.Name = name;
-    return fce;
-}
 
 
 

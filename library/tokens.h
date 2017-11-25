@@ -105,4 +105,11 @@ enum tokens {
 };
 
 
+typedef struct {
+	int    flag;
+	string ID;
+	int line;
+	int position;
+} Token;
+
 const char * getTokenName(int flag);
