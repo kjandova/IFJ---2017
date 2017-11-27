@@ -20,6 +20,7 @@
 #include <assert.h>
 
 #include "tree.h"
+#include "utils.h"
 
 static char *xstrdup(const char *s)
 {
@@ -40,8 +41,8 @@ static char *xstrdup(const char *s)
 struct tree *new_tree(enum tree_type type)
 {
 	struct tree *ret = NULL;
-	ret = malloc(sizeof(*ret));
-	if (!ret)
+
+	if (!NEW(ret))
 		ErrorException(ERROR_RUNTIME, "RUNTIME ERROR :: NewTree");
 
 	tree_init(ret, type);
@@ -122,8 +123,7 @@ static struct tree_node *tree_node_new(char *key, void *payload)
 {
 	struct tree_node *ret = NULL;
 
-	ret = calloc(1, sizeof(*ret));
-	if (!ret)
+	if (!NEWC(1, ret))
 		ErrorException(ERROR_RUNTIME, "RUNTIME ERROR :: Tree New Node");
 
 	ret->key = xstrdup(key);

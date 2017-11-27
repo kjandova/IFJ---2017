@@ -19,8 +19,7 @@
 
 #include "stack2.h"
 #include "define.h"
-
-#define ARRAY_SIZE(x) (sizeof(x)/sizeof((x)[0]))
+#include "utils.h"
 
 struct stack2 {
 	int members;
