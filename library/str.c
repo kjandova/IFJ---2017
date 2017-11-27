@@ -32,6 +32,20 @@ int strInit(string *s) {
 
 
 /*
+*	@function strInit
+*	@param string *s
+*	@description Funkce vytvori novy retezec
+*/
+string strChars(char * str) {
+   string s;
+   s.str       = str;
+   s.length    = strlen(str);
+   s.allocSize = s.length + 1;
+   return s;
+}
+
+
+/*
 *	@function strFree
 *	@param string *s
 *	@description Funkce uvolni retezec z pameti

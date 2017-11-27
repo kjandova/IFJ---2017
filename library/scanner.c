@@ -31,12 +31,18 @@ void scanner_init(char * path) {
 
 Token scanner_next_token() {
     Token t;
+
     string word;
     strInit(&word);
+
     t.flag = _scanner_next(&word);
-    t.ID   = word;
+
     t.line = line_counter;
     t.position = position_counter;
+
+    strInit(&(t.ID));
+    strCopyString(&(t.ID), &word);
+
     return t;
 }
 
@@ -305,10 +311,10 @@ void scanner_debug(char * path) {
             case DATA_TYPE_DOUBLE:
 	    break;
             case DATA_TYPE_STRING:
-                Dump("%13s (%3d) :: %s  (%3d:%3d)", nameToken, tok.flag, tok.ID, tok.line, tok.position);
+                LineDump(tok, "%13s (%3d) :: %s", nameToken, tok.flag, tok.ID);
             break;
             default:
-                Dump("%13s (%3d) (%3d:%3d)", nameToken, tok.flag, tok.line, tok.position);
+                LineDump(tok, "%13s (%3d)", nameToken, tok.flag);
         }
 
 	} while( tok.flag != TOKEN_END_OF_FILE);

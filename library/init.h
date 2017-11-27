@@ -18,10 +18,14 @@
 #include <stdbool.h>
 #include <stdarg.h>
 
-#include "str.c"		// Strings - Knihovna pro práci s øetìzci
-#include "tokens.c"		// Definice konstant tokenů
-#include "error.c"      // Error   - Knihovna pro odchytávání errorù
-#include "files.c"      // Files   - Knihovna pro práci se soubory
-#include "tree.c"       // Tree    - Knihovna pro práci s binárním vyhledávacím stromem
-#include "tree_debug.c" // Tree Debuger
-#include "scanner.c"	// Scanner - Knihovna pro skenování vstupního øetìzce a vytváøení tokenù
+#include "str.c"          // Strings - Knihovna pro práci s retezci
+#include "instructions.c" // Strings - Knihovna pro práci s instrukcemi
+#include "tokens.c"       // Definice konstant tokenů
+#include "error.c"        // Error   - Knihovna pro odchytávání errorù
+#include "files.c"        // Files   - Knihovna pro práci se soubory
+#include "tree.c"         // Tree    - Knihovna pro práci s binárním vyhledávacím stromem
+#include "tree_debug.c"   //         - Debuger
+
+
+#include "scanner.c"      // Scanner - Knihovna pro skenování vstupního retezce a vytvareni tokenù
+#include "parser.c"       // Scanner - Knihovna pro parsování programu

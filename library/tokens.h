@@ -18,16 +18,10 @@
 // TOKENS
 //
 
-
 enum tokens {
 
     TOKEN_END_OF_FILE             = EOF,  // EOF
     TOKEN_END_OF_LINE             = '\n', // EOL
-
-    // DATA TYPE
-    DATA_TYPE_INT                 = 0,	  // DataType Integer
-    DATA_TYPE_DOUBLE, 	                  // DataType Double
-    DATA_TYPE_STRING, 	                  // DataType String
 
     // ASCII DEFINED
     TOKEN_MUL 					  = 42,   // *
@@ -106,10 +100,10 @@ enum tokens {
 
 
 typedef struct {
-	int    flag;
-	string ID;
-	int line;
-	int position;
+	int      flag;
+	string   ID;
+	int      line;
+	int      position;
 } Token;
 
 const char * getTokenName(int flag);

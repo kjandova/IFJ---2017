@@ -1,11 +1,10 @@
-struct TWCode {
-    enum Instructions   instruction;
-    struct DIM          variable0;
-    struct DIM          variable1;
-    struct DIM          variable2;
-}
+typedef enum {
+    DATA_TYPE_INT,                           // DataType Integer
+    DATA_TYPE_DOUBLE, 	                     // DataType Double
+    DATA_TYPE_STRING 	                     // DataType String
+} DataType;
 
-enum Instructions {
+typedef enum {
    I_MOVE,
    I_CREATEFRAME, I_PUSHFRAME, I_POPFRAME,
    I_DEFVAR,
@@ -46,4 +45,11 @@ enum Instructions {
    I_JUMPIFEQS,  I_JUMPIFNEQS,
    I_BREAK,
    I_DPRINT
-}
+} Instructions;
+
+struct TWCode {
+    Instructions        instruction;
+    struct DIM          * variable0;
+    struct DIM          * variable1;
+    struct DIM          * variable2;
+};

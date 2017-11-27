@@ -105,6 +105,36 @@ void Dump (char* format, ...) {
     __dump_counter++;
 }
 
+void LineDump (Token tok, char* format, ...) {
+    #ifdef DEBUG
+    if (DEBUG) {
+        va_list arg;
+        va_start(arg, format);
+        #ifdef DEBUG_TIME
+        if (DEBUG_TIME) {
+            time_t t = time(NULL);
+            struct tm tm = *localtime(&t);
+            printf("%d-%d-%d %d:%d:%d ", tm.tm_mon + 1, tm.tm_mday, tm.tm_year + 1900, tm.tm_hour, tm.tm_min, tm.tm_sec);
+        }
+        #endif
+        #ifdef DEBUG_LINE
+        if (DEBUG_LINE) {
+            printf("%3d. [line:%3d (%3d)] ", __dump_counter, tok.line, tok.position);
+        }
+        #endif
+        printf("DUMP :: ");
+        vprintf(format, arg);
+        printf("\n");
+        va_end(arg);
+    }
+    #else
+        va_list arg;
+        va_start(arg, format);
+        va_end(arg);
+    #endif
+    __dump_counter++;
+}
+
 const char * getErrorName(short int e) {
     switch(e) {
         case SUCCESS:        return "SUCCESS";

@@ -14,31 +14,48 @@
 ///////////////////////////////////////////////////////////////////////////////////
 
 
+///////////////////////
+// DIM Frame
+
+typedef enum  {
+    FRAME_GLOBAL,
+    FRAME_LOCAL,
+    FRAME_TEMP
+} DIMFrame ;
+
+
 // Vytvoreni promenne
 struct DIM {
-    string            name;          // ID
-    short int         dataType;      // DT
-    string            valueString;   // String
-    int               valueInteger;  // Integer
-    double            valueDouble;   // Double
+    string              name;          // ID
+    DIMFrame            frame;         // Frame
+    short int           dataType;      // DT
+    string              valueString;   // String
+    int                 valueInteger;  // Integer
+    double              valueDouble;   // Double
 };
 
-
 // Prikaz
-struct Command        TWCode;        // Three Way Code (instruction.h)
+typedef struct Command  TWCode;        // Three Way Code (instruction.h)
 
 // Telo funkce
 struct Function {
     string            name;          // ID
-    short int         priority;      // Priorite
-    struct tree *     parameters;
+    short int         priority;      // Priority
+    struct tree *     parameters;    //
     struct tree *     variables;
     struct tree *     commands;
-    DIM               _return;
+    struct DIM *      _return;
 };
 
 struct Program {
-    struct Function   scope;
+    struct Function * scope;
     struct tree *     functions;
     struct tree *     globalVariables;
 };
+
+void programInit(struct Program * p);
+struct Function functionsAdd(struct Program * p, string * name);
+void functionDefParameter(struct Function * f, string * name, DataType dType);
+struct DIM createVariable(string * name, string * value, DataType dType, DIMFrame frame);
+
+

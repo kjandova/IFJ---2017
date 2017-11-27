@@ -43,6 +43,7 @@ enum Errors {
 void ErrorException     (int e, char* format, ...);
 void LineErrorException (Token tok, int e, char* format, ...);
 void Dump (char* format, ...);
+void LineDump (Token tok, char* format, ...);
 const char * getErrorName(short int e);
 
 #endif

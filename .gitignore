@@ -6,3 +6,5 @@ main.exe
 obj/Debug/main.o
 IFJ 2017.depend
 bin/Debug/IFJ 2017.exe
+*.o
+bin/Debug/IFJ 2017.exe
