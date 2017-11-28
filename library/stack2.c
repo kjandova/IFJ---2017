@@ -19,8 +19,7 @@
 
 #include "stack2.h"
 #include "define.h"
-
-#define ARRAY_SIZE(x) (sizeof(x)/sizeof((x)[0]))
+#include "utils.h"
 
 struct stack2 {
 	int members;
@@ -73,7 +72,8 @@ int stack_peek(struct stack2 **stack, void **result)
 	}
 
 	index = (*stack)->members -1;
-	*result = (*stack)->arr[index];
+	if (result)
+		*result = (*stack)->arr[index];
 	return 1;
 }
 
