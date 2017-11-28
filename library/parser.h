@@ -20,8 +20,9 @@
 typedef enum  {
     FRAME_GLOBAL,
     FRAME_LOCAL,
-    FRAME_TEMP
-} DIMFrame ;
+    FRAME_TEMP,
+    FRAME_PARAMETERS
+} DIMFrame;
 
 
 // Vytvoreni promenne
@@ -53,9 +54,20 @@ struct Program {
     struct tree *     globalVariables;
 };
 
-void programInit(struct Program * p);
-struct Function functionsAdd(struct Program * p, string * name);
-void functionDefParameter(struct Function * f, string * name, DataType dType);
-struct DIM createVariable(string * name, string * value, DataType dType, DIMFrame frame);
+void            program_init(struct Program * p);
+
+struct Function defFunction(struct Program * p, string * name);
+void            defFunctionParameter(struct Function * f, string * name, DataType dType);
+
+struct DIM      defParameter(string * name, DataType dType);
+struct DIM      createVariable(string * name, string * value, DataType dType, DIMFrame frame);
+
+
+void program_dump(struct Program p);
+
+void dumpFunctions(struct Program p);
+
+void _dumpFunctions(struct tree_node *node);
+//void _dumpParameters(struct tree_node *node);
 
 

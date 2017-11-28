@@ -34,23 +34,26 @@ enum ParserStats {
 *   @param         string       name
 *   @description
 */
-void parserInit(char * fileNameSource) {
+void parser_init(char * fileNameSource) {
     Token       tok;
 
     struct Program    _program;
     struct Function   _function;
-    scanner_init(fileNameSource);
 
-    programInit(&_program);
+    scanner_init(fileNameSource);
+    program_init(&_program);
 
     int stateMain   = PARSER_START,
         stateReturn = PARSER_START;
+
+
 
     while(stateMain != PARSER_END) {
         switch(stateMain) {
 
             ////////////////////////////////////
             //
+
             case PARSER_START: {
                 tok = scanner_next_token();
                 switch(tok.flag) {
@@ -77,44 +80,41 @@ void parserInit(char * fileNameSource) {
                     LineErrorException(tok, ERROR_SYNTAX, "ID of function is missing");
                 }
 
-                // Create Function
-                _function = functionsAdd(&_program, &(tok.ID));
+                // Define Function
+                _function = defFunction(&_program, &(tok.ID));
 
                 // Declare Function ID >(<
                 tok = scanner_next_token();
-                if (tok.flag == TOKEN_BRACKET_LEFT) {
-
-                    // Declare Function ID ([<STATEMENT> <STATEMENT_LIST>]>)<
-                    tok = scanner_next_token();
-
-                    switch(tok.flag) {
-                        case TOKEN_ID: {
-                            stateReturn = PARSER_DECLARE_FUNCTION;
-                        } break;
-                    }
+                if (tok.flag != TOKEN_BRACKET_RIGHT) {
+                    LineErrorException(tok, ERROR_SYNTAX, "( is missing");
                 }
 
 
-
+                // Declare Function ID ([<STATEMENT> <STATEMENT_LIST>]>)<
                 tok = scanner_next_token();
-                if (tok.flag == TOKEN_BRACKET_LEFT) {
-
-                    // Declare Function ID ([<STATEMENT> <STATEMENT_LIST>]>)<
-
-                    tok = scanner_next_token();
-                    if (tok.flag == TOKEN_ID)
-                        stateReturn = PARSER_DECLARE_FUNCTION;
-
-                    /////////////////////////////////////////////
-                    /**/ LABEL_EndDeclareFunction:
-                    /////////////////////////////////////////////
-
-                    tok = scanner_next_token();
-                    if (tok.flag != TOKEN_BRACKET_RIGHT) {
-                        LineErrorException(tok, ERROR_SYNTAX, ") is missing");
-                    }
+                if (tok.flag == TOKEN_ID) {
+                    stateReturn = PARSER_DECLARE_FUNCTION;
+                    stateMain   = PARSER_DECLARE_VARIABLE;
+                    break;
                 }
 
+                /////////////////////////////////////////////
+                /**/ LABEL_EndDeclareFunction:
+                /////////////////////////////////////////////
+
+                // Declare Function ID (>)<
+                if (tok.flag != TOKEN_BRACKET_LEFT) {
+                    LineErrorException(tok, ERROR_SYNTAX, ") is missing");
+                }
+
+                // Declare Function ID () >AS<
+                tok = scanner_next_token();
+                if (tok.flag != TOKEN_AS) {
+                    LineErrorException(tok, ERROR_SYNTAX, "AS is missing");
+                }
+
+                program_dump(_program);
+                exit(0);
 
             } break;
 
@@ -133,20 +133,25 @@ void parserInit(char * fileNameSource) {
                 }
 
                 string * tmpID = &(tok.ID);
-
                 // ID >As< DT
                 tok = scanner_next_token();
                 if (tok.flag != TOKEN_AS) {
                     LineErrorException(tok, ERROR_SYNTAX, "AS is missing");
                 }
-
                 // ID As >DT<
                 tok = scanner_next_token();
+
                 switch (tok.flag) {
-                    case TOKEN_INTEGER:
-                    case TOKEN_DOUBLE:
+                    case TOKEN_INTEGER: {
+                        defFunctionParameter(&_function, tmpID, DATA_TYPE_INT);
+                    } break;
+
+                    case TOKEN_DOUBLE: {
+                        defFunctionParameter(&_function, tmpID, DATA_TYPE_DOUBLE);
+                    } break;
+
                     case TOKEN_STRING: {
-                        functionDefParameter(&_function, tmpID, tok.flag);
+                        defFunctionParameter(&_function, tmpID, DATA_TYPE_STRING);
                     } break;
 
                     default: {
@@ -171,23 +176,75 @@ void parserInit(char * fileNameSource) {
 //
 
 
+
+void _dumpFunctions(struct tree_node * node) {
+    if (!node) return;
+    _dumpFunctions(node->left);
+
+
+    struct Function * f = node->payload;
+    printf("Function(%s) %s()\n", node->key, (f->name).str);
+
+//    Dump("Function(%s) %s()", node->key, f->name->str);
+    //_dumpParameters(f->parameters->root);
+
+    _dumpFunctions(node->right);
+
+    return;
+}
 /*
-*   @function      functionsInit
+void _dumpParameters(struct tree_node * node) {
+    if (!node) return;
+
+    _dumpParameters(node->left);
+
+    struct DIM * var = node->payload;
+
+    printf("  Parameter (%s) :: %s@%s (%s)\n", node->key, getTokenName(var->dataType), var->name);
+
+    _dumpParameters(node->right);
+
+    return;
+}
+*/
+
+void dumpFunctions(struct Program p) {
+    _dumpFunctions(p.functions->root);
+}
+
+void program_dump(struct Program p) {
+    printf(":: SCOPE     ::\n");
+
+    printf(":: FUNCTIONS ::\n");
+    dumpFunctions(p);
+}
+
+/*
+*   @function      functions_init
 *   @description
 */
-void programInit(struct Program * p) {
+void program_init(struct Program * p) {
     p->functions       = new_tree(TREE_PLAIN);
     p->globalVariables = new_tree(TREE_PLAIN);
 }
 
 
 /*
-*   @function      functionAdd
+*   @function      functions_init
+*   @description
+*/
+void functionInit(struct Program * p) {
+    p->functions       = new_tree(TREE_PLAIN);
+    p->globalVariables = new_tree(TREE_PLAIN);
+}
+
+/*
+*   @function      defFunction
 *   @param         TFunctions * fceTable
 *   @param         string       name
 *   @description
 */
-struct Function functionsAdd(struct Program * p, string * name) {
+struct Function defFunction(struct Program * p, string * name) {
 
     if (p == NULL || !name->length) {
         ErrorException(ERROR_INTERN, "Parser :: Function Add");
@@ -195,7 +252,10 @@ struct Function functionsAdd(struct Program * p, string * name) {
 
     struct Function f;
 
-
+    f.priority    = 0;
+    f.parameters  = new_tree(TREE_PLAIN);
+    f.variables   = new_tree(TREE_PLAIN);
+    //f->commands    = ;
 
     strInit(&(f.name));
     strCopyString(&(f.name), name);
@@ -206,26 +266,20 @@ struct Function functionsAdd(struct Program * p, string * name) {
 }
 
 /*
-*   @function      functionAdd
+*   @function      defFunctionParameter
 *   @param         TFunctions * fceTable
 *   @param         string       name
 *   @description
 */
-void functionDefParameter(struct Function * f, string * name, DataType dType) {
+void defFunctionParameter(struct Function * f, string * name, DataType dType) {
 
     if (f == NULL || !name->length) {
         ErrorException(ERROR_INTERN, "Parser :: Add Parameter");
     }
 
-    struct DIM var;
-    string     value;
+    struct DIM var = defParameter(name, dType);
 
-    strInit(&value);
-
-    var = createVariable(name, &value, dType, FRAME_LOCAL);
-
-    tree_add(f->parameters, name->str, &var);
-
+    tree_add(f->parameters, name->str , &var);
 }
 
 
@@ -235,7 +289,6 @@ void functionDefParameter(struct Function * f, string * name, DataType dType) {
 *   @param         string       name
 *   @description
 */
-
 struct DIM createVariable(string * name, string * value, DataType dType, DIMFrame frame) {
 
     if (!name->length) {
@@ -268,11 +321,22 @@ struct DIM createVariable(string * name, string * value, DataType dType, DIMFram
     return variable;
 }
 
+/*
+*   @function      functionAdd
+*   @param         TFunctions * fceTable
+*   @param         string       name
+*   @description
+*/
 
+struct DIM defParameter(string * name, DataType dType) {
 
+    string value;
+    strInit(&value);
 
+    struct DIM parameter = createVariable(name, &value, dType, FRAME_PARAMETERS);
 
-
+    return parameter;
+}
 
 /*
 *   @function      functionAdd

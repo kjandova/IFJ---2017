@@ -43,6 +43,8 @@ Token scanner_next_token() {
     strInit(&(t.ID));
     strCopyString(&(t.ID), &word);
 
+    scanner_token_dump(t);
+
     return t;
 }
 
@@ -303,22 +305,26 @@ void scanner_debug(char * path) {
 	do {
         tok = scanner_next_token();
 
-        const char * nameToken = getTokenName(tok.flag);
-
-        switch(tok.flag) {
-            case TOKEN_ID:
-            case DATA_TYPE_INT:
-            case DATA_TYPE_DOUBLE:
-	    break;
-            case DATA_TYPE_STRING:
-                LineDump(tok, "%13s (%3d) :: %s", nameToken, tok.flag, tok.ID);
-            break;
-            default:
-                LineDump(tok, "%13s (%3d)", nameToken, tok.flag);
-        }
+        scanner_token_dump(tok);
 
 	} while( tok.flag != TOKEN_END_OF_FILE);
 
+}
+
+
+void scanner_token_dump(Token tok) {
+    const char * nameToken = getTokenName(tok.flag);
+
+    switch(tok.flag) {
+        case TOKEN_ID:
+        case DATA_TYPE_INT:
+        case DATA_TYPE_DOUBLE:
+        case DATA_TYPE_STRING:
+            LineDump(tok, "%16s (%3d) :: %s", nameToken, tok.flag, tok.ID);
+        break;
+        default:
+            LineDump(tok, "%16s (%3d)", nameToken, tok.flag);
+    }
 }
 
 

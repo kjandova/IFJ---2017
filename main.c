@@ -21,9 +21,11 @@
 
 int main() {
 
-    scanner_debug("./tests/Scanner/Test_1.bas");
+    //scanner_debug("./tests/Scanner/Test_1.bas");
 
+    parser_init("./tests/Parser/Test_01_Declare_Function.bas");
 
+    /*
     Dump("::: PARSER :: CREATE VAR");
 
     string val = strChars("3.1415");
@@ -40,5 +42,5 @@ int main() {
     string str2 = strChars("test2");
     struct DIM var2 = createVariable(&str2, &val, DATA_TYPE_STRING, FRAME_GLOBAL);
     Dump("%s :: STR :: %s", var2.name.str, var2.valueString);
-
+    */
 }

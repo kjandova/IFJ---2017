@@ -92,4 +92,5 @@ Reserved reserved[35] = {
 void scanner_init(char * path);
 Token scanner_next_token();
 int _scanner_next(string *word);
+void scanner_token_dump(Token tok);
 

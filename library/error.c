@@ -61,7 +61,7 @@ void LineErrorException (Token tok, int e, char* format, ...) {
     va_list arg;
     va_start(arg, format);
 
-    printf("%3d. [line:%3d (%3d)]", __dump_counter, tok.line, tok.position);
+    printf("%3d. [line:%3d (%3d)] ", __dump_counter, tok.line, tok.position);
     fprintf(stderr, "%s (%d) :: ", getErrorName(e), e);
     vfprintf(stderr, format, arg);
     printf("\n");
