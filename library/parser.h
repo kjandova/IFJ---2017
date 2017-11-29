@@ -42,32 +42,32 @@ typedef struct Command  TWCode;        // Three Way Code (instruction.h)
 struct Function {
     string            name;          // ID
     short int         priority;      // Priority
-    struct tree *     parameters;    //
-    struct tree *     variables;
-    struct tree *     commands;
-    struct DIM *      _return;
+    struct tree     * parameters;    //
+    struct tree     * variables;
+    struct tree     * commands;
+    struct DIM      * _return;
 };
 
 struct Program {
     struct Function * scope;
-    struct tree *     functions;
-    struct tree *     globalVariables;
+    struct tree     * functions;
+    struct tree     * globalVariables;
 };
 
-void            program_init(struct Program * p);
+void              program_init(struct Program ** p);
 
-struct Function defFunction(struct Program * p, string * name);
-void            defFunctionParameter(struct Function * f, string * name, DataType dType);
+struct Function * defFunction(struct Program * p, string * name);
+void              defFunctionParameter(struct Function * f, string * name, DataType dType);
 
-struct DIM      defParameter(string * name, DataType dType);
-struct DIM      createVariable(string * name, string * value, DataType dType, DIMFrame frame);
+struct DIM      * defParameter(string * name, DataType dType);
+struct DIM      * createVariable(string * name, string * value, DataType dType, DIMFrame frame);
 
 
-void program_dump(struct Program p);
+void program_dump(struct Program * p);
 
-void dumpFunctions(struct Program p);
+void dumpFunctions(struct Program * p);
 
-void _dumpFunctions(struct tree_node *node);
+void _dumpFunctions(struct tree_node * node);
 //void _dumpParameters(struct tree_node *node);
 
 

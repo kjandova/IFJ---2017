@@ -28,6 +28,9 @@ enum ParserStats {
     PARSER_END
 };
 
+struct Program      *__parser_program;
+
+
 /*
 *   @function      parserInit
 *   @param         char * fileNameSource
@@ -35,25 +38,21 @@ enum ParserStats {
 *   @description
 */
 void parser_init(char * fileNameSource) {
-    Token       tok;
-
-    struct Program    _program;
-    struct Function   _function;
+    Token               tok;
+    struct Function     *_function;
 
     scanner_init(fileNameSource);
-    program_init(&_program);
+
+    program_init(&__parser_program);
 
     int stateMain   = PARSER_START,
         stateReturn = PARSER_START;
-
-
 
     while(stateMain != PARSER_END) {
         switch(stateMain) {
 
             ////////////////////////////////////
             //
-
             case PARSER_START: {
                 tok = scanner_next_token();
                 switch(tok.flag) {
@@ -80,8 +79,9 @@ void parser_init(char * fileNameSource) {
                     LineErrorException(tok, ERROR_SYNTAX, "ID of function is missing");
                 }
 
-                // Define Function
-                _function = defFunction(&_program, &(tok.ID));
+                /////////////////////////////////////////////
+                // DEFINE FUNCTION
+                _function = defFunction(__parser_program, &(tok.ID));
 
                 // Declare Function ID >(<
                 tok = scanner_next_token();
@@ -113,7 +113,8 @@ void parser_init(char * fileNameSource) {
                     LineErrorException(tok, ERROR_SYNTAX, "AS is missing");
                 }
 
-                program_dump(_program);
+
+                program_dump(__parser_program);
                 exit(0);
 
             } break;
@@ -132,12 +133,14 @@ void parser_init(char * fileNameSource) {
                     LineErrorException(tok, ERROR_SYNTAX, "ID is missing");
                 }
 
-                string * tmpID = &(tok.ID);
+                string tmpID = tok.ID;
+
                 // ID >As< DT
                 tok = scanner_next_token();
                 if (tok.flag != TOKEN_AS) {
                     LineErrorException(tok, ERROR_SYNTAX, "AS is missing");
                 }
+
                 // ID As >DT<
                 tok = scanner_next_token();
 
@@ -183,18 +186,22 @@ void _dumpFunctions(struct tree_node * node) {
 
 
     struct Function * f = node->payload;
-    printf("Function(%s) %s()\n", node->key, (f->name).str);
+    printf("Function(%s) %s\n", node->key, (f->name).str);
 
-//    Dump("Function(%s) %s()", node->key, f->name->str);
-    //_dumpParameters(f->parameters->root);
+    Dump("%d", f->parameters->root);
+
+    _dumpParameters((f->parameters)->root);
 
     _dumpFunctions(node->right);
 
     return;
 }
-/*
+
+
 void _dumpParameters(struct tree_node * node) {
+    Dump("Param");
     if (!node) return;
+    Dump("Param run");
 
     _dumpParameters(node->left);
 
@@ -206,13 +213,12 @@ void _dumpParameters(struct tree_node * node) {
 
     return;
 }
-*/
 
-void dumpFunctions(struct Program p) {
-    _dumpFunctions(p.functions->root);
+void dumpFunctions(struct Program * p) {
+    _dumpFunctions(p->functions->root);
 }
 
-void program_dump(struct Program p) {
+void program_dump(struct Program * p) {
     printf(":: SCOPE     ::\n");
 
     printf(":: FUNCTIONS ::\n");
@@ -223,19 +229,14 @@ void program_dump(struct Program p) {
 *   @function      functions_init
 *   @description
 */
-void program_init(struct Program * p) {
-    p->functions       = new_tree(TREE_PLAIN);
-    p->globalVariables = new_tree(TREE_PLAIN);
-}
+void program_init(struct Program ** p) {
 
+    struct Program * _p = malloc(sizeof(struct Program));
 
-/*
-*   @function      functions_init
-*   @description
-*/
-void functionInit(struct Program * p) {
-    p->functions       = new_tree(TREE_PLAIN);
-    p->globalVariables = new_tree(TREE_PLAIN);
+    _p->functions       = new_tree(TREE_PLAIN);
+    _p->globalVariables = new_tree(TREE_PLAIN);
+
+    *p = _p;
 }
 
 /*
@@ -244,23 +245,28 @@ void functionInit(struct Program * p) {
 *   @param         string       name
 *   @description
 */
-struct Function defFunction(struct Program * p, string * name) {
+struct Function * defFunction(struct Program * p, string * name) {
 
-    if (p == NULL || !name->length) {
-        ErrorException(ERROR_INTERN, "Parser :: Function Add");
+    Dump("> Define Function");
+
+    if (p == NULL) {
+        ErrorException(ERROR_INTERN, "Parser :: Function Add :: Program is NULL");
     }
 
-    struct Function f;
+    if (!name->length) {
+        ErrorException(ERROR_INTERN, "Parser :: Function Add :: ID is NULL");
+    }
 
-    f.priority    = 0;
-    f.parameters  = new_tree(TREE_PLAIN);
-    f.variables   = new_tree(TREE_PLAIN);
-    //f->commands    = ;
+    struct Function * f = malloc( sizeof(struct Function));
 
-    strInit(&(f.name));
-    strCopyString(&(f.name), name);
+    f->priority   = 0;
+    f->parameters = new_tree(TREE_PLAIN);
+    f->variables  = new_tree(TREE_PLAIN);
 
-    tree_add(p->functions, name->str, &f);
+    strInit(&(f->name));
+    strCopyString(&(f->name), name);
+
+    tree_add(p->functions, name->str, f);
 
     return f;
 }
@@ -277,9 +283,16 @@ void defFunctionParameter(struct Function * f, string * name, DataType dType) {
         ErrorException(ERROR_INTERN, "Parser :: Add Parameter");
     }
 
-    struct DIM var = defParameter(name, dType);
 
-    tree_add(f->parameters, name->str , &var);
+    Dump("Define Function Param");
+
+    struct DIM * var = defParameter(name, dType);
+
+    Dump(": : : : %s", (f->name).str);
+
+    tree_add(f->parameters, name->str , var);
+
+    Dump("Def END2");
 }
 
 
@@ -289,31 +302,33 @@ void defFunctionParameter(struct Function * f, string * name, DataType dType) {
 *   @param         string       name
 *   @description
 */
-struct DIM createVariable(string * name, string * value, DataType dType, DIMFrame frame) {
+struct DIM * createVariable(string * name, string * value, DataType dType, DIMFrame frame) {
 
     if (!name->length) {
         ErrorException(ERROR_RUNTIME, "Create Variable :: NAME IS NULL");
     }
 
-    struct DIM variable;
 
-    strInit(&(variable.name));
-    strCopyString(&(variable.name), name);
+    Dump("Create Variable");
+    struct DIM * variable;
 
-    variable.dataType = dType;
-    variable.frame    = frame;
+    strInit(&(variable->name));
+    strCopyString(&(variable->name), name);
+
+    variable->dataType = dType;
+    variable->frame    = frame;
     if (value->length) {
         switch (dType) {
             case DATA_TYPE_INT: {
-                variable.valueInteger = atoi(value->str);
+                variable->valueInteger = atoi(value->str);
             } break;
             case DATA_TYPE_DOUBLE: {
                 char *ptr;
-                variable.valueDouble  = strtod(value->str, &ptr);
+                variable->valueDouble  = strtod(value->str, &ptr);
             } break;
             case DATA_TYPE_STRING: {
-                strInit(&(variable.valueString));
-                strCopyString(&(variable.valueString), value);
+                strInit(&(variable->valueString));
+                strCopyString(&(variable->valueString), value);
             } break;
         }
     }
@@ -328,12 +343,12 @@ struct DIM createVariable(string * name, string * value, DataType dType, DIMFram
 *   @description
 */
 
-struct DIM defParameter(string * name, DataType dType) {
+struct DIM * defParameter(string * name, DataType dType) {
 
     string value;
     strInit(&value);
 
-    struct DIM parameter = createVariable(name, &value, dType, FRAME_PARAMETERS);
+    struct DIM * parameter = createVariable(name, &value, dType, FRAME_PARAMETERS);
 
     return parameter;
 }
