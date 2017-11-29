@@ -59,6 +59,9 @@ void parser_init(char * fileNameSource) {
                     case TOKEN_DECLARE:
                         stateMain = PARSER_DECLARE_FUNCTION;
                     break;
+                    case TOKEN_END_OF_FILE:
+                        stateMain = PARSER_END;
+                    break;
                 }
             } break;
 
@@ -107,15 +110,39 @@ void parser_init(char * fileNameSource) {
                     LineErrorException(tok, ERROR_SYNTAX, ") is missing");
                 }
 
-                // Declare Function ID () >AS<
+                /////////////////////////////////////////////
+                /// LABEL_DeclareReturnFunction:
+                /////////////////////////////////////////////
+
                 tok = scanner_next_token();
-                if (tok.flag != TOKEN_AS) {
+
+                struct DIM * _return = malloc(sizeof(struct DIM));
+
+
+                // Declare Function ID () EOL
+                if (tok.flag == TOKEN_END_OF_LINE) {
+                // Declare Function ID () >AS<
+                } else if (tok.flag == TOKEN_AS) {
+                    tok = scanner_next_token();
+                    switch(tok.flag) {
+                        case TOKEN_INTEGER:
+                        case TOKEN_DOUBLE:
+                        case TOKEN_STRING:
+                            _return->dataType = getDataTypeFromToken(tok.flag);
+                        break;
+                        default:
+                            LineErrorException(tok, ERROR_SYNTAX, "Data Type is missing");
+                    }
+
+
+                } else {
                     LineErrorException(tok, ERROR_SYNTAX, "AS is missing");
                 }
 
+                _function->_return = _return;
 
-                program_dump(__parser_program);
-                exit(0);
+                stateMain   = PARSER_START,
+                stateReturn = PARSER_START;
 
             } break;
 
@@ -145,16 +172,10 @@ void parser_init(char * fileNameSource) {
                 tok = scanner_next_token();
 
                 switch (tok.flag) {
-                    case TOKEN_INTEGER: {
-                        defFunctionParameter(_function, &tmpID, DATA_TYPE_INT);
-                    } break;
-
-                    case TOKEN_DOUBLE: {
-                        defFunctionParameter(_function, &tmpID, DATA_TYPE_DOUBLE);
-                    } break;
-
+                    case TOKEN_INTEGER:
+                    case TOKEN_DOUBLE:
                     case TOKEN_STRING: {
-                        defFunctionParameter(_function, &tmpID, DATA_TYPE_STRING);
+                        defFunctionParameter(_function, &tmpID, getDataTypeFromToken(tok.flag));
                     } break;
 
                     default: {
@@ -175,6 +196,10 @@ void parser_init(char * fileNameSource) {
 
         }
     }
+
+
+    program_dump(__parser_program);
+    exit(0);
 }
 ///////////////////////////////////////////////////////////////////////////////////
 //
@@ -191,13 +216,11 @@ void _dumpFunctions(struct tree_node * node) {
     struct Function * f = node->payload;
     struct tree     * p = f->parameters;
 
-    if (p == NULL) {
-        ErrorException(ERROR_INTERN, "kokos");
-    }
-
     printf("Function(%s) %s\n", node->key, (f->name).str);
 
     _dumpParameters(p->root);
+
+    printf("Return @%s\n\n", getDataTypeName(f->_return->dataType));
 
     _dumpFunctions(node->right);
 

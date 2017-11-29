@@ -21,7 +21,6 @@
 
 int main() {
 
-
     //scanner_debug("./tests/Scanner/Test_1.bas");
 
     parser_init("./tests/Parser/Test_01_Declare_Function.bas");

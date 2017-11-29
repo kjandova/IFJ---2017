@@ -1,3 +1,2 @@
-Declare Function factorial2 (a As Integer, b Asssss Double, c As String) As Integer
-Declare Function factorial (n As Integer) As Integer
-
+Declare Function factorial2 (a As Integer, b As Double, c As String) As Integer
+Declare Function factorial (n As String) As Double

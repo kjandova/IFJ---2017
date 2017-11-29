@@ -112,3 +112,4 @@ typedef struct {
 } Token;
 
 const char * getTokenName(int flag);
+int          getDataTypeFromToken(int flag);

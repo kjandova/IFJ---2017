@@ -15,6 +15,8 @@
 
 #include "error.h"
 
+#define unused(x) (void)(x)
+
 static int __dump_counter = 1;
 
 /*
@@ -96,13 +98,13 @@ void Dump (char* format, ...) {
         vprintf(format, arg);
         printf("\n");
         va_end(arg);
+        __dump_counter++;
     }
     #else
         va_list arg;
         va_start(arg, format);
         va_end(arg);
     #endif
-    __dump_counter++;
 }
 
 void LineDump (Token tok, char* format, ...) {
@@ -126,13 +128,15 @@ void LineDump (Token tok, char* format, ...) {
         vprintf(format, arg);
         printf("\n");
         va_end(arg);
+        __dump_counter++;
     }
     #else
         va_list arg;
         va_start(arg, format);
         va_end(arg);
+        unused(tok);
     #endif
-    __dump_counter++;
+
 }
 
 const char * getErrorName(short int e) {
