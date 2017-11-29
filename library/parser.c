@@ -25,11 +25,11 @@ enum ParserStats {
     PARSER_START,
     PARSER_DECLARE_FUNCTION,
     PARSER_DECLARE_VARIABLE,
+    PARSER_EOL,
     PARSER_END
 };
 
 struct Program      *__parser_program;
-
 
 /*
 *   @function      parserInit
@@ -146,15 +146,15 @@ void parser_init(char * fileNameSource) {
 
                 switch (tok.flag) {
                     case TOKEN_INTEGER: {
-                        defFunctionParameter(&_function, tmpID, DATA_TYPE_INT);
+                        defFunctionParameter(_function, &tmpID, DATA_TYPE_INT);
                     } break;
 
                     case TOKEN_DOUBLE: {
-                        defFunctionParameter(&_function, tmpID, DATA_TYPE_DOUBLE);
+                        defFunctionParameter(_function, &tmpID, DATA_TYPE_DOUBLE);
                     } break;
 
                     case TOKEN_STRING: {
-                        defFunctionParameter(&_function, tmpID, DATA_TYPE_STRING);
+                        defFunctionParameter(_function, &tmpID, DATA_TYPE_STRING);
                     } break;
 
                     default: {
@@ -165,7 +165,10 @@ void parser_init(char * fileNameSource) {
                 tok = scanner_next_token();
 
                 // ID As DT>[, ID As DT ..]<
-                if (tok.flag == TOKEN_COMMA)                goto LABEL_DataType;
+                if (tok.flag == TOKEN_COMMA) {
+                        tok = scanner_next_token();
+                        goto LABEL_DataType;
+                }
                 if (stateReturn == PARSER_DECLARE_FUNCTION) goto LABEL_EndDeclareFunction;
 
             } break;
@@ -186,11 +189,15 @@ void _dumpFunctions(struct tree_node * node) {
 
 
     struct Function * f = node->payload;
+    struct tree     * p = f->parameters;
+
+    if (p == NULL) {
+        ErrorException(ERROR_INTERN, "kokos");
+    }
+
     printf("Function(%s) %s\n", node->key, (f->name).str);
 
-    Dump("%d", f->parameters->root);
-
-    _dumpParameters((f->parameters)->root);
+    _dumpParameters(p->root);
 
     _dumpFunctions(node->right);
 
@@ -199,15 +206,14 @@ void _dumpFunctions(struct tree_node * node) {
 
 
 void _dumpParameters(struct tree_node * node) {
-    Dump("Param");
+
     if (!node) return;
-    Dump("Param run");
 
     _dumpParameters(node->left);
 
     struct DIM * var = node->payload;
 
-    printf("  Parameter (%s) :: %s@%s (%s)\n", node->key, getTokenName(var->dataType), var->name);
+    printf("  Parameter (%s) :: %s@%s\n", node->key, getDataTypeName(var->dataType), var->name.str);
 
     _dumpParameters(node->right);
 
@@ -219,11 +225,16 @@ void dumpFunctions(struct Program * p) {
 }
 
 void program_dump(struct Program * p) {
-    printf(":: SCOPE     ::\n");
+    printf("\n::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::\n");
+    printf(":: DUMP PROGRAM \n");
+    printf("::\n:: SCOPE\n");
 
-    printf(":: FUNCTIONS ::\n");
+    printf("::\n:: FUNCTIONS::\n");
     dumpFunctions(p);
 }
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /*
 *   @function      functions_init
@@ -283,16 +294,11 @@ void defFunctionParameter(struct Function * f, string * name, DataType dType) {
         ErrorException(ERROR_INTERN, "Parser :: Add Parameter");
     }
 
-
     Dump("Define Function Param");
 
     struct DIM * var = defParameter(name, dType);
 
-    Dump(": : : : %s", (f->name).str);
-
     tree_add(f->parameters, name->str , var);
-
-    Dump("Def END2");
 }
 
 
@@ -310,13 +316,14 @@ struct DIM * createVariable(string * name, string * value, DataType dType, DIMFr
 
 
     Dump("Create Variable");
-    struct DIM * variable;
+    struct DIM * variable = malloc(sizeof(struct DIM));
 
     strInit(&(variable->name));
     strCopyString(&(variable->name), name);
 
     variable->dataType = dType;
     variable->frame    = frame;
+
     if (value->length) {
         switch (dType) {
             case DATA_TYPE_INT: {
@@ -333,7 +340,7 @@ struct DIM * createVariable(string * name, string * value, DataType dType, DIMFr
         }
     }
 
-    return variable;
+    return  variable;
 }
 
 /*

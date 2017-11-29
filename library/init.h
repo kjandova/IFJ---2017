@@ -19,9 +19,10 @@
 #include <stdarg.h>
 
 #include "str.c"          // Strings - Knihovna pro práci s retezci
-#include "instructions.c" // Strings - Knihovna pro práci s instrukcemi
 #include "tokens.c"       // Definice konstant tokenů
 #include "error.c"        // Error   - Knihovna pro odchytávání errorù
+#include "instructions.c" // Strings - Knihovna pro práci s instrukcemi
+
 #include "files.c"        // Files   - Knihovna pro práci se soubory
 #include "tree.c"         // Tree    - Knihovna pro práci s binárním vyhledávacím stromem
 #include "tree_debug.c"   //         - Debuger

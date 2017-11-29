@@ -3,20 +3,45 @@
 //	@Project 			IFJ 2017
 //
 //  @Authors
-//  Krist�na Jandov�  	xjando04
-//  Vil�m Faigel		xfaige00
-//  Nikola Timkov�		xtimko01
-//	Bc. V�clav Dole�al	xdolez76
+//  Kristýna Jandová  	xjando04
+//  Vilém Faigel		xfaige00
+//  Nikola Timková		xtimko01
+//	Bc. Václav Doležal	xdolez76
 //
 //	@File				parser.h
 //	@Description
 //
 ///////////////////////////////////////////////////////////////////////////////////
 
+///////////////////////////////////////////////////////////////////////////////////
+//
+//  PROGRAM STRUCT
+//
+//  Program
+//     │
+//     ├─ [ Global Variables ]  ( struct DIM)
+//     │
+//     ├─ Scope                 ( struct fucntion)
+//     │
+//     ├─ Functions             ( struct fucntion)
+//     │     │
+//     │     ├─ Parameters      ( struct fucntion)
+//     │     │
+//     │     ├─ Local Variables ( struct DIM)
+//     │     │
+//     │     ├─ Commands        ( struct TWCode)
+//     │     │
+//     │     └─ Return          ( struct DIM)
+//     │
+//     └─ [ Global Variables ]  ( struct DIM)
 
-///////////////////////
-// DIM Frame
 
+////////////////////////////////////////////////////////
+//
+// DIM ( Memmory )
+//
+
+// Memmomry Frames
 typedef enum  {
     FRAME_GLOBAL,
     FRAME_LOCAL,
@@ -25,7 +50,7 @@ typedef enum  {
 } DIMFrame;
 
 
-// Vytvoreni promenne
+// Memmory struct
 struct DIM {
     string              name;          // ID
     DIMFrame            frame;         // Frame
@@ -35,10 +60,19 @@ struct DIM {
     double              valueDouble;   // Double
 };
 
-// Prikaz
-typedef struct Command  TWCode;        // Three Way Code (instruction.h)
+////////////////////////////////////////////////////////
+//
+// Command Three Way Code (instruction.h)
+//
+typedef struct Command  TWCode;
 
-// Telo funkce
+
+
+
+////////////////////////////////////////////////////////
+//
+// Body of FUNCTION
+//
 struct Function {
     string            name;          // ID
     short int         priority;      // Priority
@@ -48,12 +82,20 @@ struct Function {
     struct DIM      * _return;
 };
 
+////////////////////////////////////////////////////////
+//
+// Body of Program
+//
 struct Program {
     struct Function * scope;
     struct tree     * functions;
     struct tree     * globalVariables;
 };
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// Declare Parser Function
+//
 void              program_init(struct Program ** p);
 
 struct Function * defFunction(struct Program * p, string * name);
@@ -63,11 +105,15 @@ struct DIM      * defParameter(string * name, DataType dType);
 struct DIM      * createVariable(string * name, string * value, DataType dType, DIMFrame frame);
 
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// Declare Parser Dump
+//
 void program_dump(struct Program * p);
 
 void dumpFunctions(struct Program * p);
 
 void _dumpFunctions(struct tree_node * node);
-//void _dumpParameters(struct tree_node *node);
+void _dumpParameters(struct tree_node *node);
 
 

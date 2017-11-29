@@ -1,10 +1,4 @@
 typedef enum {
-    DATA_TYPE_INT,                           // DataType Integer
-    DATA_TYPE_DOUBLE, 	                     // DataType Double
-    DATA_TYPE_STRING 	                     // DataType String
-} DataType;
-
-typedef enum {
    I_MOVE,
    I_CREATEFRAME, I_PUSHFRAME, I_POPFRAME,
    I_DEFVAR,
@@ -53,3 +47,15 @@ struct TWCode {
     struct DIM          * variable1;
     struct DIM          * variable2;
 };
+
+
+const char * getDataTypeName(DataType DT) {
+    switch(DT) {
+        case DATA_TYPE_INT:    return "int";
+        case DATA_TYPE_DOUBLE: return "double";
+        case DATA_TYPE_STRING: return "string";
+    }
+
+    ErrorException(ERROR_INTERN, "Is dont Data Type");
+    return "";
+}
