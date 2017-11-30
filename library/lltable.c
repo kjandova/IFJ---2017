@@ -47,7 +47,7 @@ unsigned int getTableIndex(int i) {
 		case PA_ID:							return 13;  // i
 		case PA_LT:							return 14;  // $
 	}
-  return ERR_INSIDE;
+  return ERROR_INTERN;
 }
  
  
