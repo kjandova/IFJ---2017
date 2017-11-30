@@ -37,8 +37,15 @@ Token scanner_next_token() {
 
     t.flag = _scanner_next(&word);
 
+    int length = strGetLength(&word);
+    position_counter -= length;
     t.line = line_counter;
-    t.position = position_counter;
+    t.position = position_counter--;
+    if(length == 0){
+    	position_counter++;
+    }
+    position_counter += length;
+
 
     strInit(&(t.ID));
     strCopyString(&(t.ID), &word);
@@ -125,10 +132,10 @@ int _scanner_next(string *word){
 					case TOKEN_COMMA:
 						return TOKEN_COMMA;
 						break;
-					case TOKEN_BRACKET_RIGHT:								// ;
+					case TOKEN_BRACKET_RIGHT:								
 						return TOKEN_BRACKET_RIGHT;			// (
 						break;
-					case TOKEN_BRACKET_LEFT:								// ;
+					case TOKEN_BRACKET_LEFT:								
 						return TOKEN_BRACKET_LEFT;			// )
 						break;
 				   	case EOF :
@@ -228,6 +235,7 @@ int _scanner_next(string *word){
 			case SCANNER_WORD:
 				if(!(isalnum(c) || c == '_')){
 					ungetc(c, __scanner_file);
+					
 
 
 					for(i = 0; i<35; i++) {
@@ -237,7 +245,7 @@ int _scanner_next(string *word){
 						}
 					}
 
-                    strUpper(word);
+                    			strUpper(word);
 					return TOKEN_ID;
 
 
