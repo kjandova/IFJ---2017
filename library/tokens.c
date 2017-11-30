@@ -12,8 +12,6 @@
 //	@Description
 //
 ///////////////////////////////////////////////////////////////////////////////////
-#ifndef TOKENS_INCLUDED
-#define TOKENS_INCLUDED
 
 #include "tokens.h"
 
@@ -21,6 +19,7 @@ const char* getTokenName(int flag) {
     switch (flag) {
         case TOKEN_END_OF_FILE:      return "EOF";
         case TOKEN_END_OF_LINE:      return "EOL";
+        case DATA_TYPE_VOID:         return "DT_VOID";
         case DATA_TYPE_INT:          return "DT_INT";
         case DATA_TYPE_DOUBLE:       return "DT_DOUBLE";
         case DATA_TYPE_STRING:       return "DT_STRING";
@@ -93,4 +92,36 @@ int getDataTypeFromToken(int flag) {
 
     return -1;
 }
-#endif
+
+int isTokenOperator(int flag) {
+	switch(flag) {
+		//ARYTHMETIC
+		case TOKEN_ADD:			    // +
+		case TOKEN_SUB:			    // -
+		case TOKEN_MUL:			    // *
+		case TOKEN_DIV:			    // /
+		case TOKEN_BACKSLASH:       // \.
+		// COMPARISON
+		case TOKEN_LESS: 			// <
+		case TOKEN_MORE:			// >
+		case TOKEN_LESS_OR_EQUAL:	// <=
+		case TOKEN_MORE_OR_EQUAL:	// >=
+		case TOKEN_EQUALS:			// =
+		case TOKEN_NON_EQUAL:		// <>
+			return 1;
+	}
+
+	return 0;
+}
+
+int isTokenID(int type) {
+	switch(type) {
+		case DATA_TYPE_INT:
+		case DATA_TYPE_DOUBLE:
+		case DATA_TYPE_STRING:
+		case TOKEN_ID:
+		return 1;
+	}
+
+	return 0;
+}

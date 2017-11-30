@@ -15,8 +15,6 @@
 
 #include "error.h"
 
-#define unused(x) (void)(x)
-
 static int __dump_counter = 1;
 
 /*

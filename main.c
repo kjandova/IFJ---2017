@@ -24,8 +24,15 @@ int main() {
     //scanner_debug("./tests/Scanner/Test_1.bas");
 
     parser_init("./tests/Parser/Test_01_Declare_Function.bas");
+    parser_run();
 
     /*
+    struct DIM * _return;
+
+    _return = malloc(sizeof(struct DIM));
+    getExpression(_return);
+
+
     Dump("::: PARSER :: CREATE VAR");
 
     string val = strChars("3.1415");

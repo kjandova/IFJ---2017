@@ -103,44 +103,22 @@ int _scanner_next(string *word){
 						state = SCANNER_LINE_COMMENT;	    // Make it ignore whole line
 						break;
 					case TOKEN_SLASH:								// /
-						state =  SCANNER_SLASH; 			// can be for dividing or comments
-						break;
-					case TOKEN_ADD:		// +
-						return TOKEN_ADD; 					// Adding
-						break;
-					case TOKEN_SUB:							// -
-						return TOKEN_SUB;					// Subtracting
-						break;
-					case TOKEN_MUL:							// *
-						return TOKEN_MUL; 					// Multiplication
-						break;
-					case TOKEN_BACKSLASH:					// "\\"
-						return TOKEN_DIV_B; 			// Can be for integer dividing or escape sequence
-						break;
-					case TOKEN_EQUALS:						// =
-						return TOKEN_EQUALS;					// Equals
-						break;
-					case TOKEN_LESS:						// <
-						state = SCANNER_LESS_THAN; 			// Can be less than or less than_or_equal or not equal
-						break;
-					case TOKEN_MORE:						// >
-						state = SCANNER_MORE_THAN; 			// Can be more than or more than_or_equal
-						break;
-					case TOKEN_SEMICOLON:								// ;
-						return TOKEN_SEMICOLON;			// semicolon
-						break;
+						state = SCANNER_SLASH; 			// can be for dividing or comments
+                    break;
+					case TOKEN_ADD:		                    // + Adding
+					case TOKEN_SUB:							// - Subtracting
+					case TOKEN_MUL:							// * Multiplication
+					case TOKEN_BACKSLASH:					// '\' Can be for integer dividing or escape sequence
+					case TOKEN_EQUALS:						// = Equals
+					case TOKEN_LESS:						// < Can be less than or less than_or_equal or not equal
+					case TOKEN_MORE:						// > Can be more than or more than_or_equal
+					case TOKEN_SEMICOLON:					// ; semicolon
 					case TOKEN_COMMA:
-						return TOKEN_COMMA;
-						break;
-					case TOKEN_BRACKET_RIGHT:								
-						return TOKEN_BRACKET_RIGHT;			// (
-						break;
-					case TOKEN_BRACKET_LEFT:								
-						return TOKEN_BRACKET_LEFT;			// )
-						break;
+                    case TOKEN_BRACKET_LEFT:                // (
+					case TOKEN_BRACKET_RIGHT:               // )
+					    return c;
 				   	case EOF :
 						return TOKEN_END_OF_FILE;
-					break;
 					default:
 						ErrorException(ERROR_LEXICAL, "Lexeme Unknown");				// Something else, what is this? Can this happen || not?
 					break;
@@ -235,7 +213,7 @@ int _scanner_next(string *word){
 			case SCANNER_WORD:
 				if(!(isalnum(c) || c == '_')){
 					ungetc(c, __scanner_file);
-					
+
 
 
 					for(i = 0; i<35; i++) {

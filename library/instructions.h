@@ -54,6 +54,7 @@ const char * getDataTypeName(DataType DT) {
         case DATA_TYPE_INT:    return "int";
         case DATA_TYPE_DOUBLE: return "double";
         case DATA_TYPE_STRING: return "string";
+        case DATA_TYPE_VOID: return "void";
     }
 
     ErrorException(ERROR_INTERN, "Is dont Data Type");

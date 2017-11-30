@@ -19,7 +19,6 @@
 //
 //  Program
 //     │
-//     ├─ [ Global Variables ]  ( struct DIM)
 //     │
 //     ├─ Scope                 ( struct fucntion)
 //     │
@@ -98,10 +97,10 @@ struct Program {
 //
 void              program_init(struct Program ** p);
 
-struct Function * defFunction(struct Program * p, string * name);
-void              defFunctionParameter(struct Function * f, string * name, DataType dType);
+struct Function * declareFunction(struct Program * p, string * name);
+void              declareFunctionParameter(struct Function * f, string * name, DataType dType);
 
-struct DIM      * defParameter(string * name, DataType dType);
+struct DIM      * declareParameter(string * name, DataType dType);
 struct DIM      * createVariable(string * name, string * value, DataType dType, DIMFrame frame);
 
 
