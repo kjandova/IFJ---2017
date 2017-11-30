@@ -261,6 +261,7 @@ void parser_init(char * fileNameSource) {
 		    LineErrorException(tok, ERROR_SYNTAX, "must be nd of line");
 		}
 		while(tok.flag != TOKEN_LOOP){
+		tok = scanner_next_token();
 		//tu jede vyhodnocování věcí v cyklu, +kontroluji jestli není ukončovací podmínka (pro BASIC)
 		}
 
