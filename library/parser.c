@@ -3,10 +3,10 @@
 //	@Project 			IFJ 2017
 //
 //  @Authors
-//  Krist�na Jandov�  	xjando04
-//  Vil�m Faigel		xfaige00
-//  Nikola Timkov�		xtimko01
-//	Bc. V�clav Dole�al	xdolez76
+//  Kristýna Jandová  	xjando04
+//  Vilém Faigel		xfaige00
+//  Nikola Timková		xtimko01
+//	Bc. Václav Doleal	xdolez76
 //
 //	@File				tokens.c
 //	@Description
@@ -25,6 +25,8 @@ enum ParserStats {
     PARSER_START,
     PARSER_DECLARE_FUNCTION,
     PARSER_DECLARE_VARIABLE,
+    PARSER_IF,
+    PARSER_WHILE,
     PARSER_EOL,
     PARSER_END
 };
@@ -58,6 +60,12 @@ void parser_init(char * fileNameSource) {
                 switch(tok.flag) {
                     case TOKEN_DECLARE:
                         stateMain = PARSER_DECLARE_FUNCTION;
+                    break;
+                    case TOKEN_IF:
+                        stateMain = PARSER_IF;
+                    break;
+                    case TOKEN_DO:
+                        stateMain = PARSER_WHILE;
                     break;
                     case TOKEN_END_OF_FILE:
                         stateMain = PARSER_END;
@@ -193,6 +201,73 @@ void parser_init(char * fileNameSource) {
                 if (stateReturn == PARSER_DECLARE_FUNCTION) goto LABEL_EndDeclareFunction;
 
             } break;
+            ///////////////////////////////////////////////////////////////////////
+            // IF výraz THEN EOL  
+	    // příkazy
+            // ELSE
+	    // příkazy
+	    // END IF	
+	    case PARSER_IF:
+		//tu se musí zavolat PA pro výraz
+		//IF výraz = true
+			tok = scanner_next_token();
+		        if (tok.flag != TOKEN_THEN) {
+		            LineErrorException(tok, ERROR_SYNTAX, "THEN is missing");
+		        }
+		        tok = scanner_next_token();
+		        if (tok.flag != TOKEN_END_OF_LINE) {
+		            LineErrorException(tok, ERROR_SYNTAX, "must be end of line");
+		        }
+			//tu se vyhodnotí další příkazy
+
+		//IFvýraz = false skip till ELSE
+			while(tok.flag != TOKEN_ELSE){
+		 		tok = scanner_next_token();
+				if (tok.flag == TOKEN_END_OF_FILE) {
+				    LineErrorException(tok, ERROR_SYNTAX, "reached end, ELSE is missing");
+				}
+			}
+			tok = scanner_next_token();
+			if (tok.flag != TOKEN_END_OF_LINE) {
+			    LineErrorException(tok, ERROR_SYNTAX, "must be end of line");
+			}
+			//tu se vyhodnoti dalsi prikazy
+	
+		//ending of if statement (END IF)
+	        tok = scanner_next_token();
+		if (tok.flag != TOKEN_END) {
+		    LineErrorException(tok, ERROR_SYNTAX, "missing END IF statement");
+		}
+	        tok = scanner_next_token();
+	        if (tok.flag != TOKEN_IF) {
+	            LineErrorException(tok, ERROR_SYNTAX, "missing END IF statement");
+	        }
+	    break;
+
+
+            ///////////////////////////////////////////////////////////////////////
+            // DO WHILE výraz EOL  
+	    // příkazy
+            // LOOP
+	    case PARSER_WHILE:
+		tok = scanner_next_token();
+		if (tok.flag != TOKEN_WHILE) {
+		    LineErrorException(tok, ERROR_SYNTAX, "missing WHILE statement");
+		}
+		
+		//tu se vola PA pro vyhodnocení výrazu
+		tok = scanner_next_token();
+		if (tok.flag != TOKEN_END_OF_LINE) {
+		    LineErrorException(tok, ERROR_SYNTAX, "must be nd of line");
+		}
+		while(tok.flag != TOKEN_LOOP){
+		tok = scanner_next_token();
+		//tu jede vyhodnocování věcí v cyklu, +kontroluji jestli není ukončovací podmínka (pro BASIC)
+		}
+
+
+	    break;         
+		
 
         }
     }
