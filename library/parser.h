@@ -24,7 +24,7 @@
 //     │
 //     ├─ Functions             ( struct fucntion)
 //     │     │
-//     │     ├─ Parameters      ( struct fucntion)
+//     │     ├─ Parameters      ( struct DIM)
 //     │     │
 //     │     ├─ Local Variables ( struct DIM)
 //     │     │
@@ -45,7 +45,8 @@ typedef enum  {
     FRAME_GLOBAL,
     FRAME_LOCAL,
     FRAME_TEMP,
-    FRAME_PARAMETERS
+    FRAME_PARAMETERS,
+    FRAME_CONST
 } DIMFrame;
 
 

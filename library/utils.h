@@ -1,6 +1,19 @@
-#ifndef IFJ_UTILS_H
-#define IFJ_UTILS_H
+///////////////////////////////////////////////////////////////////////////////////
+//
+//	@Project 			IFJ 2017
+//
+//  @Authors
+//  Kristýna Jandová  	xjando04
+//  Vilém Faigel		xfaige00
+//  Nikola Timková		xtimko01
+//	Bc. Václav Doležal	xdolez76
+//
+//	@File				utils.h
+//	@Description
+//
+///////////////////////////////////////////////////////////////////////////////////
 
+#define unused(x) (void)(x)
 #define NEW(var) \
 	((var) = malloc(sizeof(*(var))))
 
@@ -14,5 +27,3 @@
 	} while (0)
 
 #define ARRAY_SIZE(x) (sizeof(x)/sizeof((x)[0]))
-
-#endif

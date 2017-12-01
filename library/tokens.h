@@ -15,6 +15,7 @@
 
 typedef enum {
     DATA_TYPE_VOID,                          // DataType Void
+    DATA_TYPE_BOOL,                          // DataType Bool
     DATA_TYPE_INT,                           // DataType Integer
     DATA_TYPE_DOUBLE, 	                     // DataType Double
     DATA_TYPE_STRING 	                     // DataType String

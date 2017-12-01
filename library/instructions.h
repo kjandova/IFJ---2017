@@ -3,6 +3,7 @@ typedef enum {
    I_CREATEFRAME, I_PUSHFRAME, I_POPFRAME,
    I_DEFVAR,
    I_RETURN,
+   I_POPS,
    I_PUSHS,
    I_CLEARS,
    I_ADD,  I_SUB,  I_MUL,  I_DIV,
@@ -41,22 +42,19 @@ typedef enum {
    I_DPRINT
 } Instructions;
 
+
 struct TWCode {
-    Instructions        instruction;
-    struct DIM          * variable0;
-    struct DIM          * variable1;
-    struct DIM          * variable2;
+    Instructions        instr;
+    struct DIM          * var1;
+    struct DIM          * var2;
+    struct DIM          * var3;
 };
 
 
-const char * getDataTypeName(DataType DT) {
-    switch(DT) {
-        case DATA_TYPE_INT:    return "int";
-        case DATA_TYPE_DOUBLE: return "double";
-        case DATA_TYPE_STRING: return "string";
-        case DATA_TYPE_VOID: return "void";
-    }
-
-    ErrorException(ERROR_INTERN, "Is dont Data Type");
-    return "";
-}
+stack * generateInstruction(struct stack ** commands, Instructions i, DIM * var1, DIM * var2, DIM * var3);
+void translateInstuctions(struct stack ** commands);
+void writeInstuction(FILE * f, struct TWCode command);
+char * getLabel(struct DIM * label);
+char * getSymb(struct DIM * sym);
+char * getVar(struct DIM * sym);
+const char * getInstuctionName(Instructions instr);

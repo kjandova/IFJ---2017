@@ -52,6 +52,7 @@ string strChars(char * str) {
 */
 void strFree(string *s) {
    free(s->str);
+   //free(s);
 }
 
 
@@ -171,3 +172,5 @@ string strUpper(string *s) {
     }
     return *s;
 }
+
+

@@ -210,48 +210,66 @@ void parser_run() {
                 if (stateReturn == PARSER_DECLARE_FUNCTION) goto LABEL_EndDeclareFunction;
 
             } break;
+
             ///////////////////////////////////////////////////////////////////////
-            // IF výraz THEN EOL
-	    // příkazy
-            // ELSE
-	    // příkazy
-	    // END IF
-	    case PARSER_IF:
-		//tu se musí zavolat PA pro výraz
-		//IF výraz = true
-			tok = scanner_next_token();
+            // IF <extension> THEN EOL <statments> ELSE <statmens> END IF
+
+            case PARSER_IF:
+
+                // IF <extension>
+                struct DIM * _return = malloc(sizeof(struct DIM));
+
+                _return->dataType = DATA_TYPE_INT;
+
+                getExpression(_return);
+
+                /////////////////////////////////
+                // IF výraz = true
+
+                // Print label instruction
+                /////////////////////////////////
+
+                tok = scanner_next_token();
 		        if (tok.flag != TOKEN_THEN) {
 		            LineErrorException(tok, ERROR_SYNTAX, "THEN is missing");
 		        }
+
+
 		        tok = scanner_next_token();
 		        if (tok.flag != TOKEN_END_OF_LINE) {
 		            LineErrorException(tok, ERROR_SYNTAX, "must be end of line");
 		        }
-			//tu se vyhodnotí další příkazy
 
-		//IFvýraz = false skip till ELSE
-			while(tok.flag != TOKEN_ELSE){
-		 		tok = scanner_next_token();
-				if (tok.flag == TOKEN_END_OF_FILE) {
-				    LineErrorException(tok, ERROR_SYNTAX, "reached end, ELSE is missing");
-				}
-			}
-			tok = scanner_next_token();
-			if (tok.flag != TOKEN_END_OF_LINE) {
-			    LineErrorException(tok, ERROR_SYNTAX, "must be end of line");
-			}
-			//tu se vyhodnoti dalsi prikazy
+		        /////////////////////////////////
+                // Print label instruction
+                /////////////////////////////////
 
-		//ending of if statement (END IF)
-	        tok = scanner_next_token();
-		if (tok.flag != TOKEN_END) {
-		    LineErrorException(tok, ERROR_SYNTAX, "missing END IF statement");
-		}
-	        tok = scanner_next_token();
-	        if (tok.flag != TOKEN_IF) {
-	            LineErrorException(tok, ERROR_SYNTAX, "missing END IF statement");
-	        }
-	    break;
+                while(tok.flag != TOKEN_ELSE){
+                    tok = scanner_next_token();
+                    if (tok.flag == TOKEN_END_OF_FILE) {
+                        LineErrorException(tok, ERROR_SYNTAX, "reached end, ELSE is missing");
+                    }
+                }
+
+                //IF výraz = false skip till ELSE
+
+                tok = scanner_next_token();
+                if (tok.flag != TOKEN_END_OF_LINE) {
+                    LineErrorException(tok, ERROR_SYNTAX, "must be end of line");
+                }
+
+                //tu se vyhodnoti dalsi prikazy
+
+                //ending of if statement (END IF)
+                    tok = scanner_next_token();
+                if (tok.flag != TOKEN_END) {
+                    LineErrorException(tok, ERROR_SYNTAX, "missing END IF statement");
+                }
+                    tok = scanner_next_token();
+                    if (tok.flag != TOKEN_IF) {
+                        LineErrorException(tok, ERROR_SYNTAX, "missing END IF statement");
+                    }
+                break;
 
 
             ///////////////////////////////////////////////////////////////////////
