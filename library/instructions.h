@@ -1,3 +1,34 @@
+////////////////////////////////////////////////////////
+//
+// DIM ( Memmory )
+//
+
+// Memmomry Frames
+typedef enum  {
+    FRAME_GLOBAL,
+    FRAME_LOCAL,
+    FRAME_TEMP,
+    FRAME_PARAMETERS,
+    FRAME_CONST
+} DIMFrame;
+
+
+// Memmory struct
+struct DIM {
+    string              name;          // ID
+    DIMFrame            frame;         // Frame
+    short int           dataType;      // DT
+    string              valueString;   // String
+    int                 valueInteger;  // Integer
+    double              valueDouble;   // Double
+};
+
+////////////////////////////////////////////////////////
+//
+// Command Three Way Code (instruction.h)
+//
+typedef struct Command  TWCode;
+
 typedef enum {
    I_MOVE,
    I_CREATEFRAME, I_PUSHFRAME, I_POPFRAME,
@@ -42,19 +73,19 @@ typedef enum {
    I_DPRINT
 } Instructions;
 
-
 struct TWCode {
     Instructions        instr;
-    struct DIM          * var1;
-    struct DIM          * var2;
-    struct DIM          * var3;
+    struct DIM          *var1;
+    struct DIM          *var2;
+    struct DIM          *var3;
 };
 
 
-stack * generateInstruction(struct stack ** commands, Instructions i, DIM * var1, DIM * var2, DIM * var3);
-void translateInstuctions(struct stack ** commands);
+//void generateInstruction(struct stack ** commands, Instructions i, struct DIM * var1, struct DIM * var2, struct DIM * var3)
+//void translateInstuctions(struct stack ** commands);
 void writeInstuction(FILE * f, struct TWCode command);
 char * getLabel(struct DIM * label);
 char * getSymb(struct DIM * sym);
 char * getVar(struct DIM * sym);
 const char * getInstuctionName(Instructions instr);
+const char * getFrameName(DIMFrame frame);

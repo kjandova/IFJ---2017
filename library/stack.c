@@ -8,25 +8,16 @@
 //  Nikola Timková		xtimko01
 //  Bc. Václav Doležal	xdolez76
 //
-//  @File				stack2.c
+//  @File				stack.c
 //  @Description
 //
 ///////////////////////////////////////////////////////////////////////////////////
 
 
 #include <stdlib.h>
-#include <err.h>
-
 #include "stack.h"
 
-struct stack {
-	int members;
-	void *arr[32];
-	struct stack *next;
-};
 
-
-//
 
 static void stack_extend(struct stack **s)
 {
@@ -40,7 +31,7 @@ static void stack_extend(struct stack **s)
 
 void stack_push(struct stack **s, void *item)
 {
-	if (!*s || (*s)->members >= ARRAY_SIZE((*s)->arr))
+	if (!(*s) || (*s)->members >= ARRAY_SIZE((*s)->arr))
 		stack_extend(s);
 
 	(*s)->arr[(*s)->members] = item;
@@ -49,7 +40,7 @@ void stack_push(struct stack **s, void *item)
 
 static void stack_reduce(struct stack **s)
 {
-	struct stack2 *tmp = *s;
+	struct stack *tmp = *s;
 	*s = tmp->next;
 	free(tmp);
 }
@@ -65,7 +56,7 @@ int stack_pop(struct stack **s, void **result)
 	return 1;
 }
 
-int stack_peek(struct s **s, void **result)
+int stack_peek(struct **s, void **result)
 {
 	int index;
 	if (!(*s) || !(*s)->members) {

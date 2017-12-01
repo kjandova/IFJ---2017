@@ -217,11 +217,11 @@ void parser_run() {
             case PARSER_IF:
 
                 // IF <extension>
-                struct DIM * _return = malloc(sizeof(struct DIM));
+                //struct DIM * _return = malloc(sizeof(struct DIM));
 
-                _return->dataType = DATA_TYPE_INT;
+                //_return->dataType = DATA_TYPE_INT;
 
-                getExpression(_return);
+                //getExpression(_return);
 
                 /////////////////////////////////
                 // IF výraz = true

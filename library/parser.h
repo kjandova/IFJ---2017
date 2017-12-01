@@ -37,40 +37,6 @@
 
 ////////////////////////////////////////////////////////
 //
-// DIM ( Memmory )
-//
-
-// Memmomry Frames
-typedef enum  {
-    FRAME_GLOBAL,
-    FRAME_LOCAL,
-    FRAME_TEMP,
-    FRAME_PARAMETERS,
-    FRAME_CONST
-} DIMFrame;
-
-
-// Memmory struct
-struct DIM {
-    string              name;          // ID
-    DIMFrame            frame;         // Frame
-    short int           dataType;      // DT
-    string              valueString;   // String
-    int                 valueInteger;  // Integer
-    double              valueDouble;   // Double
-};
-
-////////////////////////////////////////////////////////
-//
-// Command Three Way Code (instruction.h)
-//
-typedef struct Command  TWCode;
-
-
-
-
-////////////////////////////////////////////////////////
-//
 // Body of FUNCTION
 //
 struct Function {

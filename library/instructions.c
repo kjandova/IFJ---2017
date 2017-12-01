@@ -2,6 +2,22 @@
 
 
 /*
+
+void generateInstruction(struct stack ** commands, Instructions i, struct DIM * var1, struct DIM * var2, struct DIM * var3) {
+
+    struct TWCode = {
+        .instr = i,
+        .var1  = var1,
+        .var2  = var2,
+        .var3  = var3
+    };
+
+    //stack_push(commands, &TWCode)
+}
+
+
+*/
+/*
 *	@function getDataTypeName
 *	@param DataType DT
 *	@description
@@ -25,9 +41,9 @@ const char * getDataTypeName(DataType DT) {
 *	@param struct stack ** commands
 *	@description
 */
-void translateInstuctions(struct stack ** commands) {
+/*void translateInstuctions(struct stack ** commands) {
 
-}
+}*/
 
 
 /*
@@ -37,6 +53,7 @@ void translateInstuctions(struct stack ** commands) {
 *	@description Funkce vytvori novy retezec
 */
 void writeInstuction(FILE * f, struct TWCode command) {
+
     switch(command.instr) {
 
         // NULL
@@ -120,6 +137,7 @@ void writeInstuction(FILE * f, struct TWCode command) {
         case I_CONCAT:
              fprintf(f, "%s %s %s \n", getInstuctionName(command.instr), getVar(command.var1), getSymb(command.var2), getSymb(command.var3));
         break;
+        default: break;
     }
 
     fprintf(f, "/n");
@@ -142,17 +160,15 @@ char * getLabel(struct DIM * label) {
 *	@description
 */
 char * getSymb(struct DIM * sym) {
-
+    char *buf;
+    size_t sz;
     switch(sym->frame) {
         case FRAME_GLOBAL:
         case FRAME_LOCAL:
         case FRAME_TEMP:
-            char *buf;
-            size_t sz;
-            char * fn = getFrameName(sym->frame);
-            sz  = snprintf(NULL, 0, "%s@%s", fn, sym->name->str);
+            sz  = snprintf(NULL, 0, "%s@%s", getFrameName(sym->frame), (sym->name).str);
             buf = (char *) malloc(sz + 1);
-            snprintf(buf, sz+1, "%s@%s", fn, sym->name->str);
+            snprintf(buf, sz+1, "%s@%s", getFrameName(sym->frame), (sym->name).str);
         break;
         case FRAME_CONST:
             buf = getVar(sym);
@@ -163,7 +179,18 @@ char * getSymb(struct DIM * sym) {
     }
 
     return buf;
-};
+}
+
+const char *getFrameName(DIMFrame frame) {
+    switch(frame) {
+        case FRAME_GLOBAL: return "GF";
+        case FRAME_LOCAL:  return "LF";
+        case FRAME_TEMP:   return "TF";
+        default: ErrorException(ERROR_INTERN, "Is not frame");
+    }
+
+    return "";
+}
 
 
 /*
@@ -172,16 +199,15 @@ char * getSymb(struct DIM * sym) {
 *	@description
 */
 char * getVar(struct DIM * sym) {
-
     char *buf;
     size_t sz;
-    char * dtn = getDataTypeName(sym->dataType);
-    sz  = snprintf(NULL, 0, "%s@%s", dtn, sym->name->str);
+
+    sz  = snprintf(NULL, 0, "%s@%s", getDataTypeName(sym->dataType), (sym->name).str);
     buf = (char *) malloc(sz + 1);
-    snprintf(buf, sz+1, "%s@%s", dtn, sym->name->str);
+    snprintf(buf, sz+1, "%s@%s", getDataTypeName(sym->dataType), (sym->name).str);
 
     return buf;
-};
+}
 
 
 /*
@@ -261,8 +287,9 @@ const char * getInstuctionName(Instructions instr) {
         case I_SETCHAR:      return "SETCHAR";
 
         case I_CONCAT:       return "CONCAT";
+
+        default: ErrorException(ERROR_INTERN, "DEFAULT INSTRUCTION");
     }
 
-    ErrorException(ERROR_INTERN, "DEFAULT INSTRUCTION");
     return "";
 }
