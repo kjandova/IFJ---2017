@@ -104,17 +104,21 @@ int _scanner_next(string *word){
 						break;
 					case TOKEN_SLASH:								// /
 						state = SCANNER_SLASH; 			// can be for dividing or comments
-                    break;
+                  			        break;
+					case TOKEN_LESS:						// < Can be less than or less than_or_equal or not equal
+						state = SCANNER_LESS_THAN;
+						break;
+					case TOKEN_MORE:						// > Can be more than or more than_or_equal
+						state = SCANNER_MORE_THAN;
+						break;
 					case TOKEN_ADD:		                    // + Adding
 					case TOKEN_SUB:							// - Subtracting
 					case TOKEN_MUL:							// * Multiplication
 					case TOKEN_BACKSLASH:					// '\' Can be for integer dividing or escape sequence
 					case TOKEN_EQUALS:						// = Equals
-					case TOKEN_LESS:						// < Can be less than or less than_or_equal or not equal
-					case TOKEN_MORE:						// > Can be more than or more than_or_equal
 					case TOKEN_SEMICOLON:					// ; semicolon
 					case TOKEN_COMMA:
-                    case TOKEN_BRACKET_LEFT:                // (
+               			        case TOKEN_BRACKET_LEFT:                // (
 					case TOKEN_BRACKET_RIGHT:               // )
 					    return c;
 				   	case EOF :
@@ -172,7 +176,7 @@ int _scanner_next(string *word){
 					state = SCANNER_STRING;
 				}
 				else{
-					ErrorException(ERROR_LEXICAL, "Standing alone!"); 			// Only ! standing alone
+					ErrorException(ERROR_LEXICAL, "! Standing alone"); 			// Only ! standing alone
 				}
 			break;
 			case SCANNER_STRING:
