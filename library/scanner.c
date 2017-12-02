@@ -158,9 +158,17 @@ int _scanner_next(string *word){
 			case SCANNER_EXPONENT_TRY:
 				if(c == '+' || c == '-') {  		// Digit is looking like [0-9]+(e|E)(+|-)
 					strAddChar(word, c);
-					state = SCANNER_EXPONENT;
+					state = SCANNER_EXPONENT_TRY2;
 				} else {
 					ErrorException(ERROR_LEXICAL, "Wrong double exponent");			// Digit is looking like [0-9]+(e|E) and then something bad
+				}
+			break;
+			case SCANNER_EXPONENT_TRY2:
+				if(isdigit(c)) {
+					strAddChar(word, c);
+					state = SCANNER_EXPONENT;
+				} else {
+					ErrorException(ERROR_LEXICAL, "Wrong double exponent");			// Digit is looking like [0-9](e|E)(+|-) and then something bad
 				}
 			break;
 			case SCANNER_EXPONENT:
