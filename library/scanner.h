@@ -36,6 +36,7 @@ enum scanner {
 
 	SCANNER_FLOAT, 			// State as float (decimal point)
 	SCANNER_EXPONENT_TRY, 	// Trying if exponent is right
+	SCANNER_EXPONENT_TRY2, 	// Trying if exponent is right
 	SCANNER_EXPONENT, 		// Ending exponential number
 	SCANNER_STRING,
 	SCANNER_ESCAPE_SEQUENCE,
