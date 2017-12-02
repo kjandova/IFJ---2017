@@ -1,36 +1,28 @@
-///////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
 //
-//	@Project 			IFJ 2017
+//	IFH 2017
+//	stack.h
 //
-//  @Authors
-//  Kristýna Jandová  	xjando04
-//  Vilém Faigel		xfaige00
-//  Nikola Timková		xtimko01
-//  Bc. Václav Doležal	xdolez76
+//	citate: [Online: http://pseudomuto.com/development/2013/06/19/implementing-a-generic-stack-in-c/
 //
-//  @File				stack2.h
-//  @Description
-//
-///////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
 
+#ifndef __STACK_H
+#define __STACK_H
 
-
-#ifndef IFJ_TREE_H
-#define IFJ_TREE_H
-
-
-struct stack {
-	int members;
-	void *arr[32];
-	struct stack *next;
-};
-
-typedef struct stack * stack_t;
-
-
-void stack_push(stack_t *s, void *item);
-int stack_pop(stack_t *s, void **result);
-int stack_peek(stack_t *s, void **result);
-void stack_clean(stack_t *s);
+// from previous post on linked-list implementation
+// in C
+#include "list.h"
+ 
+typedef struct {
+  list *list;
+} stack;
+ 
+void stack_new(stack *s, int elementSize);
+void stack_destroy(stack *s);
+void stack_push(stack *s, void *element);
+void stack_pop(stack *s, void *element);
+void stack_peek(stack *s, void *element);
+int stack_size(stack *s);
 
 #endif
