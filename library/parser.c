@@ -379,53 +379,6 @@ void declareFunctionParameter(struct Function * f, string * name, DataType dType
 
 
 /*
-*   @function      createVariable
-*   @param         string * name
-*   @param         string * value
-*   @param         DataType dType
-*   @param         DIMFrame frame
-*   @description
-*/
-struct DIM * createVariable(string * name, string * value, DataType dType, DIMFrame frame) {
-
-    if (!name->length) {
-        ErrorException(ERROR_RUNTIME, "Create Variable :: NAME IS NULL");
-    }
-
-    Dump("Create Variable");
-    struct DIM * variable = malloc(sizeof(struct DIM));
-
-    strInit(&(variable->name));
-    strCopyString(&(variable->name), name);
-
-    variable->dataType = dType;
-    variable->frame    = frame;
-
-    if (value->length) {
-        switch (dType) {
-            case DATA_TYPE_INT: {
-                variable->valueInteger = atoi(value->str);
-            } break;
-            case DATA_TYPE_DOUBLE: {
-                char *ptr;
-                variable->valueDouble  = strtod(value->str, &ptr);
-            } break;
-            case DATA_TYPE_STRING: {
-                strInit(&(variable->valueString));
-                strCopyString(&(variable->valueString), value);
-            } break;
-
-            default: {
-                ErrorException(ERROR_INTERN, "Data Type is not defined");
-            }
-        }
-    }
-
-    return  variable;
-}
-
-
-/*
 *   @function      declareParameter
 *   @param         string * name
 *   @param         string DataType dType

@@ -14,6 +14,7 @@
 ///////////////////////////////////////////////////////////////////////////////////
 
 #include "scanner.h"
+#include "tokens.h"
 
 FILE *__scanner_file;
 int line_counter = 1;
@@ -30,6 +31,7 @@ void scanner_init(char * path) {
 }
 
 Token scanner_next_token() {
+
     Token t;
 
     string word;
@@ -38,6 +40,7 @@ Token scanner_next_token() {
     t.flag = _scanner_next(&word);
 
     int length = strGetLength(&word);
+
     position_counter -= length;
     t.line = line_counter;
     t.position = position_counter--;
@@ -45,7 +48,6 @@ Token scanner_next_token() {
     	position_counter++;
     }
     position_counter += length;
-
 
     strInit(&(t.ID));
     strCopyString(&(t.ID), &word);

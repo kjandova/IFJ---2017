@@ -13,7 +13,7 @@ void scanner_tests(char * path) {
 
     strInit(&file);
 
-    strConat(&file, &_path, &test);
+    strConcat(&file, &_path, &test);
 
     Dump("%s", file.str);
 

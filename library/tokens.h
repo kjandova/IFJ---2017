@@ -18,7 +18,7 @@
 
 #include "str.h"
 
-typedef enum {
+typedef enum DataType{
     DATA_TYPE_VOID,                          // DataType Void
     DATA_TYPE_BOOL,                          // DataType Bool
     DATA_TYPE_INT,                           // DataType Integer

@@ -2,21 +2,64 @@
 
 
 /*
+*   @function      createVariable
+*   @param         string * name
+*   @param         string * value
+*   @param         DataType dType
+*   @param         DIMFrame frame
+*   @description
+*/
+struct DIM * createVariable(string * name, string * value, DataType dType, DIMFrame frame) {
 
-void generateInstruction(struct stack ** commands, Instructions i, struct DIM * var1, struct DIM * var2, struct DIM * var3) {
+    if (!name->length) {
+        ErrorException(ERROR_RUNTIME, "Create Variable :: NAME IS NULL");
+    }
 
-    struct TWCode = {
+    struct DIM * variable = malloc(sizeof(struct DIM));
+
+    strInit(&(variable->name));
+    strCopyString(&(variable->name), name);
+
+    variable->dataType = dType;
+    variable->frame    = frame;
+
+    if (value->length) {
+        switch (dType) {
+            case DATA_TYPE_INT: {
+                variable->valueInteger = atoi(value->str);
+            } break;
+            case DATA_TYPE_DOUBLE: {
+                char *ptr;
+                variable->valueDouble  = strtod(value->str, &ptr);
+            } break;
+            case DATA_TYPE_STRING: {
+                strInit(&(variable->valueString));
+                strCopyString(&(variable->valueString), value);
+            } break;
+
+            default: {
+                ErrorException(ERROR_INTERN, "Data Type is not defined");
+            }
+        }
+    }
+
+    return  variable;
+}
+
+
+void generateInstructionBlock(stack * commands, Instructions i, struct DIM * var1, struct DIM * var2, struct DIM * var3) {
+
+    struct TWCode code = {
         .instr = i,
         .var1  = var1,
         .var2  = var2,
         .var3  = var3
     };
 
-    //stack_push(commands, &TWCode)
+    stack_push(commands, &code);
 }
 
 
-*/
 /*
 *	@function getDataTypeName
 *	@param DataType DT
@@ -54,6 +97,11 @@ const char * getDataTypeName(DataType DT) {
 */
 void writeInstuction(FILE * f, struct TWCode command) {
 
+    char * label;
+    char * var;
+    char * sym1;
+    char * sym2;
+
     switch(command.instr) {
 
         // NULL
@@ -71,20 +119,23 @@ void writeInstuction(FILE * f, struct TWCode command) {
         case I_JUMP:
         case I_JUMPIFEQS:
         case I_JUMPIFNEQS:
-            fprintf(f, "%s %s", getInstuctionName(command.instr), getLabel(command.var1));
+            label = getLabel(command.var1);
+            fprintf(f, "%s %s", getInstuctionName(command.instr), label);
         break;
 
         // VAR
         case I_DEFVAR:
         case I_POPS:
-            fprintf(f, "%s %s", getInstuctionName(command.instr), getVar(command.var1));
+            var = getVar(command.var1);
+            fprintf(f, "%s %s", getInstuctionName(command.instr), var);
         break;
 
         // SYMB
         case I_PUSHS:
         case I_WRITE:
         case I_DPRINT:
-            fprintf(f, "%s %s", getInstuctionName(command.instr), getSymb(command.var1));
+            sym1 = getVar(command.var1);
+            fprintf(f, "%s %s", getInstuctionName(command.instr), sym1);
         break;
 
 
@@ -92,6 +143,7 @@ void writeInstuction(FILE * f, struct TWCode command) {
         case I_READ:
             fprintf(f, "%s\n", getInstuctionName(command.instr));
         break;
+
         // VAR SYMB
         case I_MOVE:
         case I_INT2FLOAT:
@@ -101,13 +153,22 @@ void writeInstuction(FILE * f, struct TWCode command) {
         case I_INT2CHAR:
         case I_STRLEN:
         case I_TYPE:
-            fprintf(f, "%s %s %s \n", getInstuctionName(command.instr), getVar(command.var1), getSymb(command.var2));
+
+            var  = getVar(command.var1);
+            sym1 = getSymb(command.var2);
+
+            fprintf(f, "%s %s %s \n", getInstuctionName(command.instr), var, sym1);
         break;
 
         // LABEL SYMB1 SYMB2
         case I_JUMPIFEQ:
         case I_JUMPIFNEQ:
-            fprintf(f, "%s %s %s %s \n", getInstuctionName(command.instr), getLabel(command.var1), getSymb(command.var2), getSymb(command.var3));
+
+            label = getLabel(command.var1);
+            sym1  = getSymb(command.var2);
+            sym2  = getSymb(command.var3);
+
+            fprintf(f, "%s %s %s %s \n", getInstuctionName(command.instr), label, sym1, sym2);
         break;
 
         // VAR SYMB1 SYMB2
@@ -135,7 +196,12 @@ void writeInstuction(FILE * f, struct TWCode command) {
         case I_GETCHAR:
         case I_SETCHAR:
         case I_CONCAT:
-             fprintf(f, "%s %s %s %s \n", getInstuctionName(command.instr), getVar(command.var1), getSymb(command.var2), getSymb(command.var3));
+
+            var  = getVar(command.var1);
+            sym1 = getSymb(command.var2);
+            sym2 = getSymb(command.var3);
+
+            fprintf(f, "%s %s %s %s \n", getInstuctionName(command.instr), var, sym1, sym2);
         break;
         default: break;
     }

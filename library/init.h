@@ -24,8 +24,9 @@
 
 // HEADERS
 #include "utils.h"
-#include "error.h"
 #include "str.h"
+#include "tokens.h"
+#include "error.h"
 #include "list.h"
 #include "stack.h"
 #include "instructions.h"
@@ -51,6 +52,6 @@
 #include "scanner.c"      // Scanner - Knihovna pro skenování vstupního retezce a vytvareni tokenù
 #include "parser.c"       // Scanner - Knihovna pro parsování programu
 
-#include "tests.c"
+//#include "tests.c"
 
 #endif // IFJ_INIT_H

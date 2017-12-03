@@ -16,6 +16,7 @@
 #ifndef IFJ_STR_H
 #define IFJ_STR_H
 
+#include <ctype.h>
 #include <malloc.h>
 #include <string.h>
 #include <strings.h>
@@ -49,6 +50,5 @@ int  strCmpConstStrI(string *s1, char* s2);
 
 char *strGetStr(string *s);
 int  strGetLength(string *s);
-
 
 #endif // IFJ_STR_H
