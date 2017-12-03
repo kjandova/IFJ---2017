@@ -171,7 +171,7 @@ void printList(PAList * a){
 void prec_anal(){
 
 
-    scanner_init("./tests/Scanner/Test_1.bas");
+    scanner_init("./tests/PA/Test_1.bas");
     Token b;
     
     PAList *a = malloc(sizeof(PAList));        //zasobnik - os y v tabulke
