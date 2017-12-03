@@ -1,86 +1,82 @@
-///////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
 //
-//	@Project 			IFJ 2017
+//	IFH 2017
+//	stack.c
 //
-//  @Authors
-//  Kristýna Jandová  	xjando04
-//  Vilém Faigel		xfaige00
-//  Nikola Timková		xtimko01
-//  Bc. Václav Doležal	xdolez76
+//	citate: [Online: http://pseudomuto.com/development/2013/06/19/implementing-a-generic-stack-in-c/
 //
-//  @File				stack.c
-//  @Description
-//
-///////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 #include <stdlib.h>
+#include <assert.h>
+
 #include "stack.h"
 
 
+/*
+*  @function list_new
+*  @param    list *list
+*  @param    int elementSize
+*  @param    freeFunction freeFn
+*/
+void stack_new(stack *s, int elementSize) {
+  s->list = malloc(sizeof(list));
+  // make sure the malloc call didn't fail...
+  assert(s->list != NULL);
 
-static void stack_extend(struct stack **s)
-{
-	struct stack *tmp;
-	tmp = calloc(1, sizeof(*tmp));
-	if (!tmp)
-		ErrorException(ERROR_RUNTIME, "STACK :: Calloc");
-	tmp->next = *s;
-	*s = tmp;
+  list_new(s->list, elementSize);
 }
 
-void stack_push(struct stack **s, void *item)
-{
-	if (!(*s) || (*s)->members >= ARRAY_SIZE((*s)->arr))
-		stack_extend(s);
 
-	(*s)->arr[(*s)->members] = item;
-	(*s)->members++;
+/*
+*  @function list_new
+*  @param    stack *s
+*/
+void stack_destroy(stack *s) {
+  list_destroy(s->list);
+  free(s->list);
 }
 
-static void stack_reduce(struct stack **s)
-{
-	struct stack *tmp = *s;
-	*s = tmp->next;
-	free(tmp);
+
+/*
+*  @function stack_push
+*  @param    stack *s
+*  @param    void *element
+*/
+void stack_push(stack *s, void *element) {
+  list_prepend(s->list, element);
 }
 
-int stack_pop(struct stack **s, void **result)
-{
-	if (!stack_peek(s, result))
-		return 0;
 
-	(*s)->members--;
-	if (!(*s)->members && (*s)->next)
-		stack_reduce(s);
-	return 1;
+/*
+*  @function stack_pop
+*  @param    stack *s
+*  @param    void *element
+*/
+void stack_pop(stack *s, void *element) {
+  // don't pop an empty stack!
+  assert(stack_size(s) > 0);
+
+  list_head(s->list, element, TRUE);
 }
 
-int stack_peek(struct **s, void **result)
-{
-	int index;
-	if (!(*s) || !(*s)->members) {
-		return 0;
-	}
 
-	index = (*s)->members -1;
-	if (result)
-		*result = (*s)->arr[index];
-	return 1;
+/*
+*  @function stack_peek
+*  @param    stack *s
+*  @param    void *element
+*/
+void stack_peek(stack *s, void *element) {
+  assert(stack_size(s) > 0);
+  list_head(s->list, element, FALSE);
 }
 
-int stack_index(struct stack **s, int index, void **result)
-{
-	if (index >= (*s)->members)
-		return 0;
 
-	*result = (*s)->arr[index];
-
-	return 1;
-}
-
-void stack_clean(struct stack **s)
-{
-	while (*s)
-		stack_reduce(s);
+/*
+*  @function stack_size
+*  @param    stack *s
+*/
+int stack_size(stack *s) {
+  return list_size(s->list);
 }
