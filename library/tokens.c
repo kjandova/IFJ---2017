@@ -85,6 +85,7 @@ const char* getTokenName(int flag) {
 int getDataTypeFromToken(int flag) {
 
     switch(flag) {
+        case TOKEN_BOOLEAN: return DATA_TYPE_BOOL;
         case TOKEN_INTEGER: return DATA_TYPE_INT;
         case TOKEN_DOUBLE:  return DATA_TYPE_DOUBLE;
         case TOKEN_STRING:  return DATA_TYPE_STRING;

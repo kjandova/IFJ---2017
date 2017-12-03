@@ -23,11 +23,60 @@
 
 enum ParserStats {
     PARSER_START,
-    PARSER_DECLARE_FUNCTION,
-    PARSER_DECLARE_VARIABLE,
-    PARSER_IF,
-    PARSER_WHILE,
+
+    //
+    //
+    // DECLARE FUNCTION (ID) ( <PARAM> ) AS <TYPE> EOL
+    PARSER_DECLARE_FUNCTION_START,
+    PARSER_DECLARE_FUNCTION_PARAMETERS,
+    PARSER_DECLARE_FUNCTION_END,
+
+    //
+    //
+    // FUNCTION (ID) ( <PARAM> ) AS <TYPE> EOL
+    PARSER_DEFINE_FUNCTION_START,
+    PARSER_DEFINE_FUNCTION_PARAMETERS,
+    PARSER_DEFINE_FUNCTION_STATMENTS,
+    PARSER_DEFINE_FUNCTION_END,
+
+    //
+    // IF <EXPRESSION> THEN EOL <STATEMENT_LIST> <ELSEIF> <ELSE> END IF
+    PARSER_STATMENT_IF,
+
+    //
+    // DO WHILE <EXPRESSION> EOL <STATEMENT_LIST> <LOOP>
+    PARSER_STATMENT_WHILE,
+
+    //
+    // DIM (ID) AS <TYPE> EOL
+    PARSER_STATMENT_DIM,
+
+    //
+    // DIM (ID) AS <TYPE> <EXPRESSION> EOL
+    PARSER_STATMENT_DIM_ASSIGNMENT,
+
+    //
+    // (ID) = <EXPRESSION> EOL
+    PARSER_STATMENT_ID_ASSIGNMENT,
+
+    //
+    // (ID) = FUNCTION_ID ( <PARAM> ) EOL
+    PARSER_STATMENT_ID_ASSIGNMENT_FUNCTION,
+
+    //
+    // INPUT (ID) EOL
+    PARSER_STATMENT_INPUT,
+
+    //
+    // PRINT <EXPRESSION> EOL
+    PARSER_STATMENT_PRINT,
+
+    //
+    // FUNCTION (ID) ( <PARAM> ) AS <TYPE> EOL
     PARSER_EOL,
+
+    //
+    // FUNCTION (ID) ( <PARAM> ) AS <TYPE> EOL
     PARSER_END
 };
 
@@ -56,8 +105,9 @@ void parser_run() {
 
     struct Function *_function;
 
-    int stateMain   = PARSER_START,
-        stateReturn = PARSER_START;
+    int stateMain   = PARSER_START;
+
+    int dType;
 
     while(stateMain != PARSER_END) {
         switch(stateMain) {
@@ -68,13 +118,16 @@ void parser_run() {
                 tok = scanner_next_token();
                 switch(tok.flag) {
                     case TOKEN_DECLARE:
-                        stateMain = PARSER_DECLARE_FUNCTION;
+                        stateMain = PARSER_DECLARE_FUNCTION_START;
+                    break;
+                    case TOKEN_FUNCTION:
+                        stateMain = PARSER_DEFINE_FUNCTION_START;
                     break;
                     case TOKEN_IF:
-                        stateMain = PARSER_IF;
+                        stateMain = PARSER_STATMENT_IF;
                     break;
                     case TOKEN_DO:
-                        stateMain = PARSER_WHILE;
+                        stateMain = PARSER_STATMENT_WHILE;
                     break;
                     case TOKEN_END_OF_FILE:
                         stateMain = PARSER_END;
@@ -85,7 +138,7 @@ void parser_run() {
             ///////////////////////////////////////////////////////////////////////
             // Declare Function ID (ID As DT[, ID As DT] ..) As DT
             //
-            case PARSER_DECLARE_FUNCTION: {
+            case PARSER_DECLARE_FUNCTION_START: {
 
                 // Declare >Function<
                 tok = scanner_next_token();
@@ -99,8 +152,6 @@ void parser_run() {
                     LineErrorException(tok, ERROR_SYNTAX, "ID of function is missing");
                 }
 
-                /////////////////////////////////////////////
-                // DEFINE FUNCTION
                 _function = declareFunction(__parser_program, &(tok.ID));
 
                 // Declare Function ID >(<
@@ -109,68 +160,17 @@ void parser_run() {
                     LineErrorException(tok, ERROR_SYNTAX, "( is missing");
                 }
 
-
-                // Declare Function ID ([<STATEMENT> <STATEMENT_LIST>]>)<
+                // Declare Function ID ( [<PARAM>] )
                 tok = scanner_next_token();
                 if (tok.flag == TOKEN_ID) {
-                    stateReturn = PARSER_DECLARE_FUNCTION;
-                    stateMain   = PARSER_DECLARE_VARIABLE;
-                    break;
-                }
-
-                /////////////////////////////////////////////
-                /**/ LABEL_EndDeclareFunction:
-                /////////////////////////////////////////////
-
-                // Declare Function ID (>)<
-                if (tok.flag != TOKEN_BRACKET_RIGHT) {
-                    LineErrorException(tok, ERROR_SYNTAX, ") is missing");
-                }
-
-                /////////////////////////////////////////////
-                /// LABEL_DeclareReturnFunction:
-                /////////////////////////////////////////////
-
-                tok = scanner_next_token();
-
-                struct DIM * _return = malloc(sizeof(struct DIM));
-
-
-                // Declare Function ID () EOL
-                if (tok.flag == TOKEN_END_OF_LINE) {
-                // Declare Function ID () >AS<
-                } else if (tok.flag == TOKEN_AS) {
-                    tok = scanner_next_token();
-                    switch(tok.flag) {
-                        case TOKEN_INTEGER:
-                        case TOKEN_DOUBLE:
-                        case TOKEN_STRING:
-                            _return->dataType = getDataTypeFromToken(tok.flag);
-                        break;
-                        default:
-                            LineErrorException(tok, ERROR_SYNTAX, "Data Type is missing");
-                    }
-
-
+                    stateMain   = PARSER_DECLARE_FUNCTION_PARAMETERS;
                 } else {
-                    LineErrorException(tok, ERROR_SYNTAX, "AS is missing");
+                    stateMain   = PARSER_DECLARE_FUNCTION_END;
                 }
-
-                _function->_return = _return;
-
-                stateMain   = PARSER_START,
-                stateReturn = PARSER_START;
 
             } break;
 
-            ///////////////////////////////////////////////////////////////////////
-            // Declare Function ID (ID As DT[, ID As DT] ..) As DT
-            //
-            case PARSER_DECLARE_VARIABLE: {
-
-                /////////////////////////////////////////////
-                /**/ LABEL_DataType:
-                /////////////////////////////////////////////
+            case PARSER_DECLARE_FUNCTION_PARAMETERS: {
 
                 // >ID< As DT
                 if (tok.flag != TOKEN_ID) {
@@ -187,34 +187,61 @@ void parser_run() {
 
                 // ID As >DT<
                 tok = scanner_next_token();
+                if ((dType = getDataTypeFromToken(tok.flag)) != -1 ) {
+                    declareFunctionParameter(_function, &tmpID, dType);
+                } else {
+                    LineErrorException(tok, ERROR_SYNTAX, "Data Type is missing");
+                }
+
+                // ID As DT>[, ID As DT ..]<
+                tok = scanner_next_token();
 
                 switch (tok.flag) {
-                    case TOKEN_INTEGER:
-                    case TOKEN_DOUBLE:
-                    case TOKEN_STRING: {
-                        declareFunctionParameter(_function, &tmpID, getDataTypeFromToken(tok.flag));
+                    case TOKEN_COMMA: {
+                        tok       = scanner_next_token();
+                        stateMain = PARSER_DECLARE_FUNCTION_PARAMETERS;
                     } break;
+                    case TOKEN_BRACKET_RIGHT:  stateMain = PARSER_DECLARE_FUNCTION_END; break;
+                    default: LineErrorException(tok, ERROR_SYNTAX, ") is missing");
+                }
+            } break;
 
-                    default: {
+            case PARSER_DECLARE_FUNCTION_END: {
+
+                tok = scanner_next_token();
+
+                struct DIM * _return;
+
+                // Declare Function ID () AS DT
+                if (tok.flag == TOKEN_AS) {
+
+                    tok = scanner_next_token();
+                    if ((dType = getDataTypeFromToken(tok.flag)) != -1 ) {
+
+                        _return = DIMInitReturn(getDataTypeFromToken(tok.flag));
+
+                    } else {
                         LineErrorException(tok, ERROR_SYNTAX, "Data Type is missing");
                     }
                 }
 
-                tok = scanner_next_token();
+                // Declare Function ID () EOL
+                else if (tok.flag == TOKEN_END_OF_LINE) {
+                    _return = DIMInitReturn(DATA_TYPE_VOID);
 
-                // ID As DT>[, ID As DT ..]<
-                if (tok.flag == TOKEN_COMMA) {
-                        tok = scanner_next_token();
-                        goto LABEL_DataType;
+                } else {
+                    LineErrorException(tok, ERROR_SYNTAX, "AS is missing");
                 }
-                if (stateReturn == PARSER_DECLARE_FUNCTION) goto LABEL_EndDeclareFunction;
 
+                _function->_return = _return;
+
+                stateMain   = PARSER_START;
             } break;
 
             ///////////////////////////////////////////////////////////////////////
             // IF <extension> THEN EOL <statments> ELSE <statmens> END IF
 
-            case PARSER_IF:
+            case PARSER_STATMENT_IF:
 
                 // IF <extension>
                 //struct DIM * _return = malloc(sizeof(struct DIM));
@@ -276,21 +303,23 @@ void parser_run() {
             // DO WHILE výraz EOL
 	    // příkazy
             // LOOP
-	    case PARSER_WHILE:
-		tok = scanner_next_token();
-		if (tok.flag != TOKEN_WHILE) {
-		    LineErrorException(tok, ERROR_SYNTAX, "missing WHILE statement");
-		}
+	    case PARSER_STATMENT_WHILE:
+            tok = scanner_next_token();
+            if (tok.flag != TOKEN_WHILE) {
+                LineErrorException(tok, ERROR_SYNTAX, "missing WHILE statement");
+            }
 
-		//tu se vola PA pro vyhodnocení výrazu
-		tok = scanner_next_token();
-		if (tok.flag != TOKEN_END_OF_LINE) {
-		    LineErrorException(tok, ERROR_SYNTAX, "must be nd of line");
-		}
-		while(tok.flag != TOKEN_LOOP){
-		tok = scanner_next_token();
-		//tu jede vyhodnocování věcí v cyklu, +kontroluji jestli není ukončovací podmínka (pro BASIC)
-		}
+            //tu se vola PA pro vyhodnocení výrazu
+            tok = scanner_next_token();
+            if (tok.flag != TOKEN_END_OF_LINE) {
+                LineErrorException(tok, ERROR_SYNTAX, "must be nd of line");
+            }
+
+            while(tok.flag != TOKEN_LOOP) {
+
+            tok = scanner_next_token();
+            //tu jede vyhodnocování věcí v cyklu, +kontroluji jestli není ukončovací podmínka (pro BASIC)
+            }
 
 
 	    break;

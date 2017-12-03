@@ -13,6 +13,7 @@ typedef enum  {
     FRAME_LOCAL,
     FRAME_TEMP,
     FRAME_PARAMETERS,
+    FRAME_RETURN,
     FRAME_CONST
 } DIMFrame;
 
@@ -87,6 +88,7 @@ struct TWCode {
 
 void generateInstruction(stack * commands, Instructions i, struct DIM * var1, struct DIM * var2, struct DIM * var3);
 //void translateInstuctions(struct stack ** commands);
+struct DIM * DIMInitReturn(DataType dType);
 void writeInstuction(FILE * f, struct TWCode command);
 char * getLabel(struct DIM * label);
 char * getSymb(struct DIM * sym);

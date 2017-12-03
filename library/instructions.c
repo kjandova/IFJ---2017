@@ -1,4 +1,24 @@
 #include "instructions.h"
+/*
+*   @function      createVariable
+*   @param         string * name
+*   @param         string * value
+*   @param         DataType dType
+*   @param         DIMFrame frame
+*   @description
+*/
+struct DIM * DIMInitReturn(DataType dType) {
+
+    struct DIM * _return = malloc(sizeof(struct DIM));
+
+    _return->dataType      = dType;
+    _return->frame        = FRAME_RETURN;
+    _return->valueInteger = 0;
+    _return->valueDouble  = 0.0;
+    _return->valueString  = strChars("");
+
+    return  _return;
+}
 
 
 /*
