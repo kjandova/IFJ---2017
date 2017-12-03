@@ -171,7 +171,7 @@ void printList(PAList * a){
 void prec_anal(){
 
 
-    scanner_init("./tests/PA/Test_1.bas");
+    scanner_init("./tests/Scanner/Test_1.bas");
     Token b;
     
     PAList *a = malloc(sizeof(PAList));        //zasobnik - os y v tabulke
@@ -275,6 +275,10 @@ void prec_anal(){
 
                     //*******tu predat vyslednu operaciu*******
                     printf("%s = %s %s %s\n", a->startExp->name.str, a->startExp->name.str, getTokenName(a->lastTerminal->flag), a->last->name.str);
+                    
+
+                    // TODO: a->startExp = expeRetype()
+
                    
 
 
@@ -304,10 +308,13 @@ void prec_anal(){
             default:
 
                 //nie je to ani jedna z veci z tabulky?
-                printf("[%d][%d]%c\n", i, j, precedence);
                 printf("error\n");
                 break;
         }
+ 
+    if (precedence == ' '){
+        break;
+    }
 
     }
         
