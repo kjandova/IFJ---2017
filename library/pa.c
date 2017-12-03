@@ -87,7 +87,7 @@ const char PATable [15][15] = {
 /*  <= */ {'<', '<', '<', '<', '<', ' ', ' ', ' ', ' ', ' ', ' ', '<', '>', '<', '>',},
 /*  =  */ {'<', '<', '<', '<', '<', ' ', ' ', ' ', ' ', ' ', ' ', '<', '>', '<', '>',},
 /*  <> */ {'<', '<', '<', '<', '<', ' ', ' ', ' ', ' ', ' ', ' ', '<', '>', '<', '>',},
-/*  (  */ {'<', '<', '<', '<', '<', '<', '<', '<', '<', '<', '<', '<', '=', '<', ' ',},
+/*  (  */ {'<', '<', '<', '<', '<', '<', '<', '<', '<', '<', '<', '<', '=', '<', '>',},
 /*  )  */ {'>', '>', '>', '>', '>', '>', '>', '>', '>', '>', '>', ' ', '>', ' ', '>',},
 /*  i  */ {'>', '>', '>', '>', '>', '>', '>', '>', '>', '>', '>', ' ', '>', ' ', '>',},
 /*  $  */ {'<', '<', '<', '<', '<', '<', '<', '<', '<', '<', '<', '<', ' ', '<', 'E',},
@@ -106,8 +106,8 @@ unsigned int getTableIndex(int flag) {
         case TOKEN_LESS_OR_EQUAL:           return 8;   // <=
         case TOKEN_EQUALS:                  return 9;   // =
         case TOKEN_NON_EQUAL:               return 10;  // <>
-        case TOKEN_BRACKET_LEFT:            return 11;  // (
-        case TOKEN_BRACKET_RIGHT:           return 12;  // )
+        case TOKEN_BRACKET_LEFT:            return 12;  // (
+        case TOKEN_BRACKET_RIGHT:           return 11;  // )
         case TOKEN_INTEGER:
         case TOKEN_DOUBLE:
         case TOKEN_STRING:
@@ -226,15 +226,22 @@ void prec_anal(){
         unsigned int i = getTableIndex(lastTerminal->flag);
 
 
-
+        //printf("Last terminal: %s\n", getTokenName(a->lastTerminal->flag));
 
         char precedence = PATable[i][j];
 
+        //printf("\nporovnavam: %d : %d aka %d : %d\n", lastTerminal->flag, b.flag, i, j);
         switch(precedence){
             case '=':
 
+                //printf("=\n");
+
                 insert_item(a, b.flag, b.ID);
                 b = scanner_next_token();
+
+                //a->last->is_startOfExpr = false;
+                //a->last->is_expression = true;
+                a->last->is_terminal = true;
 
                 
 
@@ -242,8 +249,12 @@ void prec_anal(){
 
             case '<':
 
+                //printf("<\n");
+
                 insert_item(a, b.flag, b.ID);
                 b = scanner_next_token();
+
+                a->last->is_terminal = false;
 
 
 
@@ -253,6 +264,14 @@ void prec_anal(){
                         a->last->is_startOfExpr = true;
                         a->last->is_expression = true;
                         a->last->is_terminal = true;
+                }
+
+                else if(a->last->flag == TOKEN_BRACKET_RIGHT){
+                    
+                    a->last->is_startOfExpr = true;
+                    a->last->is_expression = false;
+                    a->last->is_terminal = true;
+                    //printf("B.left by mala byt startofE: %d\n", a->last->is_startOfExpr);
                 }
 
                 //nie je i, vloz na koniec listu
@@ -271,6 +290,8 @@ void prec_anal(){
                     a->last->is_expression = true;
                     a->last->prev->is_startOfExpr = true;
 
+                    //printf("Vkladam : %d\n", a->last->flag);
+
                 }
                 
 
@@ -278,18 +299,24 @@ void prec_anal(){
 
             case '>':
 
+                //printf(">\n");
+
 
                 //pravidlo E -> E
-                if(a->lastTerminal->is_startOfExpr == true){
+                if((a->lastTerminal->is_startOfExpr == true) && (a->lastTerminal->flag != TOKEN_BRACKET_LEFT)){
                     a->lastTerminal->is_expression = true;
                     a->lastTerminal->is_terminal = false;
                     a->lastTerminal->is_startOfExpr = false;
-                   // printf("E-> %s \n", a->lastTerminal->name.str);
+
+                    if((a->lastTerminal->flag == TOKEN_ID) || (a->lastTerminal->flag == TOKEN_INTEGER ||
+                        a->last->flag == TOKEN_DOUBLE || a->last->flag == TOKEN_STRING)){
+                        printf("E-> %s \n", a->lastTerminal->name.str);
+                    }
 
                 }
 
                 //pravidlo E -> E x E
-                else{
+                else if ((a->last->flag != TOKEN_BRACKET_LEFT)){
                             PAItem *startExp = a->last;
                             while (startExp->is_startOfExpr == false) {
                                 startExp = startExp->prev;
@@ -317,23 +344,60 @@ void prec_anal(){
                     a->last->is_expression = true;
                     a->last->is_startOfExpr = false;
                 }
-               
+
+                else{
+                        
+                        PAItem *startExp = a->last;
+                            while (startExp->is_startOfExpr == false) {
+                                startExp = startExp->prev;
+                            }
+     
+                            a->startExp->next = startExp;
+
+                       
+                        //printf("%s -> ( %s )\n", a->lastTerminal->prev->name.str, a->lastTerminal->prev->name.str);
+                        
+
+
+                        PAItem * item;
+                        item = a->last->prev;
+
+                        free(a->lastTerminal);
+
+                        a->last = item;
+
+                        
+                        a->last->is_terminal = false;
+                        a->last->is_expression = true;
+                        a->last->is_startOfExpr = false;
+
+                        PAItem * pom = a->last;
+                            while (pom->is_terminal == false) {
+                            pom = pom->prev;
+                        }
+                        a->lastTerminal = pom;
+                        a->lastTerminal = lastTerminal;//->prev;
+
+                       
+
+                        
+
+                }
 
                 break;
 
             case 'E':
 
                 //koniec, $ == $
-                printf("Successfull end.\n");
+                printf("\nSuccess.\n");
                 break;
 
 
 
 
             default:
-
-                
-                LineErrorException(b, ERROR_SEMANTIC, "Nespravne vstupne znaky");
+                //printf("%d %d\n",i,j );
+                LineErrorException(b, ERROR_SEMANTIC, "Unexpected expression");
                 break;
         }
  
@@ -341,7 +405,6 @@ void prec_anal(){
 
     }
         
-   
 
     free(a);
 
