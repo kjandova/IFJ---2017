@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include <mem.h>
+
 #include "pa.h"
 
 // //////////////////////////////////////////////////////
@@ -13,39 +13,57 @@ void init_list(PAList *l) {
     l->lastTerminal = NULL;
 }
 
-void insert_handle(PAList *l) {
+void insert_item(PAList *l, int flag, string name) {
 
 
-    if (l->last == l->lastTerminal) {
+    if (l->first == NULL) {
 
 
         PAItem *tmp;
         tmp = malloc(sizeof(PAItem));
-        tmp->is_terminal = false;
-        tmp->E_handle = true;
+        tmp->is_terminal = true;
+        tmp->is_expression = false;
+        tmp->is_startOfExpr = false;
         tmp->next = NULL;
+
+        tmp->flag = flag;
+        tmp->name = name;
+
         tmp->prev = l->last;
         l->last = tmp;
-
 
     } else {
 
 
         PAItem *tmp;
         tmp = malloc(sizeof(PAItem));
-        tmp->is_terminal = false;
-        tmp->E_handle = true;
-        tmp->next = l->lastTerminal->next;
-        l->lastTerminal->next->prev = tmp;
-        tmp->prev = l->lastTerminal;
+        tmp->is_terminal = true;
+        tmp->is_expression = false;
+        tmp->is_startOfExpr = false;
+
+        tmp->flag= flag;
+        tmp->name = name;
+
+        tmp->next = l->last->next;
+        l->last->next->prev = tmp;
     }
 }
 
-bool is_handle(PAList *l) {
+
+PAItem * last_terminal(PAList *l) {
+  PAItem *tmp = l->last;
+  while (tmp->is_terminal == false) {
+    tmp = tmp->prev;
+  }
+  l->lastTerminal = tmp;
+  return tmp;
+}
+
+bool is_expression(PAList *l) {
     PAItem *tmp = l->last;
 
     while (tmp) {
-        if (tmp->e_handle == true)
+        if (tmp->is_expression == true)
             return true;
         tmp = tmp->prev;
     }
@@ -53,30 +71,6 @@ bool is_handle(PAList *l) {
     return false;
 }
 
-
-unsigned int get_table_index(int flag) {
-    switch(flag) {
-        case TOKEN_ADD:                     return 0;   // +
-        case TOKEN_SUB:                     return 1;   // -
-        case TOKEN_MUL:                     return 2;   // *
-        case TOKEN_DIV:                     return 3;   // /
-        case TOKEN_BACKSLASH:               return 4;   // '\'
-        case TOKEN_MORE:                    return 5;   // >
-        case TOKEN_LESS:                    return 6;   // <
-        case TOKEN_MORE_OR_EQUAL:           return 7;   // >=
-        case TOKEN_LESS_OR_EQUAL:           return 8;   // <=
-        case TOKEN_EQUALS:                  return 9;   // =
-        case TOKEN_NON_EQUAL:               return 10;  // <>
-        case TOKEN_BRACKET_LEFT:            return 11;  // (
-        case TOKEN_BRACKET_RIGHT:           return 12;  // )
-        case TOKEN_INTEGER:
-        case TOKEN_DOUBLE:
-        case TOKEN_STRING:                  return 13;  // i
-        case TOKEN_END_OF_LINE:             return 14;  // $
-    }
-
-    return ERROR_INTERN;
-}
 
 const char PATable [15][15] = {
 /*          +    -    *    /    \    >    <   >=    <=   =    <>   (    )    i    $       */
@@ -94,8 +88,37 @@ const char PATable [15][15] = {
 /*  (  */ {'<', '<', '<', '<', '<', '<', '<', '<', '<', '<', '<', '<', '=', '<', ' ',},
 /*  )  */ {'>', '>', '>', '>', '>', '>', '>', '>', '>', '>', '>', ' ', '>', ' ', '>',},
 /*  i  */ {'>', '>', '>', '>', '>', '>', '>', '>', '>', '>', '>', ' ', '>', ' ', '>',},
-/*  $  */ {'<', '<', '<', '<', '<', '<', '<', '<', '<', '<', '<', '<', ' ', '<', ' ',},
+/*  $  */ {'<', '<', '<', '<', '<', '<', '<', '<', '<', '<', '<', '<', ' ', '<', 'E',},
 };
+
+unsigned int getTableIndex(int flag) {
+    switch(flag) {
+        case TOKEN_ADD:                     return 0;   // +
+        case TOKEN_SUB:                     return 1;   // -
+        case TOKEN_MUL:                     return 2;   // *
+        case TOKEN_DIV:                     return 3;   // /
+        case TOKEN_BACKSLASH:               return 4;   // '\'
+        case TOKEN_MORE:                    return 5;   // >
+        case TOKEN_LESS:                    return 6;   // <
+        case TOKEN_MORE_OR_EQUAL:           return 7;   // >=
+        case TOKEN_LESS_OR_EQUAL:           return 8;   // <=
+        case TOKEN_EQUALS:                  return 9;   // =
+        case TOKEN_NON_EQUAL:               return 10;  // <>
+        case TOKEN_BRACKET_LEFT:            return 11;  // (
+        case TOKEN_BRACKET_RIGHT:           return 12;  // )
+        case TOKEN_INTEGER:
+        case TOKEN_DOUBLE:
+        case TOKEN_STRING:
+        case TOKEN_ID:                      return 13;  // i
+        case TOKEN_END_OF_LINE:             return 14;  // $
+    }
+
+    return ERROR_INTERN;
+}
+
+char getTable(int i, int j) {
+    return PATable[getTableIndex(i)][getTableIndex(j)];
+}
 
 int expeRetype(int typeA, int typeB) {
 
@@ -133,96 +156,164 @@ int expeRetype(int typeA, int typeB) {
 
 
 
+void printList(PAList * a){
+    PAItem *tmp = a->last;
+        while(tmp->prev != NULL){
+        
+            tmp = tmp->prev;
+            printf("Name: %s, Flag: %d, Is terminal: %d, Is expr: %d Is startE: %d\n", tmp->name.str, tmp->flag, tmp->is_terminal, tmp->is_expression, tmp->is_startOfExpr);
+        }
+        free(tmp);
+}
+
+
+
 void prec_anal(){
 
+
+    scanner_init("./tests/Scanner/Test_1.bas");
     Token b;
-    PAList * a;
-    a = malloc(sizeof(PAList));        //zasobnik - os y v tabulke
+    
+    PAList *a = malloc(sizeof(PAList));        //zasobnik - os y v tabulke
     init_list(a);
 
-    a->last->id = TOKEN_END_OF_LINE;
-    b = scanner_next_token();
-
-/*
-
-    //pokial sa nedostanem na koniec vyrazu a zaroven na stacku nezostane iba $
-    //while(((b = scanner_next_token()) != EOL) && (stack_peek(a) != T_END)) {
-
-    while((b.flag != TOKEN_END_OF_LINE) && (stackTop(a) != TOKEN_END_OF_LINE)) {
 
 
+    //vlozi na spodok listu $
+    string end;    
+    end.str = "$";
+    insert_item(a, TOKEN_END_OF_LINE, end);
 
-        int j = get_table_index(b.flag);      //nacita index vstupneho tokenu
-        int i = stackTop(a);
+    a->lastTerminal = a->last;
+
+     
+    b = scanner_next_token();           
+
+   
+
+    while (!((b.flag == TOKEN_END_OF_LINE) && (a->lastTerminal->flag == TOKEN_END_OF_LINE))){ 
+
+
+        //b = scanner_next_token();
+        
+        unsigned int j = getTableIndex(b.flag);
+
+
+        //najde posledny terminal s kt. bude porovnavat znak na vstupe
+        PAItem * lastTerminal = a->last;
+            while (lastTerminal->is_terminal == false) {
+            lastTerminal = lastTerminal->prev;
+        }
+        a->lastTerminal = lastTerminal;
+
+        
+
+        unsigned int i = getTableIndex(lastTerminal->flag);
+
+
+
+
         char precedence = PATable[i][j];
 
-        int e_counter = -1;
-
         switch(precedence){
-
-
             case '=':
-                stackPush(a, b.ID);
+
+                insert_item(a, b.flag, b.ID);
                 b = scanner_next_token();
+
+                
+
                 break;
 
             case '<':
 
-                if (j == 13) {     //ak je vstupny znak identifikator, pravidlo E->i
-                    e_counter++;
-                    stackPush(a, b.ID);
-                    b = scanner_next_token();
+                insert_item(a, b.flag, b.ID);
+                b = scanner_next_token();
 
 
+
+                
+                if(a->last->flag == TOKEN_ID || a->last->flag == TOKEN_INTEGER ||
+                    a->last->flag == TOKEN_DOUBLE || a->last->flag == TOKEN_STRING){
+                        a->last->is_startOfExpr = true;
+                        a->last->is_expression = true;
+                        a->last->is_terminal = true;
                 }
+
+                //nie je pravidlo, vloz na koniec listu
                 else{
-                    stackPush(a, b.ID);
-                    b = scanner_next_token();
+                    a->last->is_startOfExpr = false;
+                    a->last->is_terminal = true;
+                    a->last->is_expression = true;
+                    a->last->prev->is_startOfExpr = true;
                 }
-                break;
+                
 
+                break;
 
             case '>':
-                //pravidla E -> E op E
 
 
+                //pravidlo E -> E
+                if(a->lastTerminal->is_startOfExpr == true){
+                    a->lastTerminal->is_expression = true;
+                    a->lastTerminal->is_terminal = false;
+                    a->lastTerminal->is_startOfExpr = false;
+                   // printf("E-> %s \n", a->lastTerminal->name.str);
 
-/*
-                if (strcmp(operators[operators_count], "+") == 0) {
-                    printf("ADD %s %s %s", operators[operators_count - 1], operators[operators_count],
-                           operators[operators_count - 1]);
-                    operators_count--;
-                    e[e_count]--;
                 }
 
+                //pravidlo E -> E x E
+                else{
+                            PAItem *startExp = a->last;
+                            while (startExp->is_startOfExpr == false) {
+                                startExp = startExp->prev;
+                            }
+     
+                            a->startExp = startExp;
 
-                if (strcmp(operators[operators_count], "-") == 0) {
-                    printf("SUB %s %s %s", operators[operators_count - 1], operators[operators_count],
-                           operators[operators_count - 1]);
-                    operators_count--;
-                }
 
-                if (strcmp(operators[operators_count], "*") == 0) {
-                    printf("MUL %s %s %s", operators[operators_count - 1], operators[operators_count],
-                           operators[operators_count - 1]);
-                    operators_count--;
-                }
+                    //*******tu predat vyslednu operaciu*******
+                    printf("%s = %s %s %s\n", a->startExp->name.str, a->startExp->name.str, getTokenName(a->lastTerminal->flag), a->last->name.str);
+                   
 
-                if (strcmp(operators[operators_count], "/") == 0){
-                        printf("DIV %s %s %s", operators[operators_count-1], operators[operators_count], operators[operators_count-1]);
-                        operators_count--;
+
+                    free(a->last);
+                    free(a->lastTerminal);
+                    PAItem * tmp;
+                    tmp = startExp;
+                    a->last = tmp;
+
+                    a->last->is_terminal = false;
+                    a->last->is_expression = true;
+                    a->last->is_startOfExpr = false;
                 }
-                else printf("error");
+               
+
                 break;
+
+            case 'E':
+
+                //koniec, $ == $
+                printf("Successfull end.\n");
+                break;
+
+
+
 
             default:
 
-                stack_clean(&a);
-                printf("Expression syntax error");
-                //ErrorException(ERROR_SYNTAX, "Expression syntax error");
+                //nie je to ani jedna z veci z tabulky?
+                printf("[%d][%d]%c\n", i, j, precedence);
+                printf("error\n");
                 break;
         }
 
-    }*/
+    }
+        
+   
+
+    free(a);
+
 
 }
