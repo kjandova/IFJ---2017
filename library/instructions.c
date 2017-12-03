@@ -1,5 +1,44 @@
 #include "instructions.h"
 
+#define CHAR_OK(c) ((c) > 32 && \
+(c) < 127 && \
+(c) != '#' && \
+(c) != '\\' )
+
+/**
+ * @brief Escapes string to string usable as IFJcode17 literal
+ * @param s string to be escaped
+ * @return new string with escaped unsafe characters
+ */
+static char *ifjcode_escape(const char *s)
+{
+	size_t len = 0;
+	// Let's play it safe and use unsigned chars
+	const unsigned char *us = (const unsigned char *) s;
+	char *ret;
+	size_t i, j;
+
+	for (i = 0; us[i]; i++) {
+		if (CHAR_OK(us[i]))
+			len += 1;
+		else
+			len += 4;
+	}
+
+	if (!(ret = calloc(len + 1, sizeof(*ret))))
+		ErrorException(ERROR_RUNTIME, "RUNTIME ERROR :: Allocation error");
+
+	for (i = 0, j = 0; us[i]; i++) {
+		if (CHAR_OK(us[i])) {
+			ret[j++] = us[i];
+		} else {
+			sprintf(&ret[j], "\\%03hhu", us[i]);
+			j += 4;
+		}
+	}
+	return ret;
+}
+#undef CHAR_OK
 
 /*
 *   @function      createVariable
