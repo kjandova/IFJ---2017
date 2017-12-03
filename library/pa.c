@@ -20,7 +20,9 @@ void insert_item(PAList *l, int flag, string name) {
 
 
         PAItem *tmp;
-        tmp = malloc(sizeof(PAItem));
+        if ((tmp = malloc(sizeof(PAItem))) == NULL){
+            printf("Error pri alokacii\n");
+        }
         tmp->is_terminal = true;
         tmp->is_expression = false;
         tmp->is_startOfExpr = false;
@@ -166,12 +168,25 @@ void printList(PAList * a){
         free(tmp);
 }
 
+bool isOperator(int a){
 
+    int operators[12] = {TOKEN_MUL, TOKEN_ADD, TOKEN_SUB, TOKEN_DIV, TOKEN_LESS, 
+        TOKEN_EQUALS, TOKEN_MORE, TOKEN_SLASH, TOKEN_BACKSLASH, TOKEN_NON_EQUAL, 
+        TOKEN_MORE_OR_EQUAL, TOKEN_LESS_OR_EQUAL};
+
+    for (int i = 0; i !=11; i++){
+        if (a == operators[i]){
+            return true;
+        }
+    }
+    return false;  
+
+}
 
 void prec_anal(){
 
 
-    scanner_init("./tests/PA/Test_1.bas");
+    scanner_init("./tests/Scanner/Test_1.bas");
     Token b;
     
     PAList *a = malloc(sizeof(PAList));        //zasobnik - os y v tabulke
@@ -240,12 +255,22 @@ void prec_anal(){
                         a->last->is_terminal = true;
                 }
 
-                //nie je pravidlo, vloz na koniec listu
+                //nie je i, vloz na koniec listu
                 else{
+
+                    //ak idu po sebe dva operatory, chyba
+                    if((isOperator(a->last->flag) == true) &&
+                        (isOperator(b.flag) == true)){
+
+                        LineErrorException(b, ERROR_SEMANTIC, "Dva po sebe iduce operatory");
+
+                        break;
+                    }
                     a->last->is_startOfExpr = false;
                     a->last->is_terminal = true;
                     a->last->is_expression = true;
                     a->last->prev->is_startOfExpr = true;
+
                 }
                 
 
@@ -275,6 +300,10 @@ void prec_anal(){
 
                     //*******tu predat vyslednu operaciu*******
                     printf("%s = %s %s %s\n", a->startExp->name.str, a->startExp->name.str, getTokenName(a->lastTerminal->flag), a->last->name.str);
+                    
+
+                    // TODO: a->startExp = expeRetype()
+
                    
 
 
@@ -303,11 +332,12 @@ void prec_anal(){
 
             default:
 
-                //nie je to ani jedna z veci z tabulky?
-                printf("[%d][%d]%c\n", i, j, precedence);
-                printf("error\n");
+                
+                LineErrorException(b, ERROR_SEMANTIC, "Nespravne vstupne znaky");
                 break;
         }
+ 
+
 
     }
         

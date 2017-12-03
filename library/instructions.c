@@ -107,7 +107,7 @@ void writeInstuction(FILE * f, struct TWCode command) {
         // LABEL SYMB1 SYMB2
         case I_JUMPIFEQ:
         case I_JUMPIFNEQ:
-            fprintf(f, "%s %s %s \n", getInstuctionName(command.instr), getLabel(command.var1), getSymb(command.var2), getSymb(command.var3));
+            fprintf(f, "%s %s %s %s \n", getInstuctionName(command.instr), getLabel(command.var1), getSymb(command.var2), getSymb(command.var3));
         break;
 
         // VAR SYMB1 SYMB2
@@ -135,7 +135,7 @@ void writeInstuction(FILE * f, struct TWCode command) {
         case I_GETCHAR:
         case I_SETCHAR:
         case I_CONCAT:
-             fprintf(f, "%s %s %s \n", getInstuctionName(command.instr), getVar(command.var1), getSymb(command.var2), getSymb(command.var3));
+             fprintf(f, "%s %s %s %s \n", getInstuctionName(command.instr), getVar(command.var1), getSymb(command.var2), getSymb(command.var3));
         break;
         default: break;
     }
