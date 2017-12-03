@@ -48,7 +48,7 @@ int tree_get(struct tree *t, char *key, void **payload);
 
 void tree_balance(struct tree *t);
 
-#endif
+#endif // IFJ_TREE_H
 
 
 ///////////////////////////////////////////////////////////////////////////////////
@@ -82,4 +82,4 @@ int tree_node_rotate(struct tree_node **root, int dir);
 /* Day-Stout-Warren */
 void tree_node_dsw(struct tree_node **root);
 
-#endif
+#endif // IFJ_TREE_P_H

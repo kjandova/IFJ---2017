@@ -21,6 +21,7 @@
 #include <stdarg.h>
 #include <time.h>
 
+#include "tokens.h"
 //
 // ERROR CODE
 //
@@ -46,4 +47,4 @@ void Dump (char* format, ...);
 void LineDump (Token tok, char* format, ...);
 const char * getErrorName(short int e);
 
-#endif
+#endif // IFJ_ERROR_H

@@ -13,6 +13,9 @@
 //
 ///////////////////////////////////////////////////////////////////////////////////
 
+#ifndef IFJ_UTILS_H
+#define IFJ_UTILS_H
+
 #define unused(x) (void)(x)
 #define NEW(var) \
 	((var) = malloc(sizeof(*(var))))
@@ -27,3 +30,5 @@
 	} while (0)
 
 #define ARRAY_SIZE(x) (sizeof(x)/sizeof((x)[0]))
+
+#endif // IFJ_UTILS_H

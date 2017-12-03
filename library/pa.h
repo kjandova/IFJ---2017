@@ -1,5 +1,5 @@
-#ifndef UNTITLED2_PA_H
-#define UNTITLED2_PA_H
+#ifndef IFJ_PA_H
+#define IFJ_PA_H
 
 #include <stdbool.h>
 
@@ -20,4 +20,5 @@ typedef struct {
     PAItem *last;
     PAItem *lastTerminal;
 }PAList;
-#endif //UNTITLED2_PA_H
+
+#endif //IFJ_PA_H

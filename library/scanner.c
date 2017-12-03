@@ -118,7 +118,7 @@ int _scanner_next(string *word){
 					case TOKEN_EQUALS:						// = Equals
 					case TOKEN_SEMICOLON:					// ; semicolon
 					case TOKEN_COMMA:
-               			        case TOKEN_BRACKET_LEFT:                // (
+               		case TOKEN_BRACKET_LEFT:                // (
 					case TOKEN_BRACKET_RIGHT:               // )
 					    return c;
 				   	case EOF :

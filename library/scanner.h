@@ -13,6 +13,8 @@
 //
 ///////////////////////////////////////////////////////////////////////////////////
 
+#ifndef IFJ_SCANNER_H
+#define IFJ_SCANNER_H
 
 #include <stdio.h>
 #include <errno.h>
@@ -95,3 +97,4 @@ Token scanner_next_token();
 int _scanner_next(string *word);
 void scanner_token_dump(Token tok);
 
+#endif // IFJ_SCANNER_H

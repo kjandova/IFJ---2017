@@ -22,6 +22,8 @@
 *	@description Funkce vytvori novy retezec
 */
 int strInit(string *s) {
+   s = malloc(sizeof(string));
+
    if ((s->str = (char*) malloc(STR_LEN_INC)) == NULL)
       return STR_ERROR;
    s->str[0]    = '\0';
@@ -172,5 +174,28 @@ string strUpper(string *s) {
     }
     return *s;
 }
+
+
+/*
+*	@function strConat
+*	@param string *s1
+*	@param string *s2
+*	@description spoji retezce do s
+*/
+void strConat(string * s, string * s1, string * s2) {
+    int newLength = s1->length + s2->length;
+
+    int allocSize = newLength + STR_LEN_INC - (newLength % STR_LEN_INC);
+
+    char * str = malloc(allocSize);
+
+    snprintf(str, allocSize, "%s%s", s1->str, s2->str);
+
+    s->str       = str;
+    s->allocSize = allocSize;
+    s->length    = newLength+1;
+
+}
+
 
 

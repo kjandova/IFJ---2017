@@ -13,8 +13,12 @@
 //
 ///////////////////////////////////////////////////////////////////////////////////
 
+#ifndef IFJ_FILES_H
+#define IFJ_FILES_H
+
 #include <stdio.h>
 #include <stdlib.h>
 
-//FILE * loadFile(FILE * file, char * path);
+FILE * loadFile(char * path);
 
+#endif // IFJ_FILES_H

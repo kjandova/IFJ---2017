@@ -1,3 +1,7 @@
+#ifndef IFJ_INSTRUCTIONS_H
+#define IFJ_INSTRUCTIONS_H
+
+
 ////////////////////////////////////////////////////////
 //
 // DIM ( Memmory )
@@ -89,3 +93,5 @@ char * getSymb(struct DIM * sym);
 char * getVar(struct DIM * sym);
 const char * getInstuctionName(Instructions instr);
 const char * getFrameName(DIMFrame frame);
+
+#endif // IFJ_INSTRUCTIONS_H

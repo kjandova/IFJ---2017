@@ -8,12 +8,16 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-#ifndef __LIST_H
-#define __LIST_H
+#ifndef IFJ_LIST_H
+#define IFJ_LIST_H
+
+#include <stdlib.h>
+#include <string.h>
+#include <assert.h>
+#include <stdbool.h>
 
 // a common function used to free malloc'd objects
 
-typedef enum { FALSE, TRUE } bool;
 
 typedef bool (*listIterator)(void *);
 
@@ -40,4 +44,4 @@ void list_for_each(list *list, listIterator iterator);
 void list_head(list *list, void *element, bool removeFromList);
 void list_tail(list *list, void *element);
 
-#endif
+#endif // IFJ_LIST_H

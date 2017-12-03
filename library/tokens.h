@@ -13,6 +13,11 @@
 //
 ///////////////////////////////////////////////////////////////////////////////////
 
+#ifndef IFJ_TOKENS_H
+#define IFJ_TOKENS_H
+
+#include "str.h"
+
 typedef enum {
     DATA_TYPE_VOID,                          // DataType Void
     DATA_TYPE_BOOL,                          // DataType Bool
@@ -114,3 +119,6 @@ typedef struct {
 
 const char * getTokenName(int flag);
 int          getDataTypeFromToken(int flag);
+
+
+#endif // IFJ_TOKENS_H
