@@ -21,6 +21,7 @@
 #ifndef IFJ_TREE_H
 #define IFJ_TREE_H
 
+#include "stack.h"
 
 enum tree_type {
 	TREE_PLAIN,
@@ -31,6 +32,14 @@ struct tree {
 	struct tree_node *root;
 	enum tree_type type;
 	unsigned readonly : 1;
+};
+
+struct tree_iter {
+	stack state;
+	struct {
+		char *key;
+		void *payload;
+	} item;
 };
 
 struct tree *new_tree(enum tree_type type)
@@ -47,6 +56,40 @@ int tree_del(struct tree *t, char *key);
 int tree_get(struct tree *t, char *key, void **payload);
 
 void tree_balance(struct tree *t);
+
+/*
+ * Iterators
+ * Intended usage:
+ *
+ * tree_iter_init(&it, &tree);
+ * while (tree_iter_next(&it)) {
+ *     do_something();
+ * }
+ * tree_iter_tear(&it);
+ */
+
+/**
+ * \brief Initialises tree iterator
+ * Creates iterator which will traverse tree inorder.
+ * Tree should not be modified during iteration.
+ * \param it pointer to memory which will hold iterator
+ * \param t tree to iterate over
+ * \return success boolean
+ */
+int tree_iter_init(struct tree_iter *it, struct tree *t);
+
+/**
+ * \brief Iterates tree iterator
+ * \param it pointer to iterator
+ * \return success boolean; false if there is not next element
+ */
+int tree_iter_next(struct tree_iter *it);
+
+/**
+ * \brief Deinitialises tree iterator
+ * \param it pointer to iterator
+ */
+void tree_iter_tear(struct tree_iter *it);
 
 #endif // IFJ_TREE_H
 

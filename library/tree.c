@@ -20,6 +20,7 @@
 #include <assert.h>
 
 #include "tree.h"
+#include "stack.h"
 #include "utils.h"
 
 static char *xstrdup(const char *s)
@@ -114,6 +115,40 @@ void tree_balance(struct tree *t)
 {
 	tree_node_dsw(&t->root);
 	return;
+}
+
+static void tree_iter_prepare_subtree(stack *stack, struct tree_node *t)
+{
+	for (; t; t = t->left)
+		stack_push(stack, (void *) &t);
+}
+
+int tree_iter_init(struct tree_iter *it, struct tree *t)
+{
+	stack_new(&it->state, sizeof(struct tree_node *));
+	tree_iter_prepare_subtree(&it->state, t->root);
+	return 1;
+}
+
+int tree_iter_next(struct tree_iter *it)
+{
+	struct tree_node *t;
+
+	if (!stack_size(&it->state))
+		return 0;
+
+	stack_pop(&it->state, (void *) &t);
+	it->item.key = t->key;
+	it->item.payload = t->payload;
+
+	tree_iter_prepare_subtree(&it->state, t->right);
+
+	return 1;
+}
+
+void tree_iter_tear(struct tree_iter *it)
+{
+	stack_destroy(&it->state);
 }
 
 static struct tree_node *tree_node_new(char *key, void *payload)
