@@ -3,22 +3,34 @@
 
 #include <stdbool.h>
 
-int expeRetype(int typeA, int typeB);
-unsigned int get_table_index(int flag);
-bool is_handle(PAList *l);
 
 typedef struct items{
-    int id;
+    int flag;
+    string name;
     bool is_terminal;
-    bool E_handle;
+    bool is_expression;
+    bool is_startOfExpr;
     struct items *next;
     struct items *prev;
 }PAItem;
 
-typedef struct {
+
+
+typedef struct PAList{
     PAItem *first;
     PAItem *last;
     PAItem *lastTerminal;
+    PAItem *startExp;
 }PAList;
+
+
+void prec_anal();
+void init_list(PAList *l);
+PAItem * last_terminal(PAList *l);
+
+bool is_expression(PAList *l);
+void insert_item(PAList *l, int flag, string name);
+
+
 
 #endif //IFJ_PA_H
