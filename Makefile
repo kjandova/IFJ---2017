@@ -10,4 +10,5 @@ Project: $(OBJECTS)
 main.o: main.c 
 	$(CC) $(CFLAGS) -c main.c
 
-
+clean:
+	@rm -f $(PROGRAMS) *.o core
