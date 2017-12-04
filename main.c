@@ -57,4 +57,6 @@ int main() {
     printf("%d %d", b->x, b->y);
     return 0;
     */
+
+    return 0;
 }

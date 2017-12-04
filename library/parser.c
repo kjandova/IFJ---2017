@@ -704,7 +704,6 @@ void _dumpFunctions(struct tree_node * node) {
     if (!node) return;
     _dumpFunctions(node->left);
 
-
     struct Function * f = node->payload;
 
     printf("Function %s()\n", (f->name).str);

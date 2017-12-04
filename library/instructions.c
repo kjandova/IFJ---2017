@@ -28,8 +28,10 @@ struct DIM * DIMInitReturn(DataType dType) {
 
 //TODO: This function shall be used when emitting string literal; delete
 //      attribute after emitting literals is implemented.
-static char *ifjcode_escape(const char *s)
+
+/*static char *ifjcode_escape(const char *s)
 	__attribute__((unused));
+*/
 
 /**
  * @brief Escapes string to string usable as IFJcode17 literal

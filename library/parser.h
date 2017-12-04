@@ -82,9 +82,8 @@ struct DIM      * createVariable(string * name, string * value, DataType dType, 
 //
 void program_dump(struct Program * p);
 
+void dumpFunction(char *key, struct Function *f);
 void dumpFunctions(struct Program * p);
 
 void _dumpFunctions(struct tree_node * node);
 void _dumpParameters(list *params);
-
-
