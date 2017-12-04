@@ -10,4 +10,10 @@ Project: $(OBJECTS)
 main.o: main.c 
 	$(CC) $(CFLAGS) -c main.c
 
+clean:
+	@rm -f $(PROGRAMS) *.o core
 
+library/ifj17builtins.c: library/ifj17builtins.code
+	printf '%s\n' '#include <stdio.h>' 'int print_builtins(FILE *f)' 'fputs(' > $@
+	sed 's/#.*$$//;/^\s*$$/d;s/^\s*//;s/^/"/;s/$$/\\n"/' < $< >> $@
+	printf '%s\n' ', f);' '}' >> $@
