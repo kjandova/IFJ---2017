@@ -471,44 +471,31 @@ void getExpression(struct DIM * _return) {
 //  DUMP PROGRAM
 //
 
+void dumpFunction(char *key, struct Function * f) {
+    struct tree_iter it;
 
-void _dumpFunctions(struct tree_node * node) {
-    if (!node) return;
-    _dumpFunctions(node->left);
+    printf("Function(%s) %s\n", key, f->name.str);
 
-
-    struct Function * f = node->payload;
-    struct tree     * p = f->parameters;
-
-    printf("Function(%s) %s\n", node->key, (f->name).str);
-
-    _dumpParameters(p->root);
+    tree_iter_init(&it, f->parameters);
+    while (tree_iter_next(&it)) {
+        struct DIM * var = it.item.payload;
+        printf("  Parameter (%s) :: %s@%s\n", it.item.key, getDataTypeName(var->dataType), var->name.str);
+    }
+    tree_iter_tear(&it);
 
     printf("Return @%s\n\n", getDataTypeName(f->_return->dataType));
-
-    _dumpFunctions(node->right);
-
-    return;
-}
-
-
-void _dumpParameters(struct tree_node * node) {
-
-    if (!node) return;
-
-    _dumpParameters(node->left);
-
-    struct DIM * var = node->payload;
-
-    printf("  Parameter (%s) :: %s@%s\n", node->key, getDataTypeName(var->dataType), var->name.str);
-
-    _dumpParameters(node->right);
 
     return;
 }
 
 void dumpFunctions(struct Program * p) {
-    _dumpFunctions(p->functions->root);
+    struct tree_iter it;
+
+    tree_iter_init(&it, p->functions);
+    while (tree_iter_next(&it))
+        dumpFunction(it.item.key, it.item.payload);
+
+    tree_iter_tear(&it);
 }
 
 void program_dump(struct Program * p) {
