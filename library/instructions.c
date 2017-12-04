@@ -287,6 +287,48 @@ char * getLabel(struct DIM * label) {
     return (label->name).str;
 }
 
+/**
+ * @function getLiteral
+ * @brief creates string representing literal
+ * @param sym symbol to be printed
+ * @return new string representing literal
+ */
+char * getLiteral(struct DIM * sym) {
+    char *buf;
+    char *tmp;
+    size_t sz;
+    if (sym->frame != FRAME_CONST)
+        ErrorException(ERROR_INTERN, "Not a literal");
+
+    switch (sym->dataType) {
+        case DATA_TYPE_BOOL:
+            sz  = sizeof("bool@false");
+            buf = (char *) malloc(sz);
+            snprintf(buf, sz, "bool@%s", sym->valueInteger ? "true" : "false");
+            break;
+        case DATA_TYPE_INT:
+            sz  = snprintf(NULL, 0, "int@%i", sym->valueInteger) + 1;
+            buf = (char *) malloc(sz);
+            sz  = snprintf(buf, sz, "int@%i", sym->valueInteger);
+            break;
+        case DATA_TYPE_DOUBLE:
+            sz  = snprintf(NULL, 0, "float@%g", sym->valueDouble) + 1;
+            buf = (char *) malloc(sz);
+            sz  = snprintf(buf, sz, "float@%g", sym->valueDouble);
+            break;
+        case DATA_TYPE_STRING:
+            tmp = ifjcode_escape(sym->valueString.str);
+            sz  = snprintf(NULL, 0, "string@%s", tmp) + 1;
+            buf = (char *) malloc(sz);
+            sz  = snprintf(buf, sz, "string@%s", tmp);
+            free(tmp);
+            break;
+        default:
+            ErrorException(ERROR_INTERN, "Invalid data type");
+    }
+
+    return buf;
+}
 
 /*
 *	@function getSymb
@@ -294,25 +336,21 @@ char * getLabel(struct DIM * label) {
 *	@description
 */
 char * getSymb(struct DIM * sym) {
-    char *buf;
-    size_t sz;
     switch(sym->frame) {
         case FRAME_GLOBAL:
         case FRAME_LOCAL:
         case FRAME_TEMP:
-            sz  = snprintf(NULL, 0, "%s@%s", getFrameName(sym->frame), (sym->name).str);
-            buf = (char *) malloc(sz + 1);
-            snprintf(buf, sz+1, "%s@%s", getFrameName(sym->frame), (sym->name).str);
-        break;
+            return getVar(sym);
+            break;
         case FRAME_CONST:
-            buf = getVar(sym);
+            return getLiteral(sym);
         break;
         default: {
             ErrorException(ERROR_INTERN, "Invalid symbol");
         }
     }
 
-    return buf;
+    return NULL;
 }
 
 const char *getFrameName(DIMFrame frame) {
@@ -335,10 +373,18 @@ const char *getFrameName(DIMFrame frame) {
 char * getVar(struct DIM * sym) {
     char *buf;
     size_t sz;
-
-    sz  = snprintf(NULL, 0, "%s@%s", getDataTypeName(sym->dataType), (sym->name).str);
-    buf = (char *) malloc(sz + 1);
-    snprintf(buf, sz+1, "%s@%s", getDataTypeName(sym->dataType), (sym->name).str);
+    switch(sym->frame) {
+        case FRAME_GLOBAL:
+        case FRAME_LOCAL:
+        case FRAME_TEMP:
+            sz  = snprintf(NULL, 0, "%s@%s", getFrameName(sym->frame), (sym->name).str);
+            buf = (char *) malloc(sz + 1);
+            snprintf(buf, sz+1, "%s@%s", getFrameName(sym->frame), (sym->name).str);
+        break;
+        default: {
+            ErrorException(ERROR_INTERN, "Not a variable");
+        }
+    }
 
     return buf;
 }
