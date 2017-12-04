@@ -26,18 +26,11 @@ struct DIM * DIMInitReturn(DataType dType) {
 (c) != '#' && \
 (c) != '\\' )
 
-//TODO: This function shall be used when emitting string literal; delete
-//      attribute after emitting literals is implemented.
-
-/*static char *ifjcode_escape(const char *s)
-	__attribute__((unused));
-*/
-
 /**
  * @brief Escapes string to string usable as IFJcode17 literal
  * @param s string to be escaped
  * @return new string with escaped unsafe characters
-
+ */
 static char *ifjcode_escape(const char *s)
 {
 	size_t len = 0;
@@ -67,7 +60,6 @@ static char *ifjcode_escape(const char *s)
 	return ret;
 }
 #undef CHAR_OK
- */
 
 /*
 *   @function      createVariable
