@@ -249,7 +249,7 @@ void writeInstuction(FILE * f, struct TWCode command) {
         case I_DIV:
         case I_DIVS:
         case I_LT:
-        case I_FT:
+        case I_GT:
         case I_EQ:
         case I_LTS:
         case I_GTS:
@@ -449,7 +449,7 @@ const char * getInstuctionName(Instructions instr) {
         case I_DIVS:         return "DIVS";
 
         case I_LT:           return "LT";
-        case I_FT:           return "FT";
+        case I_GT:           return "GT";
         case I_EQ:           return "EQ";
         case I_LTS:          return "LTS";
         case I_GTS:          return "GTS";
