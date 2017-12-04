@@ -179,8 +179,18 @@ void writeInstuction(FILE * f, struct TWCode command) {
         case I_CLEARS:
         case I_BREAK:
         case I_RETURN:
+        case I_ADDS:
+        case I_SUBS:
+        case I_MULS:
+        case I_DIVS:
+        case I_LTS:
+        case I_GTS:
+        case I_EQS:
+        case I_ANDS:
+        case I_ORS:
+        case I_NOTS:
             fprintf(f, "%s", getInstuctionName(command.instr));
-        break;
+            break;
 
         // LABEL
         case I_LABEL:
@@ -189,28 +199,32 @@ void writeInstuction(FILE * f, struct TWCode command) {
         case I_JUMPIFNEQS:
             label = getLabel(command.var1);
             fprintf(f, "%s %s", getInstuctionName(command.instr), label);
-        break;
+            break;
 
         // VAR
         case I_DEFVAR:
         case I_POPS:
             var = getVar(command.var1);
             fprintf(f, "%s %s", getInstuctionName(command.instr), var);
-        break;
+            free(var);
+            break;
 
         // SYMB
         case I_PUSHS:
         case I_WRITE:
         case I_DPRINT:
-            sym1 = getVar(command.var1);
+            sym1 = getSymb(command.var1);
             fprintf(f, "%s %s", getInstuctionName(command.instr), sym1);
-        break;
+            free(sym1);
+            break;
 
 
         //** VAR TYPE
         case I_READ:
-            fprintf(f, "%s\n", getInstuctionName(command.instr));
-        break;
+            var = getVar(command.var1);
+            fprintf(f, "%s %s %s", getInstuctionName(command.instr), var, getDataTypeName(command.var1->dataType));
+            free(var);
+            break;
 
         // VAR SYMB
         case I_MOVE:
@@ -225,8 +239,11 @@ void writeInstuction(FILE * f, struct TWCode command) {
             var  = getVar(command.var1);
             sym1 = getSymb(command.var2);
 
-            fprintf(f, "%s %s %s \n", getInstuctionName(command.instr), var, sym1);
-        break;
+            fprintf(f, "%s %s %s", getInstuctionName(command.instr), var, sym1);
+
+            free(var);
+            free(sym1);
+            break;
 
         // LABEL SYMB1 SYMB2
         case I_JUMPIFEQ:
@@ -236,30 +253,23 @@ void writeInstuction(FILE * f, struct TWCode command) {
             sym1  = getSymb(command.var2);
             sym2  = getSymb(command.var3);
 
-            fprintf(f, "%s %s %s %s \n", getInstuctionName(command.instr), label, sym1, sym2);
+            fprintf(f, "%s %s %s %s", getInstuctionName(command.instr), label, sym1, sym2);
+
+            free(sym1);
+            free(sym2);
         break;
 
         // VAR SYMB1 SYMB2
         case I_ADD:
-        case I_ADDS:
         case I_SUB:
-        case I_SUBS:
         case I_MUL:
-        case I_MULS:
         case I_DIV:
-        case I_DIVS:
         case I_LT:
         case I_GT:
         case I_EQ:
-        case I_LTS:
-        case I_GTS:
-        case I_EQS:
         case I_AND:
-        case I_ANDS:
         case I_OR:
-        case I_ORS:
         case I_NOT:
-        case I_NOTS:
         case I_STRI2INT:
         case I_GETCHAR:
         case I_SETCHAR:
@@ -269,12 +279,18 @@ void writeInstuction(FILE * f, struct TWCode command) {
             sym1 = getSymb(command.var2);
             sym2 = getSymb(command.var3);
 
-            fprintf(f, "%s %s %s %s \n", getInstuctionName(command.instr), var, sym1, sym2);
-        break;
-        default: break;
+            fprintf(f, "%s %s %s %s", getInstuctionName(command.instr), var, sym1, sym2);
+
+            free(var);
+            free(sym1);
+            free(sym2);
+            break;
+        default:
+            ErrorException(ERROR_INTERN, "Invalid instruction.");
+            break;
     }
 
-    fprintf(f, "/n");
+    fprintf(f, "\n");
 }
 
 
