@@ -36,6 +36,7 @@ enum ParserStats {
     // FUNCTION (ID) ( <PARAM> ) AS <TYPE> EOL
     PARSER_DEFINE_FUNCTION_START,
     PARSER_DEFINE_FUNCTION_PARAMETERS,
+    PARSER_DEFINE_FUNCTION_RETURN,
     PARSER_DEFINE_FUNCTION_STATMENTS,
     PARSER_DEFINE_FUNCTION_END,
 
@@ -107,7 +108,7 @@ void parser_run() {
 
     int stateMain   = PARSER_START;
 
-    int dType;
+    int dType, counterDefineParams = 0;
 
     while(stateMain != PARSER_END) {
         switch(stateMain) {
@@ -128,6 +129,9 @@ void parser_run() {
                     break;
                     case TOKEN_DO:
                         stateMain = PARSER_STATMENT_WHILE;
+                    break;
+                    case TOKEN_END_OF_LINE:
+                        stateMain = PARSER_START;
                     break;
                     case TOKEN_END_OF_FILE:
                         stateMain = PARSER_END;
@@ -152,7 +156,10 @@ void parser_run() {
                     LineErrorException(tok, ERROR_SYNTAX, "ID of function is missing");
                 }
 
-                _function = declareFunction(__parser_program, &(tok.ID));
+                ////////////////////////////////////
+                //
+                _function = functionDeclare(__parser_program, &(tok.ID));
+                //
 
                 // Declare Function ID >(<
                 tok = scanner_next_token();
@@ -163,9 +170,9 @@ void parser_run() {
                 // Declare Function ID ( [<PARAM>] )
                 tok = scanner_next_token();
                 if (tok.flag == TOKEN_ID) {
-                    stateMain   = PARSER_DECLARE_FUNCTION_PARAMETERS;
+                    stateMain           = PARSER_DECLARE_FUNCTION_PARAMETERS;
                 } else {
-                    stateMain   = PARSER_DECLARE_FUNCTION_END;
+                    stateMain           = PARSER_DECLARE_FUNCTION_END;
                 }
 
             } break;
@@ -188,7 +195,7 @@ void parser_run() {
                 // ID As >DT<
                 tok = scanner_next_token();
                 if ((dType = getDataTypeFromToken(tok.flag)) != -1 ) {
-                    declareFunctionParameter(_function, &tmpID, dType);
+                    functionDeclareParameters(_function, &tmpID, dType);
                 } else {
                     LineErrorException(tok, ERROR_SYNTAX, "Data Type is missing");
                 }
@@ -201,7 +208,11 @@ void parser_run() {
                         tok       = scanner_next_token();
                         stateMain = PARSER_DECLARE_FUNCTION_PARAMETERS;
                     } break;
-                    case TOKEN_BRACKET_RIGHT:  stateMain = PARSER_DECLARE_FUNCTION_END; break;
+
+                    case TOKEN_BRACKET_RIGHT:  {
+                        stateMain = PARSER_DECLARE_FUNCTION_END;
+                    } break;
+
                     default: LineErrorException(tok, ERROR_SYNTAX, ") is missing");
                 }
             } break;
@@ -235,7 +246,156 @@ void parser_run() {
 
                 _function->_return = _return;
 
+                Dump("> DECLARE Function %s() return@%s\n", (_function->name).str, getDataTypeName(_return->dataType));
+
                 stateMain   = PARSER_START;
+            } break;
+
+
+            ///////////////////////////////////////////////////////////////////////
+            // Function ID (ID As DT[, ID As DT] ..) As DT
+            //
+            case PARSER_DEFINE_FUNCTION_START: {
+
+                // Declare Function >ID<
+                tok = scanner_next_token();
+                if (tok.flag != TOKEN_ID) {
+                    LineErrorException(tok, ERROR_SYNTAX, "ID of function is missing");
+                }
+
+                /////////////////////////////////////
+                //
+                _function = functionDefine(__parser_program, &(tok.ID));
+                //
+
+                // Declare Function ID >(<
+                tok = scanner_next_token();
+                if (tok.flag != TOKEN_BRACKET_LEFT) {
+                    LineErrorException(tok, ERROR_SYNTAX, "( is missing");
+                }
+
+                // Declare Function ID ( [<PARAM>] )
+                tok = scanner_next_token();
+                if (tok.flag == TOKEN_ID) {
+                    stateMain   = PARSER_DEFINE_FUNCTION_PARAMETERS;
+                } else {
+                    stateMain   = PARSER_DEFINE_FUNCTION_STATMENTS;
+                }
+
+            } break;
+
+            case PARSER_DEFINE_FUNCTION_PARAMETERS: {
+
+                // >ID< As DT
+                if (tok.flag != TOKEN_ID) {
+                    LineErrorException(tok, ERROR_SYNTAX, "ID is missing");
+                }
+
+                string tmpID = tok.ID;
+
+                // ID >As< DT
+                tok = scanner_next_token();
+                if (tok.flag != TOKEN_AS) {
+                    LineErrorException(tok, ERROR_SYNTAX, "AS is missing");
+                }
+
+                // ID As >DT<
+                tok = scanner_next_token();
+                if ((dType = getDataTypeFromToken(tok.flag)) != -1 ) {
+
+                    /////////////////////////////////////
+                    //
+                    functionDefineParameters(_function, &tmpID, dType, counterDefineParams);
+                    /////////////////////////////////////
+
+                } else {
+                    LineErrorException(tok, ERROR_SYNTAX, "Data Type is missing");
+                }
+
+                // ID As DT>[, ID As DT ..]<
+                tok = scanner_next_token();
+
+                switch (tok.flag) {
+                    case TOKEN_COMMA: {
+                        tok       = scanner_next_token();
+                        counterDefineParams++;
+                        stateMain = PARSER_DEFINE_FUNCTION_PARAMETERS;
+                    } break;
+                    case TOKEN_BRACKET_RIGHT: {
+                        counterDefineParams=0;
+                        stateMain = PARSER_DEFINE_FUNCTION_RETURN; break;
+                    }
+                    default: LineErrorException(tok, ERROR_SYNTAX, ") is missing");
+                }
+            } break;
+
+
+            case PARSER_DEFINE_FUNCTION_RETURN: {
+
+                tok = scanner_next_token();
+
+                struct DIM * _return;
+
+                // Declare Function ID () AS DT
+                if (tok.flag == TOKEN_AS) {
+
+                    tok = scanner_next_token();
+                    if ((dType = getDataTypeFromToken(tok.flag)) != -1 ) {
+
+                        _return = DIMInitReturn(getDataTypeFromToken(tok.flag));
+
+                    } else {
+                        LineErrorException(tok, ERROR_SYNTAX, "Data Type is missing");
+                    }
+
+                // Declare Function ID () >EOL
+                } else if (tok.flag == TOKEN_END_OF_LINE) {
+                    _return = DIMInitReturn(DATA_TYPE_VOID);
+                } else {
+                    LineErrorException(tok, ERROR_SYNTAX, "AS is missing");
+                }
+
+                if (_function->_return->dataType != _return->dataType) {
+                    LineErrorException(tok, ERROR_LEXICAL, "Return in function %s() an '%s' type was specified, the '%s' data type is expected",
+                                   (_function->name).str, getDataTypeName(_function->_return->dataType), getDataTypeName(_return->dataType)
+                    );
+                }
+
+                _function->_return = _return;
+
+                Dump("> DEFINE Function %s() return@%s\n", (_function->name).str, getDataTypeName(_return->dataType));
+
+                stateMain = PARSER_DEFINE_FUNCTION_STATMENTS;
+
+            } break;
+
+            case PARSER_DEFINE_FUNCTION_STATMENTS: {
+
+                while(tok.flag != TOKEN_END && tok.flag != TOKEN_END_OF_FILE) {
+                    tok = scanner_next_token();
+                }
+
+                tok = scanner_next_token();
+
+                if (tok.flag == TOKEN_FUNCTION) {
+                    stateMain = PARSER_DEFINE_FUNCTION_END;
+                } else {
+                    stateMain = PARSER_DEFINE_FUNCTION_STATMENTS;
+                }
+            } break;
+
+
+            case PARSER_DEFINE_FUNCTION_END: {
+
+                if (tok.flag != TOKEN_FUNCTION) {
+                    LineErrorException(tok, ERROR_SYNTAX, "FUNCTION is missing");
+                }
+
+
+                Dump("> DEFINE Function %s() COMPLETE\n", (_function->name).str);
+
+                stateMain   = PARSER_START;
+
             } break;
 
             ///////////////////////////////////////////////////////////////////////
@@ -328,7 +488,6 @@ void parser_run() {
         }
     }
 
-
     program_dump(__parser_program);
     exit(0);
 }
@@ -345,23 +504,19 @@ void parser_run() {
 void program_init(struct Program ** p) {
 
     struct Program * _p = malloc(sizeof(struct Program));
-
     _p->functions       = new_tree(TREE_PLAIN);
     _p->globalVariables = new_tree(TREE_PLAIN);
-
     *p = _p;
 }
 
 
 /*
-*   @function      declareFunction
+*   @function      functionDeclare
 *   @param         struct Program * p
 *   @param         string *         name
 *   @description
 */
-struct Function * declareFunction(struct Program * p, string * name) {
-
-    Dump("> Define Function");
+struct Function * functionDeclare(struct Program * p, string * name) {
 
     if (p == NULL) {
         ErrorException(ERROR_INTERN, "Parser :: Function Add :: Program is NULL");
@@ -371,10 +526,15 @@ struct Function * declareFunction(struct Program * p, string * name) {
         ErrorException(ERROR_INTERN, "Parser :: Function Add :: ID is NULL");
     }
 
+    Dump("> DECLARE Function %s()\n", name->str);
+
     struct Function * f = malloc( sizeof(struct Function));
 
+    f->parameters = malloc(sizeof(list));
+
+    list_new(f->parameters, sizeof(struct DIM));
+
     f->priority   = 0;
-    f->parameters = new_tree(TREE_PLAIN);
     f->variables  = new_tree(TREE_PLAIN);
 
     strInit(&(f->name));
@@ -387,24 +547,93 @@ struct Function * declareFunction(struct Program * p, string * name) {
 
 
 /*
-*   @function      declareFunctionParameter
+*   @function      functionDeclareParameters
 *   @param         struct Function * f
 *   @param         string *          name
 *   @param         DataType          dType
 *   @description
 */
-void declareFunctionParameter(struct Function * f, string * name, DataType dType) {
+void functionDeclareParameters(struct Function * f, string * name, DataType dType) {
 
     if (f == NULL || !name->length) {
         ErrorException(ERROR_INTERN, "Parser :: Add Parameter");
     }
 
-    Dump("Define Function Param");
-
     struct DIM * var = declareParameter(name, dType);
 
-    tree_add(f->parameters, name->str , var);
+    Dump("> DECLARE Function %s() Param :: %s@%s\n", (f->name).str, (var->name).str, getDataTypeName(dType));
+
+    list_append(f->parameters, var);
 }
+
+struct Function * functionIsExists(struct Program * p, string * name) {
+
+    struct Function * f;
+
+    if (tree_get(p->functions, name->str, (void *) &f)) {
+        Dump("> FUNCTION %s() IS DECLARED\n", name->str);
+    } else {
+        ErrorException(ERROR_SYNTAX, "FUNCTION %s() IS NOT DECLARED", name->str);
+    }
+
+    return f;
+}
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//  DEFINE FUNCTION
+//
+
+
+/*
+*   @function      functionDefine
+*   @param         struct Program * p
+*   @param         string *         name
+*   @description
+*/
+struct Function * functionDefine(struct Program * p, string * name) {
+
+    if (p == NULL || !name->length) {
+        ErrorException(ERROR_INTERN, "Parser :: Function Define");
+    }
+
+    Dump("> DEFINE Function %s()", name->str);
+
+    struct Function * f = functionIsExists(p, name);
+
+    return f;
+}
+
+
+/*
+*   @function      functionDefineParameters
+*   @param         struct Function * f
+*   @param         string *          name
+*   @param         DataType          dType
+*   @description
+*/
+void functionDefineParameters(struct Function * f, string * name, DataType dType, int index) {
+
+    if (f == NULL || !name->length) {
+        ErrorException(ERROR_INTERN, "Parser :: Function Define Parameters");
+    }
+
+    if (index >= list_size(f->parameters)) {
+        ErrorException(ERROR_SYNTAX, "Multiple parameters defined");
+    }
+
+    struct DIM * var = (struct DIM*) list_index(f->parameters, index);
+
+    if ((int) var->dataType != (int) dType) {
+        ErrorException(ERROR_LEXICAL, "An '%s' type was specified, the '%s' data type is expected", getDataTypeName(var->dataType), getDataTypeName(dType));
+    }
+
+    strCopyString(&var->name, name);
+
+    Dump("> DEFINE Function %s() Param_%d :: %s@%s\n", (f->name).str, index, name->str, getDataTypeName(dType));
+}
+
 
 
 /*
@@ -422,7 +651,6 @@ struct DIM * declareParameter(string * name, DataType dType) {
 
     return parameter;
 }
-
 
 ///////////////////////////////////////////////////////////////////////////////////
 //
@@ -478,11 +706,10 @@ void _dumpFunctions(struct tree_node * node) {
 
 
     struct Function * f = node->payload;
-    struct tree     * p = f->parameters;
 
-    printf("Function(%s) %s\n", node->key, (f->name).str);
+    printf("Function %s()\n", (f->name).str);
 
-    _dumpParameters(p->root);
+    _dumpParameters((list *) f->parameters);
 
     printf("Return @%s\n\n", getDataTypeName(f->_return->dataType));
 
@@ -492,19 +719,17 @@ void _dumpFunctions(struct tree_node * node) {
 }
 
 
-void _dumpParameters(struct tree_node * node) {
+void _dumpParameters(list * params) {
 
-    if (!node) return;
+    struct DIM * var;
+    int paramCount = list_size(params);
 
-    _dumpParameters(node->left);
+    printf("Parameter Count(%d)\n", paramCount);
 
-    struct DIM * var = node->payload;
-
-    printf("  Parameter (%s) :: %s@%s\n", node->key, getDataTypeName(var->dataType), var->name.str);
-
-    _dumpParameters(node->right);
-
-    return;
+    for(int i = 0; i < paramCount; i++) {
+        var = list_index(params, i);
+        printf("Parameter :: %s@%s\n", (var->name).str, getDataTypeName(var->dataType));
+    }
 }
 
 void dumpFunctions(struct Program * p) {

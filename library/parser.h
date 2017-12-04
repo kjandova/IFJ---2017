@@ -42,9 +42,9 @@
 struct Function {
     string            name;          // ID
     short int         priority;      // Priority
-    struct tree     * parameters;    //
+    list            * parameters;    //
     struct tree     * variables;
-    struct tree     * commands;
+    list            * commands;
     struct DIM      * _return;
 };
 
@@ -64,8 +64,13 @@ struct Program {
 //
 void              program_init(struct Program ** p);
 
-struct Function * declareFunction(struct Program * p, string * name);
-void              declareFunctionParameter(struct Function * f, string * name, DataType dType);
+// FUNCTTIONS DECLARED
+struct Function * functionDeclare(struct Program * p, string * name);
+void              functionDeclareParameters(struct Function * f, string * name, DataType dType);
+
+// FUNCTTIONS DEFINED
+struct Function * functionDefine(struct Program * p, string * name);
+void              functionDefineParameters(struct Function * f, string * name, DataType dType, int index);
 
 struct DIM      * declareParameter(string * name, DataType dType);
 struct DIM      * createVariable(string * name, string * value, DataType dType, DIMFrame frame);
@@ -80,6 +85,6 @@ void program_dump(struct Program * p);
 void dumpFunctions(struct Program * p);
 
 void _dumpFunctions(struct tree_node * node);
-void _dumpParameters(struct tree_node *node);
+void _dumpParameters(list *params);
 
 

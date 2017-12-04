@@ -104,6 +104,43 @@ void list_for_each(list *list, listIterator iterator) {
   }
 }
 
+/*
+*  @function list_index_get
+*  @param    list *list
+*  @param    listIterator iterator
+*/
+void * list_index(list *list, int index) {
+  assert(list_size(list) > 0);
+
+  int i          = 0;
+  listNode *node = list->head;
+
+  while(node != NULL && i++ < index) {
+    node = node->next;
+  }
+
+  return node->data;
+}
+
+/*
+*  @function list_index_get
+*  @param    list *list
+*  @param    listIterator iterator
+
+int list_index_set(list *list, int index, void * element) {
+  assert(list_size(list) > 0);
+
+  int i          = 0;
+  listNode *node = list->head;
+
+  while(node != NULL && i++ < index) {
+    node = node->next;
+  }
+
+  node->data = element;
+}
+*/
+
 
 /*
 *  @function list_head

@@ -16,9 +16,15 @@
 #include "files.h"
 
 FILE * loadFile(char * path) {
+
     FILE * f;
 
-    f = fopen (path, "rt");
+    if  (path) {
+        f = fopen (path, "rt");
+    } else {
+        f = stdin;
+    }
+
 
     if (f == NULL){
        ErrorException(ERROR_INTERN, "Error opening file");

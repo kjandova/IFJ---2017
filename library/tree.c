@@ -44,7 +44,7 @@ struct tree *new_tree(enum tree_type type)
 	struct tree *ret = NULL;
 
 	if (!NEW(ret))
-		ErrorException(ERROR_RUNTIME, "RUNTIME ERROR :: NewTree");
+		ErrorException(ERROR_RUNTIME, "NewTree");
 
 	tree_init(ret, type);
 	return ret;
