@@ -1,10 +1,24 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdbool.h>
+///////////////////////////////////////////////////////////////////////////////////
+//
+//  @Project            IFJ 2017
+//
+//  @Authors
+//  Kristýna Jandová    xjando04
+//  Vilém Faigel        xfaige00
+//  Nikola Timková      xtimko01
+//  Bc. Václav Doležal  xdolez76
+//
+//  @File               pa.c
+//  @Description
+//
+//
+///////////////////////////////////////////////////////////////////////////////////
 
 #include "pa.h"
 
 // //////////////////////////////////////////////////////
+
+
 
 
 void init_list(PAList *l) {
@@ -20,9 +34,11 @@ void insert_item(PAList *l, int flag, string name) {
 
 
         PAItem *tmp;
+
         if ((tmp = malloc(sizeof(PAItem))) == NULL){
-            printf("Error pri alokacii\n");
+            ErrorException(ERROR_INTERN, "Internal variable allocation failed.");
         }
+
         tmp->is_terminal = true;
         tmp->is_expression = false;
         tmp->is_startOfExpr = false;
@@ -31,23 +47,30 @@ void insert_item(PAList *l, int flag, string name) {
         tmp->flag = flag;
         tmp->name = name;
 
-        tmp->prev = l->last;
+        tmp->prev = NULL;
+        tmp->next = NULL;
         l->last = tmp;
+        l->first = tmp;
 
     } else {
 
 
         PAItem *tmp;
-        tmp = malloc(sizeof(PAItem));
+
+        if ((tmp = malloc(sizeof(PAItem))) == NULL){
+            ErrorException(ERROR_INTERN, "Internal variable allocation failed.");
+        }
         tmp->is_terminal = true;
         tmp->is_expression = false;
         tmp->is_startOfExpr = false;
 
-        tmp->flag= flag;
+        tmp->flag = flag;
         tmp->name = name;
 
-        tmp->next = l->last->next;
-        l->last->next->prev = tmp;
+        tmp->next = NULL;
+        tmp->prev = l->last;
+        l->last->next = tmp;
+        l->last = tmp;
     }
 }
 
@@ -61,17 +84,19 @@ PAItem * last_terminal(PAList *l) {
   return tmp;
 }
 
-bool is_expression(PAList *l) {
-    PAItem *tmp = l->last;
+void delete_list(PAList *a){
 
-    while (tmp) {
-        if (tmp->is_expression == true)
-            return true;
-        tmp = tmp->prev;
+  PAItem *tmp = a->last;
+
+  if (tmp != NULL) {
+    while (tmp->prev != NULL) {
+      tmp = tmp->prev;
+      free(tmp->prev);
     }
-
-    return false;
+    free(tmp);
+  }
 }
+
 
 
 const char PATable [15][15] = {
@@ -106,13 +131,14 @@ unsigned int getTableIndex(int flag) {
         case TOKEN_LESS_OR_EQUAL:           return 8;   // <=
         case TOKEN_EQUALS:                  return 9;   // =
         case TOKEN_NON_EQUAL:               return 10;  // <>
-        case TOKEN_BRACKET_LEFT:            return 12;  // (
-        case TOKEN_BRACKET_RIGHT:           return 11;  // )
+        case TOKEN_BRACKET_LEFT:            return 11;  // (
+        case TOKEN_BRACKET_RIGHT:           return 12;  // )
         case TOKEN_INTEGER:
-        case TOKEN_DOUBLE:
-        case TOKEN_STRING:
+        case DATA_TYPE_DOUBLE:
+        case DATA_TYPE_STRING:
         case TOKEN_ID:                      return 13;  // i
-        case TOKEN_END_OF_LINE:             return 14;  // $
+        case TOKEN_END_OF_LINE:
+        case TOKEN_THEN:                    return 14;  // $
     }
 
     return ERROR_INTERN;
@@ -125,10 +151,10 @@ char getTable(int i, int j) {
 int expeRetype(int typeA, int typeB) {
 
     switch (typeA) {
-        case DATA_TYPE_INT:
+        case TOKEN_INTEGER:
             switch (typeB) {
-                case DATA_TYPE_INT:
-                    return DATA_TYPE_INT;
+                case TOKEN_INTEGER:
+                    return TOKEN_INTEGER;
 
                 case DATA_TYPE_DOUBLE:
                     return DATA_TYPE_DOUBLE;
@@ -140,7 +166,7 @@ int expeRetype(int typeA, int typeB) {
                 case DATA_TYPE_DOUBLE:
                     return DATA_TYPE_DOUBLE;
 
-                case DATA_TYPE_INT:
+                case TOKEN_INTEGER:
                     return DATA_TYPE_DOUBLE;
             }
             break;
@@ -151,40 +177,84 @@ int expeRetype(int typeA, int typeB) {
                     return DATA_TYPE_STRING;
             }
             break;
+
+         //toto neskor zmazat   
+        case TOKEN_ID:
+            switch (typeB) {
+                case TOKEN_ID:
+                    return TOKEN_ID;
+            }
+            break;
     }
 
     return 0;
 }
 
+/*
+*   @function      prec_anal
+*   @param         struct Statment * s
+*   @param         DIM * _return
+*/
+            
+int prec_anal(){
+
+    //
+    //
+    // dummy vstupny parameter
+    //
+    //
+
+    string vysledok;
+    vysledok.str = "vysledok";
+
+    struct DIM * _return = malloc(sizeof(struct DIM));
+    _return->dataType = DATA_TYPE_DOUBLE;
+    _return->frame = FRAME_LOCAL;
+    _return->name =  vysledok;
 
 
-void printList(PAList * a){
-    PAItem *tmp = a->last;
-        while(tmp->prev != NULL){
-        
-            tmp = tmp->prev;
-            printf("Name: %s, Flag: %d, Is terminal: %d, Is expr: %d Is startE: %d\n", tmp->name.str, tmp->flag, tmp->is_terminal, tmp->is_expression, tmp->is_startOfExpr);
-        }
-        free(tmp);
-}
 
-bool isOperator(int a){
+    //dummy premenna prem1
+    string variable;
+    variable.str = "variable";
 
-    int operators[12] = {TOKEN_MUL, TOKEN_ADD, TOKEN_SUB, TOKEN_DIV, TOKEN_LESS, 
-        TOKEN_EQUALS, TOKEN_MORE, TOKEN_SLASH, TOKEN_BACKSLASH, TOKEN_NON_EQUAL, 
-        TOKEN_MORE_OR_EQUAL, TOKEN_LESS_OR_EQUAL};
+    struct DIM * _prem1 = malloc(sizeof(struct DIM));
+    _prem1->dataType = DATA_TYPE_DOUBLE;
+    _prem1->frame = FRAME_LOCAL;
+    _prem1->name =  variable;
+    _prem1->valueDouble = 5.2;
 
-    for (int i = 0; i !=11; i++){
-        if (a == operators[i]){
-            return true;
-        }
-    }
-    return false;  
 
-}
+    //dummy premenna prem2
+    string beta;
+    beta.str = "beta";
 
-void prec_anal(){
+    struct DIM * _prem2 = malloc(sizeof(struct DIM));
+    _prem2->dataType = DATA_TYPE_INT;
+    _prem2->frame = FRAME_LOCAL;
+    _prem2->name =  beta;
+    _prem2->valueInteger = 1;
 
+    //dummy premenna prem3
+    string alpha;
+    vysledok.str = "alpha";
+
+    struct DIM * _prem3 = malloc(sizeof(struct DIM));
+    _prem3->dataType = DATA_TYPE_DOUBLE;
+    _prem3->frame = FRAME_LOCAL;
+    _prem3->name =  alpha;
+    _prem3->valueDouble = 5.0;
+
+
+
+
+
+
+    //
+    //
+    // Precedencna analyza
+    //
+    //
 
     scanner_init("./tests/PA/Test_1.bas");
     Token b;
@@ -194,145 +264,187 @@ void prec_anal(){
 
 
 
-    //vlozi na spodok listu $
+    //vlozi na spodok listu $ a spravi ho terminalom
     string end;    
     end.str = "$";
     insert_item(a, TOKEN_END_OF_LINE, end);
-
     a->lastTerminal = a->last;
+    a->last->is_terminal = true;
 
-     
+
     b = scanner_next_token();           
 
-   
+    int run = 0;
+
+
+
+
+
+
+
 
     while (!((b.flag == TOKEN_END_OF_LINE) && (a->lastTerminal->flag == TOKEN_END_OF_LINE))){ 
 
 
-        //b = scanner_next_token();
-        
         unsigned int j = getTableIndex(b.flag);
 
 
         //najde posledny terminal s kt. bude porovnavat znak na vstupe
-        PAItem * lastTerminal = a->last;
-            while (lastTerminal->is_terminal == false) {
-            lastTerminal = lastTerminal->prev;
-        }
+        PAItem * lastTerminal = last_terminal(a);
         a->lastTerminal = lastTerminal;
 
         
 
         unsigned int i = getTableIndex(lastTerminal->flag);
-
-
-        //printf("Last terminal: %s\n", getTokenName(a->lastTerminal->flag));
-
         char precedence = PATable[i][j];
 
-        //printf("\nporovnavam: %d : %d aka %d : %d\n", lastTerminal->flag, b.flag, i, j);
-        switch(precedence){
-            case '=':
+        run++;
 
-                //printf("=\n");
+
+        switch(precedence){
+ 
+
+
+            case '=':
 
                 insert_item(a, b.flag, b.ID);
                 b = scanner_next_token();
-
-                //a->last->is_startOfExpr = false;
-                //a->last->is_expression = true;
-                a->last->is_terminal = true;
-
-                
-
                 break;
+
+
 
             case '<':
 
-                //printf("<\n");
-
                 insert_item(a, b.flag, b.ID);
                 b = scanner_next_token();
+
+
+
 
                 a->last->is_terminal = false;
 
 
 
-                
-                if(a->last->flag == TOKEN_ID || a->last->flag == TOKEN_INTEGER ||
-                    a->last->flag == TOKEN_DOUBLE || a->last->flag == TOKEN_STRING){
+                //ak je vo vyraze ciste iba jedna premenna
+                if((run == 1) && (b.flag == TOKEN_END_OF_LINE)){
+                    printf("E-> %s\n", a->last->name.str);
+                    return SUCCESS;
+                }
+
+
+                if((isTokenID(a->last->flag)) || a->last->flag == TOKEN_INTEGER){
                         a->last->is_startOfExpr = true;
                         a->last->is_expression = true;
                         a->last->is_terminal = true;
                 }
+                
 
-                else if(a->last->flag == TOKEN_BRACKET_RIGHT){
+                else if(a->last->flag == TOKEN_BRACKET_LEFT){
                     
                     a->last->is_startOfExpr = true;
                     a->last->is_expression = false;
                     a->last->is_terminal = true;
-                    //printf("B.left by mala byt startofE: %d\n", a->last->is_startOfExpr);
                 }
+
+
 
                 //nie je i, vloz na koniec listu
                 else{
 
                     //ak idu po sebe dva operatory, chyba
-                    if((isOperator(a->last->flag) == true) &&
-                        (isOperator(b.flag) == true)){
+                    if((isTokenOperator(a->last->flag)) &&
+                        (isTokenOperator(b.flag))){
 
-                        LineErrorException(b, ERROR_SEMANTIC, "Dva po sebe iduce operatory");
-
-                        break;
+                        LineErrorException(b, ERROR_SYNTAX, "Two operators in row");
+                        return(ERROR_SYNTAX);
                     }
+
                     a->last->is_startOfExpr = false;
                     a->last->is_terminal = true;
                     a->last->is_expression = true;
                     a->last->prev->is_startOfExpr = true;
-
-                    //printf("Vkladam : %d\n", a->last->flag);
-
                 }
+                
                 
 
                 break;
 
             case '>':
 
-                //printf(">\n");
+                //
+                //
+                //  pravidlo E -> E
+                //  TODO: vyhladat ci existuje premenna, vlozit hodnoty, popr. vytvorit novu
+                //
+                //
 
-
-                //pravidlo E -> E
-                if((a->lastTerminal->is_startOfExpr == true) && (a->lastTerminal->flag != TOKEN_BRACKET_LEFT)){
+                if((a->lastTerminal->is_startOfExpr == true) && 
+                    (a->lastTerminal->flag != TOKEN_BRACKET_LEFT)){
                     a->lastTerminal->is_expression = true;
                     a->lastTerminal->is_terminal = false;
                     a->lastTerminal->is_startOfExpr = false;
 
-                    if((a->lastTerminal->flag == TOKEN_ID) || (a->lastTerminal->flag == TOKEN_INTEGER ||
-                        a->last->flag == TOKEN_DOUBLE || a->last->flag == TOKEN_STRING)){
+
+                    //ak je ID                    
+                    if(!(isTokenID(a->lastTerminal->flag)) || !(a->lastTerminal->flag == TOKEN_INTEGER)) {
                         printf("E-> %s \n", a->lastTerminal->name.str);
                     }
 
+
+
                 }
 
-                //pravidlo E -> E x E
-                else if ((a->last->flag != TOKEN_BRACKET_LEFT)){
-                            PAItem *startExp = a->last;
-                            while (startExp->is_startOfExpr == false) {
-                                startExp = startExp->prev;
-                            }
+                //
+                //
+                //  pravidlo E -> E x E
+                //
+                //
+
+
+                else if ((a->last->flag != TOKEN_BRACKET_LEFT) && (a->last->flag != TOKEN_BRACKET_RIGHT)){
+
+
+                    PAItem *startExp = a->last;
+                        while (startExp->is_startOfExpr == false) {
+                            startExp = startExp->prev;
+                        }
      
-                            a->startExp = startExp;
+                        a->startExp = startExp;
 
 
-                    //*******tu predat vyslednu operaciu*******
+                    //priradovat mozme iba operandy (ak nie je ID)
+                    if(! ((isTokenID(startExp->flag)) || (isTokenID(a->last->flag)) ||
+                        (startExp->flag == TOKEN_INTEGER) || (a->last->flag == TOKEN_INTEGER))){
+                        LineErrorException(b, ERROR_SYNTAX, "Unexpected expression 2");
+                        delete_list(a);
+                        return ERROR_SYNTAX;
+                    }
+
+
+                    //pretypuje vysledok, ak pretypovat nejde, error
+                    int retType = expeRetype(a->startExp->flag, a->last->flag);
+                    if(retType == 0){
+                        LineErrorException(b, ERROR_CONVERT, "Can't retype %s to %s\n", getTokenName(a->startExp->flag), getTokenName(a->last->flag));
+                        delete_list(a);
+                        return ERROR_CONVERT;
+                    }
+
+
+                    a->startExp->flag = retType;
+                    a->last->flag = retType;
+
+
+
+
+                    // TODO: podla operatoru (a->lastTerminal->flag) vlozit instrukciu
+                    // premenna1 (a->startExp->name.str) = kam vlozit
+                    // premenna2 (a->last->name.str) = s cim premennu hore zoperovat
+                    //
+                    // napr. ADD premenna1 premenna1 premenna2
                     printf("%s = %s %s %s\n", a->startExp->name.str, a->startExp->name.str, getTokenName(a->lastTerminal->flag), a->last->name.str);
                     
-
-                    // TODO: a->startExp = expeRetype()
-
-                   
-
+                    
+                                       
 
                     free(a->last);
                     free(a->lastTerminal);
@@ -345,68 +457,84 @@ void prec_anal(){
                     a->last->is_startOfExpr = false;
                 }
 
-                else{
-                        
-                        PAItem *startExp = a->last;
-                            while (startExp->is_startOfExpr == false) {
-                                startExp = startExp->prev;
-                            }
-     
-                            a->startExp->next = startExp;
-
-                       
-                        //printf("%s -> ( %s )\n", a->lastTerminal->prev->name.str, a->lastTerminal->prev->name.str);
-                        
+                else {
 
 
-                        PAItem * item;
-                        item = a->last->prev;
+                //
+                //
+                //  pravidlo E -> ( E )
+                //
+                //
 
+                  
+                        //zarazka (start of expression) bude na predoslom operatore
+                        a->startExp = a->startExp->prev->prev;
+                        a->startExp->is_startOfExpr = true;
+
+
+                        //operand si ulozim do tmp, zmazem pravu zatvorku a operand
+                        PAItem * tmp = a->lastTerminal->prev;
                         free(a->lastTerminal);
+                        free(a->lastTerminal->next);
 
-                        a->last = item;
+                        //operand vlozim na koniec listu
+                        a->last = tmp;
+                        a->last->prev = a->startExp;
+                        a->last->next = NULL;                       
 
+
+                        //pomocny print, redukcia zatvorky
+                        printf("%s -> ( %s )\n", a->lastTerminal->prev->name.str, a->lastTerminal->prev->name.str);
                         
-                        a->last->is_terminal = false;
+
+                        //ponastavujem flagy a pointry
+                        a->lastTerminal = a->last->prev;
+                        a->startExp = a->last->prev->prev;
+
+                        a->startExp->is_startOfExpr = true;
+                        a->startExp->is_terminal = false;
+                        a->startExp->is_expression = true;
+
+                        a->lastTerminal->next = NULL;
+                        a->lastTerminal->is_startOfExpr = false;
+                        a->lastTerminal->prev->prev->is_expression = true;
+
                         a->last->is_expression = true;
+                        a->last->is_terminal = false;
                         a->last->is_startOfExpr = false;
-
-                        PAItem * pom = a->last;
-                            while (pom->is_terminal == false) {
-                            pom = pom->prev;
-                        }
-                        a->lastTerminal = pom;
-                        a->lastTerminal = lastTerminal;//->prev;
-
-                       
-
                         
 
                 }
 
                 break;
 
+
+
             case 'E':
 
                 //koniec, $ == $
-                printf("\nSuccess.\n");
+
+                //TODO: vysledok vyrazu je a->startExp
+                //vysledna instrukcia: MOVE (vstup) (vysledok)
+                printf("\nReturn: MOVE %s@%s LF@%s\n", getFrameName(_return->frame) ,_return->name.str, a->startExp->name.str);
+                ErrorException(SUCCESS, "Precedence okay");
+                return(SUCCESS);
                 break;
 
 
 
 
             default:
-                //printf("%d %d\n",i,j );
-                LineErrorException(b, ERROR_SEMANTIC, "Unexpected expression");
+                
+                LineErrorException(b, ERROR_SYNTAX, "Unexpected expression");
+                return(ERROR_SYNTAX);
                 break;
+
         }
- 
-
-
+    
     }
-        
-
-    free(a);
 
 
+delete_list(a);
+return SUCCESS;
 }
