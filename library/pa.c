@@ -177,6 +177,7 @@ int expeRetype(int typeA, int typeB) {
                     return DATA_TYPE_STRING;
             }
             break;
+            
          //toto neskor zmazat   
         case TOKEN_ID:
             switch (typeB) {
@@ -376,6 +377,7 @@ int prec_anal(){
                 //
                 //
                 //  pravidlo E -> E
+                //  TODO: vyhladat ci existuje premenna, vlozit hodnoty, popr. vytvorit novu
                 //
                 //
 
@@ -392,7 +394,6 @@ int prec_anal(){
                     }
 
 
-                    //getVar(a->lastTerminal->name.str);
 
                 }
 
@@ -438,7 +439,11 @@ int prec_anal(){
 
 
 
-                    //*******tu predat vyslednu operaciu*******
+                    // TODO: podla operatoru (a->lastTerminal->flag) vlozit instrukciu
+                    // premenna1 (a->startExp->name.str) = kam vlozit
+                    // premenna2 (a->last->name.str) = s cim premennu hore zoperovat
+                    //
+                    // napr. ADD premenna1 premenna1 premenna2
                     printf("%s = %s %s %s\n", a->startExp->name.str, a->startExp->name.str, getTokenName(a->lastTerminal->flag), a->last->name.str);
                     
                     
@@ -511,8 +516,10 @@ int prec_anal(){
             case 'E':
 
                 //koniec, $ == $
+
+                //TODO: vysledok vyrazu je a->startExp
+                //vysledna instrukcia: MOVE (vstup) (vysledok)
                 printf("\nReturn: MOVE %s@%s LF@%s\n", getFrameName(_return->frame) ,_return->name.str, a->startExp->name.str);
-                
                 ErrorException(SUCCESS, "Precedence okay");
                 return(SUCCESS);
                 break;
