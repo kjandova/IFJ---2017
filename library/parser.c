@@ -113,7 +113,6 @@ void parser_init(char * fileNameSource) {
 void parser_run() {
 
     struct Function *_function;
-    struct DIM      * _return
 
     int stateMain   = PARSER_START,
         stateReturn = PARSER_START;
