@@ -45,7 +45,7 @@ typedef enum {
    I_ADD,  I_SUB,  I_MUL,  I_DIV,
    I_ADDS, I_SUBS, I_MULS, I_DIVS,
 
-   I_LT,  I_FT,   I_EQ,
+   I_LT,  I_GT,   I_EQ,
    I_LTS, I_GTS,  I_EQS,
 
    I_AND,  I_OR,  I_NOT,

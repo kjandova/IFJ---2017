@@ -26,18 +26,11 @@ struct DIM * DIMInitReturn(DataType dType) {
 (c) != '#' && \
 (c) != '\\' )
 
-//TODO: This function shall be used when emitting string literal; delete
-//      attribute after emitting literals is implemented.
-
-/*static char *ifjcode_escape(const char *s)
-	__attribute__((unused));
-*/
-
 /**
  * @brief Escapes string to string usable as IFJcode17 literal
  * @param s string to be escaped
  * @return new string with escaped unsafe characters
-
+ */
 static char *ifjcode_escape(const char *s)
 {
 	size_t len = 0;
@@ -67,7 +60,6 @@ static char *ifjcode_escape(const char *s)
 	return ret;
 }
 #undef CHAR_OK
- */
 
 /*
 *   @function      createVariable
@@ -182,8 +174,18 @@ void writeInstuction(FILE * f, struct TWCode command) {
         case I_CLEARS:
         case I_BREAK:
         case I_RETURN:
+        case I_ADDS:
+        case I_SUBS:
+        case I_MULS:
+        case I_DIVS:
+        case I_LTS:
+        case I_GTS:
+        case I_EQS:
+        case I_ANDS:
+        case I_ORS:
+        case I_NOTS:
             fprintf(f, "%s", getInstuctionName(command.instr));
-        break;
+            break;
 
         // LABEL
         case I_LABEL:
@@ -192,28 +194,32 @@ void writeInstuction(FILE * f, struct TWCode command) {
         case I_JUMPIFNEQS:
             label = getLabel(command.var1);
             fprintf(f, "%s %s", getInstuctionName(command.instr), label);
-        break;
+            break;
 
         // VAR
         case I_DEFVAR:
         case I_POPS:
             var = getVar(command.var1);
             fprintf(f, "%s %s", getInstuctionName(command.instr), var);
-        break;
+            free(var);
+            break;
 
         // SYMB
         case I_PUSHS:
         case I_WRITE:
         case I_DPRINT:
-            sym1 = getVar(command.var1);
+            sym1 = getSymb(command.var1);
             fprintf(f, "%s %s", getInstuctionName(command.instr), sym1);
-        break;
+            free(sym1);
+            break;
 
 
         //** VAR TYPE
         case I_READ:
-            fprintf(f, "%s\n", getInstuctionName(command.instr));
-        break;
+            var = getVar(command.var1);
+            fprintf(f, "%s %s %s", getInstuctionName(command.instr), var, getDataTypeName(command.var1->dataType));
+            free(var);
+            break;
 
         // VAR SYMB
         case I_MOVE:
@@ -228,8 +234,11 @@ void writeInstuction(FILE * f, struct TWCode command) {
             var  = getVar(command.var1);
             sym1 = getSymb(command.var2);
 
-            fprintf(f, "%s %s %s \n", getInstuctionName(command.instr), var, sym1);
-        break;
+            fprintf(f, "%s %s %s", getInstuctionName(command.instr), var, sym1);
+
+            free(var);
+            free(sym1);
+            break;
 
         // LABEL SYMB1 SYMB2
         case I_JUMPIFEQ:
@@ -239,30 +248,23 @@ void writeInstuction(FILE * f, struct TWCode command) {
             sym1  = getSymb(command.var2);
             sym2  = getSymb(command.var3);
 
-            fprintf(f, "%s %s %s %s \n", getInstuctionName(command.instr), label, sym1, sym2);
+            fprintf(f, "%s %s %s %s", getInstuctionName(command.instr), label, sym1, sym2);
+
+            free(sym1);
+            free(sym2);
         break;
 
         // VAR SYMB1 SYMB2
         case I_ADD:
-        case I_ADDS:
         case I_SUB:
-        case I_SUBS:
         case I_MUL:
-        case I_MULS:
         case I_DIV:
-        case I_DIVS:
         case I_LT:
-        case I_FT:
+        case I_GT:
         case I_EQ:
-        case I_LTS:
-        case I_GTS:
-        case I_EQS:
         case I_AND:
-        case I_ANDS:
         case I_OR:
-        case I_ORS:
         case I_NOT:
-        case I_NOTS:
         case I_STRI2INT:
         case I_GETCHAR:
         case I_SETCHAR:
@@ -272,12 +274,18 @@ void writeInstuction(FILE * f, struct TWCode command) {
             sym1 = getSymb(command.var2);
             sym2 = getSymb(command.var3);
 
-            fprintf(f, "%s %s %s %s \n", getInstuctionName(command.instr), var, sym1, sym2);
-        break;
-        default: break;
+            fprintf(f, "%s %s %s %s", getInstuctionName(command.instr), var, sym1, sym2);
+
+            free(var);
+            free(sym1);
+            free(sym2);
+            break;
+        default:
+            ErrorException(ERROR_INTERN, "Invalid instruction.");
+            break;
     }
 
-    fprintf(f, "/n");
+    fprintf(f, "\n");
 }
 
 
@@ -290,6 +298,48 @@ char * getLabel(struct DIM * label) {
     return (label->name).str;
 }
 
+/**
+ * @function getLiteral
+ * @brief creates string representing literal
+ * @param sym symbol to be printed
+ * @return new string representing literal
+ */
+char * getLiteral(struct DIM * sym) {
+    char *buf;
+    char *tmp;
+    size_t sz;
+    if (sym->frame != FRAME_CONST)
+        ErrorException(ERROR_INTERN, "Not a literal");
+
+    switch (sym->dataType) {
+        case DATA_TYPE_BOOL:
+            sz  = sizeof("bool@false");
+            buf = (char *) malloc(sz);
+            snprintf(buf, sz, "bool@%s", sym->valueInteger ? "true" : "false");
+            break;
+        case DATA_TYPE_INT:
+            sz  = snprintf(NULL, 0, "int@%i", sym->valueInteger) + 1;
+            buf = (char *) malloc(sz);
+            sz  = snprintf(buf, sz, "int@%i", sym->valueInteger);
+            break;
+        case DATA_TYPE_DOUBLE:
+            sz  = snprintf(NULL, 0, "float@%g", sym->valueDouble) + 1;
+            buf = (char *) malloc(sz);
+            sz  = snprintf(buf, sz, "float@%g", sym->valueDouble);
+            break;
+        case DATA_TYPE_STRING:
+            tmp = ifjcode_escape(sym->valueString.str);
+            sz  = snprintf(NULL, 0, "string@%s", tmp) + 1;
+            buf = (char *) malloc(sz);
+            sz  = snprintf(buf, sz, "string@%s", tmp);
+            free(tmp);
+            break;
+        default:
+            ErrorException(ERROR_INTERN, "Invalid data type");
+    }
+
+    return buf;
+}
 
 /*
 *	@function getSymb
@@ -297,25 +347,21 @@ char * getLabel(struct DIM * label) {
 *	@description
 */
 char * getSymb(struct DIM * sym) {
-    char *buf;
-    size_t sz;
     switch(sym->frame) {
         case FRAME_GLOBAL:
         case FRAME_LOCAL:
         case FRAME_TEMP:
-            sz  = snprintf(NULL, 0, "%s@%s", getFrameName(sym->frame), (sym->name).str);
-            buf = (char *) malloc(sz + 1);
-            snprintf(buf, sz+1, "%s@%s", getFrameName(sym->frame), (sym->name).str);
-        break;
+            return getVar(sym);
+            break;
         case FRAME_CONST:
-            buf = getVar(sym);
+            return getLiteral(sym);
         break;
         default: {
             ErrorException(ERROR_INTERN, "Invalid symbol");
         }
     }
 
-    return buf;
+    return NULL;
 }
 
 const char *getFrameName(DIMFrame frame) {
@@ -338,10 +384,18 @@ const char *getFrameName(DIMFrame frame) {
 char * getVar(struct DIM * sym) {
     char *buf;
     size_t sz;
-
-    sz  = snprintf(NULL, 0, "%s@%s", getDataTypeName(sym->dataType), (sym->name).str);
-    buf = (char *) malloc(sz + 1);
-    snprintf(buf, sz+1, "%s@%s", getDataTypeName(sym->dataType), (sym->name).str);
+    switch(sym->frame) {
+        case FRAME_GLOBAL:
+        case FRAME_LOCAL:
+        case FRAME_TEMP:
+            sz  = snprintf(NULL, 0, "%s@%s", getFrameName(sym->frame), (sym->name).str);
+            buf = (char *) malloc(sz + 1);
+            snprintf(buf, sz+1, "%s@%s", getFrameName(sym->frame), (sym->name).str);
+        break;
+        default: {
+            ErrorException(ERROR_INTERN, "Not a variable");
+        }
+    }
 
     return buf;
 }
@@ -406,7 +460,7 @@ const char * getInstuctionName(Instructions instr) {
         case I_DIVS:         return "DIVS";
 
         case I_LT:           return "LT";
-        case I_FT:           return "FT";
+        case I_GT:           return "GT";
         case I_EQ:           return "EQ";
         case I_LTS:          return "LTS";
         case I_GTS:          return "GTS";
