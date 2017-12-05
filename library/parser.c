@@ -113,6 +113,8 @@ void parser_init(char * fileNameSource) {
 void parser_run() {
 
     struct Function *_function;
+    int in_if = 0;
+    int in_while = 0;
 
     int stateMain   = PARSER_START,
         stateReturn = PARSER_START;
@@ -136,9 +138,12 @@ void parser_run() {
                         stateMain = PARSER_DEFINE_FUNCTION_START;
                     break;
                     case TOKEN_IF:
+		    case TOKEN_ELSE:
+		    case TOKEN_END:
                         stateMain = PARSER_STATMENT_IF;
                     break;
                     case TOKEN_DO:
+                    case TOKEN_LOOP:
                         stateMain = PARSER_STATMENT_WHILE;
                     break;
                     case TOKEN_END_OF_LINE:
@@ -344,7 +349,7 @@ void parser_run() {
             // IF <extension> THEN EOL <statments> ELSE <statmens> END IF
             //
             case PARSER_STATMENT_IF: {
-
+		if(in_if == 0){
                 // IF <extension>
 
                 // Call getExpression
@@ -355,79 +360,108 @@ void parser_run() {
 
                 getExpression(commandsBlock, _return);
 
+
                 /////////////////////////////////
                 // IF výraz = true
 
                 // Print label instruction
                 /////////////////////////////////
 
-                tok = scanner_next_token();
-		        if (tok.flag != TOKEN_THEN) {
-		            LineErrorException(tok, ERROR_SYNTAX, "THEN is missing");
-		        }
+				if (tok.flag != TOKEN_THEN) {
+				    LineErrorException(tok, ERROR_SYNTAX, "THEN is missing");
+				}
 
 
-		        tok = scanner_next_token();
-		        if (tok.flag != TOKEN_END_OF_LINE) {
-		            LineErrorException(tok, ERROR_SYNTAX, "must be end of line");
-		        }
+				tok = scanner_next_token();
+				if (tok.flag != TOKEN_END_OF_LINE) {
+				    LineErrorException(tok, ERROR_SYNTAX, "after THEN must be end of line");
+				}
+				in_if = 1;
+				Dump("IF START");
+                		stateMain   = PARSER_START;
+				break;
 
-		        /////////////////////////////////
-                // Print label instruction
-                /////////////////////////////////
+		/////////////////////////////////
+		// Print label instruction
+		/////////////////////////////////
+		} 
+		if(in_if == 1 ){
+/*		        while(tok.flag != TOKEN_ELSE){
+		            tok = scanner_next_token();
+		            if (tok.flag == TOKEN_END_OF_FILE ||  tok.flag == TOKEN_END) {
+		                LineErrorException(tok, ERROR_SYNTAX, "reached end, ELSE is missing");
+		            }
+		        }*/
 
-                while(tok.flag != TOKEN_ELSE){
-                    tok = scanner_next_token();
-                    if (tok.flag == TOKEN_END_OF_FILE) {
-                        LineErrorException(tok, ERROR_SYNTAX, "reached end, ELSE is missing");
-                    }
-                }
+		        //IF výraz = false skip till ELSE
 
-                //IF výraz = false skip till ELSE
+		        /*tok = scanner_next_token();
+			Dump("token je:%d\n",tok.flag);
+		        if (tok.flag != TOKEN_ELSE) {
+		            LineErrorException(tok, ERROR_SYNTAX, "missing ELSE statement");
+		        }*/
+		        //tu se vyhodnoti dalsi prikazy
 
-                tok = scanner_next_token();
-                if (tok.flag != TOKEN_END_OF_LINE) {
-                    LineErrorException(tok, ERROR_SYNTAX, "must be end of line");
-                }
+		        //ending of if statement (END IF)
+			Dump("ELSE");
+			in_if = 2;
+			stateMain = PARSER_START;
+			break;
+		}
+		if(in_if == 2){
 
-                //tu se vyhodnoti dalsi prikazy
+			tok = scanner_next_token();
+			Dump("token je:%d\n",tok.flag);
+			if (tok.flag != TOKEN_IF) {
+			    LineErrorException(tok, ERROR_SYNTAX, "missing END >IF< statement");
+			}
+			in_if = 0;
+			Dump("END IF");
 
-                //ending of if statement (END IF)
-                tok = scanner_next_token();
-                if (tok.flag != TOKEN_END) {
-                    LineErrorException(tok, ERROR_SYNTAX, "missing END IF statement");
-                }
+                	stateMain   = PARSER_START;
+			break;
+		}
 
-                tok = scanner_next_token();
-                if (tok.flag != TOKEN_IF) {
-                    LineErrorException(tok, ERROR_SYNTAX, "missing END IF statement");
-                }
+                
 
-                stateMain = PARSER_DEFINE_FUNCTION_STATMENTS;
             }; break;
 
             ///////////////////////////////////////////////////////////////////////
             // DO WHILE výraz EOL
             // příkazy
             // LOOP
-            case PARSER_STATMENT_WHILE: {
-                tok = scanner_next_token();
-                if (tok.flag != TOKEN_WHILE) {
-                    LineErrorException(tok, ERROR_SYNTAX, "missing WHILE statement");
-                }
+            case PARSER_STATMENT_WHILE: 
+		if(in_while == 0){
+		        tok = scanner_next_token();
+		        if (tok.flag != TOKEN_WHILE) {
+		            LineErrorException(tok, ERROR_SYNTAX, "missing WHILE statement");
+		        }
 
-                //tu se vola PA pro vyhodnocení výrazu
-                tok = scanner_next_token();
-                if (tok.flag != TOKEN_END_OF_LINE) {
-                    LineErrorException(tok, ERROR_SYNTAX, "must be nd of line");
-                }
+		        //tu se vola PA pro vyhodnocení výrazu
+		        struct DIM * _return        = malloc(sizeof(struct DIM));
+		        struct tree * commandsBlock = new_tree(TREE_PLAIN);
 
-                while(tok.flag != TOKEN_LOOP) {
+		        _return->dataType = DATA_TYPE_INT;
 
-                    tok = scanner_next_token();
-                //tu jede vyhodnocování věcí v cyklu, +kontroluji jestli není ukončovací podmínka (pro BASIC)
-                }
-            }; break;
+		        getExpression(commandsBlock, _return);
+			Dump("WHILE start ");
+
+		        /*tok = scanner_next_token();
+		        if (tok.flag != TOKEN_END_OF_LINE) {
+		            LineErrorException(tok, ERROR_SYNTAX, "must be nd of line");
+		        }*/
+			in_while = 1;
+
+
+		        stateMain = PARSER_START;
+		}
+		else{
+			Dump("I'm in WHILE!");   //check condition, loop here for it
+			in_while = 0;
+		        stateMain = PARSER_START;
+
+		} 
+            break;
 
             case PARSER_PARAMS : {
 
@@ -665,7 +699,7 @@ void getExpression(struct tree * commands, struct DIM * _return) {
 
     Dump("Expression");
 
-    Token tok = scanner_next_token();
+    tok = scanner_next_token();
     short int bracket_count = 0,
               is_operator   = -1;
 
@@ -691,7 +725,6 @@ void getExpression(struct tree * commands, struct DIM * _return) {
         tok = scanner_next_token();
     }
 
-
     if (bracket_count) {
         LineErrorException(tok, ERROR_LEXICAL, "In Exception : Bracket");
     }
@@ -701,6 +734,7 @@ void getExpression(struct tree * commands, struct DIM * _return) {
     _return->valueString  = strChars("3.14");
 
     unused(commands);
+
 }
 
 
