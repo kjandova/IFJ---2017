@@ -64,14 +64,34 @@ static void writeGetArguments(FILE *f, list *args)
 	}
 }
 
+static void writeInstructions(FILE *f, list *ins)
+{
+	int i, n;
+	struct TWCode *in;
+
+	if (!ins)
+		return;
+
+	n = list_size(ins);
+	for (i = 0; i < n; i++) {
+		in = list_index(ins, i);
+		writeInstuction(f, *in);
+	}
+}
+
 static void writeFunction(FILE *f, struct Function *fn)
 {
+	if (!fn)
+		return;
+
 	fprintf(f, "LABEL %s\n", fn->name.str);
 	fputs("CREATEFRAME\nPUSHFRAME\n", f);
 	// variable definitions
 	writeVariables(f, fn->variables);
 
 	writeGetArguments(f, fn->parameters);
+
+	writeInstructions(f, fn->commands);
 
 	// end of function
 	fprintf(f, "LABEL %s%%&end\n", fn->name.str);
