@@ -32,6 +32,7 @@
 #include "list.h"
 #include "stack.h"
 #include "instructions.h"
+#include "ic17out.h"
 
 
 // LIBRARY
@@ -53,6 +54,7 @@
 
 #include "scanner.c"      // Scanner - Knihovna pro skenování vstupního retezce a vytvareni tokenù
 #include "parser.c"       // Scanner - Knihovna pro parsování programu
+#include "ic17out.c"
 
 //#include "tests.c"
 
