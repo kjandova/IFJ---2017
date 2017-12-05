@@ -61,6 +61,7 @@ static char *ifjcode_escape(const char *s)
 }
 #undef CHAR_OK
 
+
 /*
 *   @function      createVariable
 *   @param         string * name

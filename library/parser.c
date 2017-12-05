@@ -371,9 +371,17 @@ void parser_run() {
 
             case PARSER_DEFINE_FUNCTION_STATMENTS: {
 
-                while(tok.flag != TOKEN_END && tok.flag != TOKEN_END_OF_FILE) {
+
+                while (tok.flag != TOKEN_END && tok.flag != TOKEN_END_OF_FILE && tok.flag != TOKEN_IF) {
                     tok = scanner_next_token();
                 }
+
+
+                if (tok.flag == TOKEN_IF) {
+                    stateMain = PARSER_STATMENT_IF;
+                    break;
+                }
+
 
                 tok = scanner_next_token();
 
@@ -382,6 +390,7 @@ void parser_run() {
                 } else {
                     stateMain = PARSER_DEFINE_FUNCTION_STATMENTS;
                 }
+
             } break;
 
 
@@ -401,14 +410,17 @@ void parser_run() {
             ///////////////////////////////////////////////////////////////////////
             // IF <extension> THEN EOL <statments> ELSE <statmens> END IF
 
-            case PARSER_STATMENT_IF:
+            case PARSER_STATMENT_IF: {
 
                 // IF <extension>
-                //struct DIM * _return = malloc(sizeof(struct DIM));
 
-                //_return->dataType = DATA_TYPE_INT;
+                // Call getExpression
+                struct DIM * _return        = malloc(sizeof(struct DIM));
+                struct tree * commandsBlock = new_tree(TREE_PLAIN);
 
-                //getExpression(_return);
+                _return->dataType = DATA_TYPE_INT;
+
+                getExpression(commandsBlock, _return);
 
                 /////////////////////////////////
                 // IF výraz = true
@@ -448,43 +460,42 @@ void parser_run() {
                 //tu se vyhodnoti dalsi prikazy
 
                 //ending of if statement (END IF)
-                    tok = scanner_next_token();
+                tok = scanner_next_token();
                 if (tok.flag != TOKEN_END) {
                     LineErrorException(tok, ERROR_SYNTAX, "missing END IF statement");
                 }
-                    tok = scanner_next_token();
-                    if (tok.flag != TOKEN_IF) {
-                        LineErrorException(tok, ERROR_SYNTAX, "missing END IF statement");
-                    }
-                break;
+
+                tok = scanner_next_token();
+                if (tok.flag != TOKEN_IF) {
+                    LineErrorException(tok, ERROR_SYNTAX, "missing END IF statement");
+                }
+
+                stateMain = PARSER_DEFINE_FUNCTION_STATMENTS;
+            }; break;
 
 
             ///////////////////////////////////////////////////////////////////////
             // DO WHILE výraz EOL
-	    // příkazy
+            // příkazy
             // LOOP
-	    case PARSER_STATMENT_WHILE:
-            tok = scanner_next_token();
-            if (tok.flag != TOKEN_WHILE) {
-                LineErrorException(tok, ERROR_SYNTAX, "missing WHILE statement");
-            }
+            case PARSER_STATMENT_WHILE:
+                tok = scanner_next_token();
+                if (tok.flag != TOKEN_WHILE) {
+                    LineErrorException(tok, ERROR_SYNTAX, "missing WHILE statement");
+                }
 
-            //tu se vola PA pro vyhodnocení výrazu
-            tok = scanner_next_token();
-            if (tok.flag != TOKEN_END_OF_LINE) {
-                LineErrorException(tok, ERROR_SYNTAX, "must be nd of line");
-            }
+                //tu se vola PA pro vyhodnocení výrazu
+                tok = scanner_next_token();
+                if (tok.flag != TOKEN_END_OF_LINE) {
+                    LineErrorException(tok, ERROR_SYNTAX, "must be nd of line");
+                }
 
-            while(tok.flag != TOKEN_LOOP) {
+                while(tok.flag != TOKEN_LOOP) {
 
-            tok = scanner_next_token();
-            //tu jede vyhodnocování věcí v cyklu, +kontroluji jestli není ukončovací podmínka (pro BASIC)
-            }
-
-
-	    break;
-
-
+                    tok = scanner_next_token();
+                //tu jede vyhodnocování věcí v cyklu, +kontroluji jestli není ukončovací podmínka (pro BASIC)
+                }
+            break;
         }
     }
 
@@ -658,7 +669,10 @@ struct DIM * declareParameter(string * name, DataType dType) {
 //
 
 
-void getExpression(struct DIM * _return) {
+void getExpression(struct tree * commands, struct DIM * _return) {
+
+    Dump("Expression");
+
     Token tok = scanner_next_token();
     short int bracket_count = 0,
               is_operator   = -1;
@@ -669,27 +683,32 @@ void getExpression(struct DIM * _return) {
 
         } else if (tok.flag == TOKEN_BRACKET_RIGHT) {
             bracket_count--;
+
         } else {
             if (is_operator == -1) {
                 is_operator = isTokenOperator(tok.flag);
             } else {
                 if (is_operator == isTokenOperator(tok.flag)) {
-                    LineErrorException(tok, ERROR_SYNTAX, "Exception LL");
+                    LineErrorException(tok, ERROR_LEXICAL, "Exception LL");
                 } else {
                     is_operator = isTokenOperator(tok.flag);
                 }
             }
         }
+
+        tok = scanner_next_token();
     }
 
 
-    if (!bracket_count) {
-        LineErrorException(tok, ERROR_SYNTAX, "In Exception : Bracket");
+    if (bracket_count) {
+        LineErrorException(tok, ERROR_LEXICAL, "In Exception : Bracket");
     }
 
     _return->valueInteger = 3;
     _return->valueDouble  = 3.14;
     _return->valueString  = strChars("3.14");
+
+    unused(commands);
 }
 
 

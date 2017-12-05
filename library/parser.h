@@ -75,6 +75,7 @@ void              functionDefineParameters(struct Function * f, string * name, D
 struct DIM      * declareParameter(string * name, DataType dType);
 struct DIM      * createVariable(string * name, string * value, DataType dType, DIMFrame frame);
 
+void getExpression(struct tree * commands, struct DIM * _return);
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 //
