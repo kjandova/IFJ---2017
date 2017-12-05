@@ -44,6 +44,11 @@ void ErrorInit(FILE * dump, FILE * error, int debugEnabled) {
 
 }
 
+void DebugConfigure(int debugEnabled) {
+    __ErrorInit.debugEnabled     = (debugEnabled)  ? debugEnabled : DEBUG_DISABLE;
+
+}
+
 /*
 *	@function ErrorException
 *	@param    e      - Error Flag
@@ -109,14 +114,14 @@ void Dump (char* format, ...) {
         va_list arg;
         va_start(arg, format);
 
+        if (__ErrorInit.debugEnabled & DEBUG_LINE) {
+            fprintf(__ErrorInit.outputDump, "%3d. ", __dump_counter);
+        }
+
         if (__ErrorInit.debugEnabled & DEBUG_TIME) {
             time_t t = time(NULL);
             struct tm tm = *localtime(&t);
             fprintf(__ErrorInit.outputDump, "%d-%d-%d %d:%d:%d ", tm.tm_mon + 1, tm.tm_mday, tm.tm_year + 1900, tm.tm_hour, tm.tm_min, tm.tm_sec);
-        }
-
-        if (__ErrorInit.debugEnabled & DEBUG_LINE) {
-            fprintf(__ErrorInit.outputDump, "%3d. ", __dump_counter);
         }
 
         fprintf(__ErrorInit.outputDump, "DUMP :: ");
@@ -135,6 +140,10 @@ void LineDump (Token tok, char* format, ...) {
         va_list arg;
         va_start(arg, format);
 
+        if (__ErrorInit.debugEnabled & DEBUG_LINE) {
+            fprintf(__ErrorInit.outputDump, "%3d. ", __dump_counter);
+        }
+
         if (__ErrorInit.debugEnabled & DEBUG_TIME) {
             time_t t = time(NULL);
             struct tm tm = *localtime(&t);
@@ -142,7 +151,7 @@ void LineDump (Token tok, char* format, ...) {
         }
 
         if (__ErrorInit.debugEnabled & DEBUG_LINE) {
-            fprintf(__ErrorInit.outputDump, "%3d. [line:%3d (%3d)] ", __dump_counter, tok.line, tok.position);
+            fprintf(__ErrorInit.outputDump, "[line:%3d (%3d)] ", tok.line, tok.position);
         }
 
         fprintf(__ErrorInit.outputDump, "DUMP :: ");
