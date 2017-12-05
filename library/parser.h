@@ -35,6 +35,8 @@
 //     └─ [ Global Variables ]  ( struct DIM)
 
 
+#ifndef IFJ_PARSER_H
+#define IFJ_PARSER_H
 ////////////////////////////////////////////////////////
 //
 // Body of FUNCTION
@@ -85,3 +87,5 @@ void program_dump(struct Program * p);
 
 void dumpFunctions(struct Program * p);
 void dumpParameters(struct Function * f);
+
+#endif
