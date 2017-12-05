@@ -87,7 +87,8 @@ enum ParserStats {
 };
 
 
-struct Program      *__parser_program;
+struct Program  *__parser_program;
+struct Function *__parser_function;
 Token               tok;
 
 /*
@@ -112,7 +113,7 @@ void parser_init(char * fileNameSource) {
 */
 void parser_run() {
 
-    struct Function *_function;
+
 
     int stateMain   = PARSER_START,
         stateReturn = PARSER_START;
@@ -170,7 +171,7 @@ void parser_run() {
 
                 ////////////////////////////////////
                 //
-                _function = functionDeclare(__parser_program, &(tok.ID));
+                __parser_function = functionDeclare(__parser_program, &(tok.ID));
                 //
 
                 // Declare Function ID >(<
@@ -222,9 +223,9 @@ void parser_run() {
                     LineErrorException(tok, ERROR_SYNTAX, "AS is missing");
                 }
 
-                _function->_return = _return;
+                __parser_function->_return = _return;
 
-                Dump("> DECLARE Function %s() return@%s\n", (_function->name).str, getDataTypeName(_return->dataType));
+                Dump("> DECLARE Function %s() return@%s\n", (__parser_function->name).str, getDataTypeName(_return->dataType));
 
                 stateMain   = PARSER_START;
             } break;
@@ -242,7 +243,7 @@ void parser_run() {
 
                 /////////////////////////////////////
                 //
-                _function = functionDefine(__parser_program, &(tok.ID));
+                __parser_function = functionDefine(__parser_program, &(tok.ID));
                 //
 
                 // Declare Function ID >(<
@@ -291,15 +292,15 @@ void parser_run() {
                     LineErrorException(tok, ERROR_SYNTAX, "AS is missing");
                 }
 
-                if (_function->_return->dataType != _return->dataType) {
+                if (__parser_function->_return->dataType != _return->dataType) {
                     LineErrorException(tok, ERROR_LEXICAL, "Return in function %s() an '%s' type was specified, the '%s' data type is expected",
-                                   (_function->name).str, getDataTypeName(_function->_return->dataType), getDataTypeName(_return->dataType)
+                                   (__parser_function->name).str, getDataTypeName(__parser_function->_return->dataType), getDataTypeName(_return->dataType)
                     );
                 }
 
-                _function->_return = _return;
+                __parser_function->_return = _return;
 
-                Dump("> DEFINE Function %s() return@%s\n", (_function->name).str, getDataTypeName(_return->dataType));
+                Dump("> DEFINE Function %s() return@%s\n", (__parser_function->name).str, getDataTypeName(_return->dataType));
 
                 stateMain = PARSER_DEFINE_FUNCTION_STATMENTS;
 
@@ -335,7 +336,7 @@ void parser_run() {
                     LineErrorException(tok, ERROR_SYNTAX, "FUNCTION is missing");
                 }
 
-                Dump("> DEFINE Function %s() COMPLETE\n", (_function->name).str);
+                Dump("> DEFINE Function %s() COMPLETE\n", (__parser_function->name).str);
 
                 stateMain   = PARSER_START;
             } break;
@@ -451,8 +452,8 @@ void parser_run() {
                     /////////////////////////////////////
                     //
                     switch(functionStats) {
-                        case FUNCTION_DECLARE: functionDeclareParameters(_function, &tmpID, dType); break;
-                        case FUNCTION_DEFINE:  functionDefineParameters(_function, &tmpID, dType, counterDefineParams); break;
+                        case FUNCTION_DECLARE: functionDeclareParameters(__parser_function, &tmpID, dType); break;
+                        case FUNCTION_DEFINE:  functionDefineParameters(__parser_function, &tmpID, dType, counterDefineParams); break;
                         default: ErrorException(ERROR_INTERN, "Unknown function stats");
                     }
                     //
@@ -658,6 +659,79 @@ struct DIM * declareParameter(string * name, DataType dType) {
 
 ///////////////////////////////////////////////////////////////////////////////////
 //
+//  VARIABLES
+//
+
+/*
+*   @function      searchVariable
+*   @param         struct Program * p
+*   @param         struct Function * f
+*   @param         string * name
+*   @description
+*/
+struct DIM * searchVariable (struct Program * p, struct Function * f, string * name) {
+    struct DIM * variable;
+    variable = localVariableExists(f, name);
+    if (variable) return variable;
+    return globalVariableExists(p, name);
+}
+
+/*
+*   @function      globalVariableExists
+*   @param         struct Program * p
+*   @param         string * name
+*   @description
+*/
+struct DIM * globalVariableExists(struct Program * p, string * name) {
+
+    struct tree * vars = p->globalVariables;
+
+    if (!name || !(name->length)) {
+        ErrorException(ERROR_INTERN, "variables isnt null");
+    }
+
+    struct DIM * variable;
+
+    tree_get(vars, name->str, (void *) &variable);
+
+    return variable;
+}
+
+
+/*
+*   @function      localVariableExists
+*   @param         struct Function * f
+*   @param         string * name
+*   @description
+*/
+struct DIM * localVariableExists(struct Function * f, string * name) {
+
+    struct tree * vars   = f->variables;
+    list        * params = f->parameters;
+
+    if (!f || !name || !(name->length)) {
+        ErrorException(ERROR_INTERN, "variables isnt null");
+    }
+
+    struct DIM * variable = NULL;
+
+    tree_get(vars, name->str, (void *) variable);
+
+    if (!variable) return variable;
+
+    for(int i = 0; i < list_size(params); i++) {
+        variable = list_index(params, i);
+        if (!strCmpString(&variable->name, name)) {
+            return variable;
+        }
+    }
+
+    return NULL;
+}
+
+
+///////////////////////////////////////////////////////////////////////////////////
+//
 //  EXPRESION
 //
 
@@ -730,6 +804,7 @@ void dumpFunctions(struct Program * p) {
 
     return;
 }
+
 
 
 void dumpParameters(struct Function * f) {

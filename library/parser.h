@@ -77,6 +77,11 @@ void              functionDefineParameters(struct Function * f, string * name, D
 struct DIM      * declareParameter(string * name, DataType dType);
 struct DIM      * createVariable(string * name, string * value, DataType dType, DIMFrame frame);
 
+// VARIABLES
+struct DIM * searchVariable(struct Program * p, struct Function * f, string * name);
+struct DIM * globalVariableExists(struct Program * p, string * name);
+struct DIM * localVariableExists(struct Function * f, string * name);
+
 void getExpression(struct tree * commands, struct DIM * _return);
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
