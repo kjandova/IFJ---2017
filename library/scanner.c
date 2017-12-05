@@ -75,7 +75,7 @@ int _scanner_next(string *word){
 					if(c == TOKEN_END_OF_LINE){
 						if((c = fgetc(__scanner_file)) == TOKEN_END_OF_LINE){
 							ungetc(c, __scanner_file);	
-							line_counter++;						
+							line_counter++;					
 							state = SCANNER_START;
 						}
 						else{
@@ -148,7 +148,7 @@ int _scanner_next(string *word){
 
 				} else {
 					ungetc(c, __scanner_file);
-					return TOKEN_INTEGER;
+					return DATA_TYPE_INTEGER;
 				}
 			break;
 			case SCANNER_FLOAT:
