@@ -177,7 +177,7 @@ int expeRetype(int typeA, int typeB) {
                     return DATA_TYPE_STRING;
             }
             break;
-            
+
          //toto neskor zmazat   
         case TOKEN_ID:
             switch (typeB) {
@@ -213,7 +213,7 @@ int prec_anal(){
     _return->name =  vysledok;
 
 
-/*
+
     //dummy premenna prem1
     string variable;
     variable.str = "variable";
@@ -247,7 +247,7 @@ int prec_anal(){
 
 
 
-*/
+
 
 
     //
@@ -290,10 +290,7 @@ int prec_anal(){
 
 
         //najde posledny terminal s kt. bude porovnavat znak na vstupe
-        PAItem * lastTerminal = a->last;
-            while (lastTerminal->is_terminal == false) {
-            lastTerminal = lastTerminal->prev;
-        }
+        PAItem * lastTerminal = last_terminal(a);
         a->lastTerminal = lastTerminal;
 
         
@@ -377,7 +374,7 @@ int prec_anal(){
                 //
                 //
                 //  pravidlo E -> E
-                //  TODO: vyhladat ci existuje premenna, vlozit hodnotu, popr. vytvorit novu premmenu
+                //  TODO: vyhladat ci existuje premenna, vlozit hodnoty, popr. vytvorit novu
                 //
                 //
 
@@ -439,9 +436,9 @@ int prec_anal(){
 
 
 
-                    // TODO: podla operatoru (a->lastTerminal->flag) vlozit meno instrukcie
+                    // TODO: podla operatoru (a->lastTerminal->flag) vlozit instrukciu
                     // premenna1 (a->startExp->name.str) = kam vlozit
-                    // premenna2 (a->last->name.str) = s cim premennu1 zoperovat
+                    // premenna2 (a->last->name.str) = s cim premennu hore zoperovat
                     //
                     // napr. ADD premenna1 premenna1 premenna2
                     printf("%s = %s %s %s\n", a->startExp->name.str, a->startExp->name.str, getTokenName(a->lastTerminal->flag), a->last->name.str);
