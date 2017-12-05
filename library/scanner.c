@@ -55,7 +55,7 @@ Token scanner_next_token() {
     scanner_token_dump(t);
 
     return t;
-}
+}	
 
 int _scanner_next(string *word){
 
@@ -259,12 +259,15 @@ int _scanner_next(string *word){
 			case SCANNER_LINE_COMMENT:
 				if(c == TOKEN_END_OF_LINE) {
 					Dump("end of line comentary");
+					line_counter++;
 					state = SCANNER_START;
 				}
 			break;
 			case SCANNER_COMMENT:
 				if(c == TOKEN_QUOTE) {
 					state = SCANNER_COMMENT_TRY;
+				}else if(c == TOKEN_END_OF_LINE) {
+					line_counter++;
 				} else {
 					state = SCANNER_COMMENT; 		// Still commentary
 				}

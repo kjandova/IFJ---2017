@@ -231,6 +231,7 @@ void writeInstuction(FILE * f, struct TWCode command) {
         case I_INT2CHAR:
         case I_STRLEN:
         case I_TYPE:
+	case I_NOT:
 
             var  = getVar(command.var1);
             sym1 = getSymb(command.var2);
@@ -265,7 +266,6 @@ void writeInstuction(FILE * f, struct TWCode command) {
         case I_EQ:
         case I_AND:
         case I_OR:
-        case I_NOT:
         case I_STRI2INT:
         case I_GETCHAR:
         case I_SETCHAR:
