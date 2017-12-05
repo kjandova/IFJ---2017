@@ -362,7 +362,7 @@ void parser_run() {
 
 
                 /////////////////////////////////
-                // IF výraz = true
+                // IF výraz = true	
 
                 // Print label instruction
                 /////////////////////////////////

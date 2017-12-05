@@ -55,7 +55,7 @@ Token scanner_next_token() {
     scanner_token_dump(t);
 
     return t;
-}
+}	
 
 int _scanner_next(string *word){
 
