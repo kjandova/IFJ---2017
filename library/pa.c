@@ -213,7 +213,7 @@ int prec_anal(){
     _return->name =  vysledok;
 
 
-
+/*
     //dummy premenna prem1
     string variable;
     variable.str = "variable";
@@ -247,7 +247,7 @@ int prec_anal(){
 
 
 
-
+*/
 
 
     //
@@ -377,7 +377,7 @@ int prec_anal(){
                 //
                 //
                 //  pravidlo E -> E
-                //  TODO: vyhladat ci existuje premenna, vlozit hodnoty, popr. vytvorit novu
+                //  TODO: vyhladat ci existuje premenna, vlozit hodnotu, popr. vytvorit novu premmenu
                 //
                 //
 
@@ -439,9 +439,9 @@ int prec_anal(){
 
 
 
-                    // TODO: podla operatoru (a->lastTerminal->flag) vlozit instrukciu
+                    // TODO: podla operatoru (a->lastTerminal->flag) vlozit meno instrukcie
                     // premenna1 (a->startExp->name.str) = kam vlozit
-                    // premenna2 (a->last->name.str) = s cim premennu hore zoperovat
+                    // premenna2 (a->last->name.str) = s cim premennu1 zoperovat
                     //
                     // napr. ADD premenna1 premenna1 premenna2
                     printf("%s = %s %s %s\n", a->startExp->name.str, a->startExp->name.str, getTokenName(a->lastTerminal->flag), a->last->name.str);
