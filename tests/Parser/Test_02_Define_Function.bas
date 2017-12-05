@@ -1,14 +1,24 @@
 Declare Function factorial (n As Double)
+Declare Function newfce (n As Double)
+
+
+
+
 Function factorial (a As Double)
-If ( a > b ) tHen
-	If a > b tHen
-        a=25
-    elSE
-        a=31
-    END If
-elSE
-	a=31
-END If
+asdasd asdasd
+asdasd
+asdasd
 
 End Function
 
+
+
+Function newfce (a As Double)
+
+asdasd asdasd
+asdasd
+asdasd
+
+end
+
+End Function
