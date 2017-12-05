@@ -148,7 +148,7 @@ int _scanner_next(string *word){
 
 				} else {
 					ungetc(c, __scanner_file);
-					return DATA_TYPE_INTEGER;
+					return DATA_TYPE_INT;
 				}
 			break;
 			case SCANNER_FLOAT:
