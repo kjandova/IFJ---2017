@@ -20,7 +20,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdarg.h>
-
+#include <ctype.h>
+#include <unistd.h>
 
 // HEADERS
 #include "utils.h"

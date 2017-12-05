@@ -87,12 +87,14 @@ struct TWCode {
 
 
 void generateInstruction(stack * commands, Instructions i, struct DIM * var1, struct DIM * var2, struct DIM * var3);
-//void translateInstuctions(struct stack ** commands);
-struct DIM * DIMInitReturn(DataType dType);
+//void translateInstuctions(FILE * f, struct stack * commands);
 void writeInstuction(FILE * f, struct TWCode command);
+
+struct DIM * DIMInitReturn(DataType dType);
 char * getLabel(struct DIM * label);
 char * getSymb(struct DIM * sym);
 char * getVar(struct DIM * sym);
+
 const char * getInstuctionName(Instructions instr);
 const char * getFrameName(DIMFrame frame);
 

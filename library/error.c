@@ -15,23 +15,33 @@
 
 #include "error.h"
 
+
 static int __dump_counter = 1;
 
-FILE * __dump_output  = NULL;
-FILE * __error_output = NULL;
+#define DEBUG_DISABLE  0
+#define DEBUG_ENABLE   1
+#define DEBUG_LINE     2
+#define DEBUG_TIME     4
 
-void ErrorInit(FILE * dump, FILE * error) {
-    if (dump == NULL) {
-        __dump_output = stdout;
-    } else {
-        __dump_output = dump;
-    }
+struct __ErrorInit_T {
+    int    debugEnabled;
+    FILE * outputError;
+    FILE * outputDump;
+} __ErrorInit;
 
-    if (dump == NULL) {
-        __error_output = stderr;
-    } else {
-        __error_output = error;
-    }
+
+/*
+*	@function ErrorException
+*	@param    e      - Error Flag
+*	@param    format - Fprint format
+*   @param    ...    - Arguments
+*/
+void ErrorInit(FILE * dump, FILE * error, int debugEnabled) {
+
+    __ErrorInit.outputDump       = (dump == NULL)  ? stdout:dump;
+    __ErrorInit.outputError      = (error == NULL) ? stdout:error;
+    __ErrorInit.debugEnabled     = (debugEnabled)  ? debugEnabled : DEBUG_DISABLE;
+
 }
 
 /*
@@ -45,21 +55,17 @@ void ErrorException (int e, char* format, ...) {
     va_list arg;
     va_start(arg, format);
 
-
-    #ifdef DEBUG
-    if (DEBUG) {
-        #ifdef DEBUG_LINE
-        if (DEBUG_LINE) {
-            fprintf(__error_output, "%3d. ", __dump_counter);
+    if (__ErrorInit.debugEnabled) {
+        if (__ErrorInit.debugEnabled & DEBUG_LINE) {
+            fprintf(__ErrorInit.outputError, "%3d. ", __dump_counter);
         }
-        #endif
-        fprintf(__error_output, "%s (%d) :: ", getErrorName(e), e);
-
+        fprintf(__ErrorInit.outputError, "%s (%d) :: ", getErrorName(e), e);
     }
-    #endif
-    vfprintf(__error_output, format, arg);
-    fprintf(__error_output, "\n");
+
+    vfprintf(__ErrorInit.outputError, format, arg);
+    fprintf(__ErrorInit.outputError, "\n");
     va_end(arg);
+
     if (e) {
        exit(e);
     }
@@ -68,7 +74,8 @@ void ErrorException (int e, char* format, ...) {
 
 
 /*
-*	@function ErrorException
+*	@function LineErrorException
+*	@param    tok    - Token
 *	@param    e      - Error Flag
 *	@param    format - Fprint format
 *   @param    ...    - Arguments
@@ -78,10 +85,10 @@ void LineErrorException (Token tok, int e, char* format, ...) {
     va_list arg;
     va_start(arg, format);
 
-    printf("%3d. [line:%3d (%3d)] ", __dump_counter, tok.line, tok.position);
-    fprintf(__error_output, "%s (%d) :: ", getErrorName(e), e);
-    vfprintf(__error_output, format, arg);
-    fprintf(__error_output, "\n");
+    fprintf(__ErrorInit.outputError, "%3d. [line:%3d (%3d)] ", __dump_counter, tok.line, tok.position);
+    fprintf(__ErrorInit.outputError, "%s (%d) :: ", getErrorName(e), e);
+    vfprintf(__ErrorInit.outputError, format, arg);
+    fprintf(__ErrorInit.outputError, "\n");
     va_end(arg);
 
     if (e) {
@@ -91,67 +98,60 @@ void LineErrorException (Token tok, int e, char* format, ...) {
     __dump_counter++;
 }
 
-
+/*
+*	@function Dump
+*	@param    format - fprint format
+*   @param    ...    - Arguments
+*/
 void Dump (char* format, ...) {
-    #ifdef DEBUG
-    if (DEBUG) {
+    if (__ErrorInit.debugEnabled) {
+
         va_list arg;
         va_start(arg, format);
-        #ifdef DEBUG_TIME
-        if (DEBUG_TIME) {
+
+        if (__ErrorInit.debugEnabled & DEBUG_TIME) {
             time_t t = time(NULL);
             struct tm tm = *localtime(&t);
-            fprintf(__dump_output, tm.tm_mon + 1, tm.tm_mday, tm.tm_year + 1900, tm.tm_hour, tm.tm_min, tm.tm_sec);
+            fprintf(__ErrorInit.outputDump, "%d-%d-%d %d:%d:%d ", tm.tm_mon + 1, tm.tm_mday, tm.tm_year + 1900, tm.tm_hour, tm.tm_min, tm.tm_sec);
         }
-        #endif
-        #ifdef DEBUG_LINE
-        if (DEBUG_LINE) {
-            fprintf(__dump_output, "%3d. ", __dump_counter);
+
+        if (__ErrorInit.debugEnabled & DEBUG_LINE) {
+            fprintf(__ErrorInit.outputDump, "%3d. ", __dump_counter);
         }
-        #endif
-        fprintf(__dump_output, "DUMP :: ");
-        vfprintf(__dump_output, format, arg);
-        fprintf(__dump_output, "\n");
+
+        fprintf(__ErrorInit.outputDump, "DUMP :: ");
+        vfprintf(__ErrorInit.outputDump, format, arg);
+        fprintf(__ErrorInit.outputDump, "\n");
         va_end(arg);
+
         __dump_counter++;
     }
-    #else
-        va_list arg;
-        va_start(arg, format);
-        va_end(arg);
-    #endif
 }
 
 void LineDump (Token tok, char* format, ...) {
-    #ifdef DEBUG
-    if (DEBUG) {
+
+    if (__ErrorInit.debugEnabled) {
+
         va_list arg;
         va_start(arg, format);
-        #ifdef DEBUG_TIME
-        if (DEBUG_TIME) {
+
+        if (__ErrorInit.debugEnabled & DEBUG_TIME) {
             time_t t = time(NULL);
             struct tm tm = *localtime(&t);
-            fprintf(__dump_output, "%d-%d-%d %d:%d:%d ", tm.tm_mon + 1, tm.tm_mday, tm.tm_year + 1900, tm.tm_hour, tm.tm_min, tm.tm_sec);
+            fprintf(__ErrorInit.outputDump, "%d-%d-%d %d:%d:%d ", tm.tm_mon + 1, tm.tm_mday, tm.tm_year + 1900, tm.tm_hour, tm.tm_min, tm.tm_sec);
         }
-        #endif
-        #ifdef DEBUG_LINE
-        if (DEBUG_LINE) {
-            fprintf(__dump_output, "%3d. [line:%3d (%3d)] ", __dump_counter, tok.line, tok.position);
+
+        if (__ErrorInit.debugEnabled & DEBUG_LINE) {
+            fprintf(__ErrorInit.outputDump, "%3d. [line:%3d (%3d)] ", __dump_counter, tok.line, tok.position);
         }
-        #endif
-        fprintf(__dump_output, "DUMP :: ");
-        vfprintf(__dump_output, format, arg);
-        fprintf(__dump_output,"\n");
+
+        fprintf(__ErrorInit.outputDump, "DUMP :: ");
+        vfprintf(__ErrorInit.outputDump, format, arg);
+        fprintf(__ErrorInit.outputDump,"\n");
         va_end(arg);
+
         __dump_counter++;
     }
-    #else
-        va_list arg;
-        va_start(arg, format);
-        va_end(arg);
-        unused(tok);
-    #endif
-
 }
 
 const char * getErrorName(short int e) {

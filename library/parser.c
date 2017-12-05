@@ -700,40 +700,42 @@ void getExpression(struct DIM * _return) {
 //
 
 
-void _dumpFunctions(struct tree_node * node) {
-    if (!node) return;
-    _dumpFunctions(node->left);
+void dumpFunctions(struct Program * p) {
 
-    struct Function * f = node->payload;
+    struct tree      * t = p->functions;
+    struct tree_iter it;
+    struct Function  * f;
 
-    printf("Function %s()\n", (f->name).str);
+    tree_iter_init(&it, t);
+    while (tree_iter_next(&it)) {
+        f = it.item.payload;
 
-    _dumpParameters((list *) f->parameters);
+        printf("Function %s()\n", (f->name).str);
 
-    printf("Return @%s\n\n", getDataTypeName(f->_return->dataType));
+        dumpParameters(f);
 
-    _dumpFunctions(node->right);
+        printf("Return @%s\n\n", getDataTypeName(f->_return->dataType));
+    }
 
     return;
 }
 
 
-void _dumpParameters(list * params) {
+void dumpParameters(struct Function * f) {
 
-    struct DIM * var;
+    list        * params = f->parameters;
+    struct DIM  * var;
+
     int paramCount = list_size(params);
 
     printf("Parameter Count(%d)\n", paramCount);
-
     for(int i = 0; i < paramCount; i++) {
         var = list_index(params, i);
         printf("Parameter :: %s@%s\n", (var->name).str, getDataTypeName(var->dataType));
     }
 }
 
-void dumpFunctions(struct Program * p) {
-    _dumpFunctions(p->functions->root);
-}
+
 
 void program_dump(struct Program * p) {
     printf("\n::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::\n");

@@ -25,13 +25,27 @@ FILE * loadFile(char * path) {
         f = stdin;
     }
 
-
     if (f == NULL){
-       ErrorException(ERROR_INTERN, "Error opening file");
+       ErrorException(ERROR_INTERN, "Error opening stream file");
 	}
 
 	return f;
 }
 
+FILE * writeFile(char * path) {
 
+    FILE * f;
+
+    if  (path) {
+        f = fopen (path, "w+");
+    } else {
+        f = stdout;
+    }
+
+    if (f == NULL){
+       ErrorException(ERROR_INTERN, "Error opening stream file");
+	}
+
+	return f;
+}
 

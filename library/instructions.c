@@ -93,13 +93,16 @@ struct DIM * createVariable(string * name, string * value, DataType dType, DIMFr
 
     if (value->length) {
         switch (dType) {
+
             case DATA_TYPE_INT: {
                 variable->valueInteger = atoi(value->str);
             } break;
+
             case DATA_TYPE_DOUBLE: {
                 char *ptr;
                 variable->valueDouble  = strtod(value->str, &ptr);
             } break;
+
             case DATA_TYPE_STRING: {
                 strInit(&(variable->valueString));
                 strCopyString(&(variable->valueString), value);

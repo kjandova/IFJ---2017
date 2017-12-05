@@ -20,5 +20,6 @@
 #include <stdlib.h>
 
 FILE * loadFile(char * path);
+FILE * writeFile(char * path);
 
 #endif // IFJ_FILES_H
