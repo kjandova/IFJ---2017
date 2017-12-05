@@ -87,8 +87,8 @@ enum ParserStats {
 };
 
 
-struct Program  *__parser_program;
-struct Function *__parser_function;
+struct Program  *__parser_program;  // GLOBAL PROGRAM
+struct Function *__parser_function; // FUNCTION TEMP VARIABLE
 Token               tok;
 
 /*
@@ -113,11 +113,8 @@ void parser_init(char * fileNameSource) {
 */
 void parser_run() {
 
-
-    struct Function *_function;
     int in_if = 0;
     int in_while = 0;
-
     int stateMain   = PARSER_START,
         stateReturn = PARSER_START;
 
@@ -364,7 +361,7 @@ void parser_run() {
 
 
                 /////////////////////////////////
-                // IF výraz = true	
+                // IF výraz = true
 
                 // Print label instruction
                 /////////////////////////////////
@@ -386,7 +383,7 @@ void parser_run() {
 		/////////////////////////////////
 		// Print label instruction
 		/////////////////////////////////
-		} 
+		}
 		if(in_if == 1 ){
 /*		        while(tok.flag != TOKEN_ELSE){
 		            tok = scanner_next_token();
@@ -424,7 +421,7 @@ void parser_run() {
 			break;
 		}
 
-                
+
 
             }; break;
 
@@ -432,7 +429,7 @@ void parser_run() {
             // DO WHILE výraz EOL
             // příkazy
             // LOOP
-            case PARSER_STATMENT_WHILE: 
+            case PARSER_STATMENT_WHILE:
 		if(in_while == 0){
 		        tok = scanner_next_token();
 		        if (tok.flag != TOKEN_WHILE) {
@@ -462,7 +459,7 @@ void parser_run() {
 			in_while = 0;
 		        stateMain = PARSER_START;
 
-		} 
+		}
             break;
 
             case PARSER_PARAMS : {
