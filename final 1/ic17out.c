@@ -153,5 +153,6 @@ void writeProgram(FILE *f, struct Program *p)
 	writeFunction(f, p->scope);
 	fputs("LABEL &%body\n", f);
 	writeVariables(f, p->globalVariables);
-	fputs("CALL &main\n", f);
+	if (p->scope)
+		fputs("CALL &main\n", f);
 }
