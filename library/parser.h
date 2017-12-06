@@ -87,6 +87,9 @@ struct DIM * localVariableExists(struct Function * f, string * name);
 
 void getExpression(struct tree * commands, struct DIM * _return);
 
+void plumStackPush(int statType, int statMain);
+int  plumStackPeek(int statType, int statMain);
+int  plumStackPop();
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 //
 // Declare Parser Dump

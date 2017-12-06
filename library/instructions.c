@@ -116,8 +116,7 @@ struct DIM * createVariable(string * name, string * value, DataType dType, DIMFr
     return  variable;
 }
 
-
-void generateInstructionBlock(stack * commands, Instructions i, struct DIM * var1, struct DIM * var2, struct DIM * var3) {
+void generateInstruction(list * commands, Instructions i, struct DIM * var1, struct DIM * var2, struct DIM * var3) {
 
     struct TWCode code = {
         .instr = i,
@@ -126,7 +125,7 @@ void generateInstructionBlock(stack * commands, Instructions i, struct DIM * var
         .var3  = var3
     };
 
-    stack_push(commands, &code);
+    list_append(commands, &code);
 }
 
 

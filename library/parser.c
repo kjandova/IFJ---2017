@@ -48,11 +48,15 @@ enum ParserStats {
     //
     // IF <EXPRESSION> THEN EOL <STATEMENT_LIST> <ELSEIF> <ELSE> END IF
     PARSER_STATMENT_IF,
+    PARSER_STATMENT_IF_ELSE,
+    PARSER_STATMENT_IF_END,
 
     //
     // DO WHILE <EXPRESSION> EOL <STATEMENT_LIST> <LOOP>
     PARSER_STATMENT_WHILE,
+    PARSER_STATMENT_WHILE_END,
 
+    PARSER_STATMENT_END,
     //
     // DIM (ID) AS <TYPE> EOL
     PARSER_STATMENT_DIM,
@@ -87,10 +91,11 @@ enum ParserStats {
 };
 
 
-struct Program  *__parser_program;  // GLOBAL PROGRAM
-struct Function *__parser_function; // FUNCTION TEMP VARIABLE
-Token               tok;
-
+struct Program  * __parser_program;  // GLOBAL PROGRAM
+struct Function * __parser_function; // FUNCTION TEMP VARIABLE
+Token             tok;
+stack           * pStack;
+int               pIter;
 /*
 *   @function      parser_init
 *   @param         char * fileNameSource
@@ -107,10 +112,21 @@ void parser_init(char * fileNameSource) {
 #define FUNCTION_DECLARE 0
 #define FUNCTION_DEFINE  1
 
+#define STAT_FUNCTION 0
+#define STAT_IF       1
+#define STAT_WHILE    2
+
 /*
 *   @function      parser_run
 *   @description
 */
+
+struct plumStat {
+    int statIter;
+    int statMain;
+    int statType;
+} plumStat;
+
 void parser_run() {
 
     int in_if = 0;
@@ -121,6 +137,11 @@ void parser_run() {
     int dType,
         counterDefineParams = 0,
         functionStats       = FUNCTION_DECLARE;
+
+    struct tree * _commands = new_tree(TREE_PLAIN);
+
+    stack_new(pStack, sizeof(plumStat));
+
 
     while(stateMain != PARSER_END) {
         switch(stateMain) {
@@ -135,15 +156,6 @@ void parser_run() {
                     break;
                     case TOKEN_FUNCTION:
                         stateMain = PARSER_DEFINE_FUNCTION_START;
-                    break;
-                    case TOKEN_IF:
-		    case TOKEN_ELSE:
-		    case TOKEN_END:
-                        stateMain = PARSER_STATMENT_IF;
-                    break;
-                    case TOKEN_DO:
-                    case TOKEN_LOOP:
-                        stateMain = PARSER_STATMENT_WHILE;
                     break;
                     case TOKEN_END_OF_LINE:
                         stateMain = PARSER_START;
@@ -263,6 +275,7 @@ void parser_run() {
                     stateMain   = PARSER_DEFINE_FUNCTION_STATMENTS;
                 }
 
+                plumStackPush(STAT_FUNCTION, PARSER_DEFINE_FUNCTION_END);
             } break;
 
             case PARSER_DEFINE_FUNCTION_PARAMETERS: {
@@ -312,24 +325,38 @@ void parser_run() {
             case PARSER_DEFINE_FUNCTION_STATMENTS: {
 
                 switch (tok.flag) {
+
+                    // DIM <ID> AS <DT> [= <expression> ]
                     case TOKEN_DIM:
                         parse_stmt_dim();
                     break;
+
+                    // IF <expression> THEN EOL <statment_list>
                     case TOKEN_IF:
                         stateMain = PARSER_STATMENT_IF;
-                        stateReturn = PARSER_DEFINE_FUNCTION_STATMENTS;
                     break;
-                    case TOKEN_END:
-                        tok = scanner_next_token();
 
-                        if (tok.flag == TOKEN_FUNCTION)
-                            stateMain = PARSER_DEFINE_FUNCTION_END;
-//                         else
-//                             LineErrorException(tok, ERROR_SYNTAX, "Unexpected END");
+                    // ELSE <statment_list>
+                    case TOKEN_ELSE:
+                        stateMain = PARSER_STATMENT_IF_ELSE;
                     break;
+
+                    // DO
+                    case TOKEN_DO:
+                        stateMain = PARSER_STATMENT_WHILE;
+                    break;
+
+                    // END LOOP
+                    case TOKEN_END:
+                    case TOKEN_LOOP:
+                        stateMain = plumStackPop(); // Zasobni pro vnoření počínaje funkcí [fce, if, if, while,...]
+                    break;
+
+                    // EOF
                     case TOKEN_END_OF_FILE:
                         LineErrorException(tok, ERROR_SYNTAX, "End of file while processing FUNCTION");
                     break;
+
                     default:
                         tok = scanner_next_token();
                     break;
@@ -351,146 +378,187 @@ void parser_run() {
             // IF <extension> THEN EOL <statments> ELSE <statmens> END IF
             //
             case PARSER_STATMENT_IF: {
-		if(in_if == 0){
+
                 // IF <extension>
 
                 // Call getExpression
-                struct DIM * _return        = malloc(sizeof(struct DIM));
-                struct tree * commandsBlock = new_tree(TREE_PLAIN);
+                struct DIM * _return   = malloc(sizeof(struct DIM));
+                struct tree * commands = new_tree(TREE_PLAIN);
 
+                string result = strPrintf("IF_%d_result", pIter);
+
+                _return->name     = result;
                 _return->dataType = DATA_TYPE_INT;
 
-                // EXPRESSION
-                getExpression(commandsBlock, _return);
-
                 ////////////////////////////////////////////
-                // ADD JUMP INSTRUCTION
-                //
-                // #
                 // <expressionBlock>
                 //
-                // JUMPIFNEQ IF_[i]_true LF@result int@0
-                // JUMP      IF_[i]_false
-                // LABEL     IF_[i]_true
-                //
-                // <commandsBlock>
-                //
-                // JUMP      IF_[i]_end
-                // LABEL     IF_[i]_false
-                //
-                // <commandsBlock>
-                //
-                // LABEL     IF_[i]_end
-                //
-                ////////////////////////////////////////////
+                // EXPRESSION
+                getExpression(commands, _return);
 
-                /////////////////////////////////
-                // IF výraz = true
-
-                // Print label instruction
-                /////////////////////////////////
-
-				if (tok.flag != TOKEN_THEN) {
+                if (tok.flag != TOKEN_THEN) {
 				    LineErrorException(tok, ERROR_SYNTAX, "THEN is missing");
 				}
 
+				///////////////////////////////////////////////////////////////////////////////////
+				//
+                // JUMPIFNEQ IF_[i]_true LF@result int@0
+                // JUMP      IF_[i]_false
+                // LABEL     IF_[i]_true
+
+                // string       label;
+                // struct DIM * labelT;
+                // struct DIM * labelF;
+
+                // label   = strPrintf("IF_%d_true", pIter);
+                // labelT  = createDIMLabel(label);
+
+                // label   = strPrintf("IF_%d_false", pIter);
+                // labelF  = createDIMLabel(label);
+
+                // generateInstruction(_commands, I_JUMPIFNEQ, labelT, _return, NULL);
+                // generateInstruction(_commands, I_JUMP     , labelF, NULL   , NULL);
+                // generateInstruction(_commands, LABEL      , labelT, NULL   , NULL);
+                //
+                // free(label);
+                ///////////////////////////////////////////////////////////////////////////////////
+
+                plumStackPush(STAT_IF, PARSER_STATMENT_IF_ELSE);
+
+                stateMain = PARSER_DEFINE_FUNCTION_STATMENTS;
+            }
+
+            case PARSER_STATMENT_IF_ELSE: {
+
+                int i = plumStackPeek(STAT_IF, PARSER_STATMENT_IF_END);
+
+                ///////////////////////////////////////////////////////////////////////////////////
+                // JUMP      IF_[i]_end
+                // LABEL     IF_[i]_false
+                //
+
+                // string       label;
+                // struct DIM * labelF;
+                // struct DIM * labelE;
+
+                // label   = strPrintf("IF_%d_false", i);
+                // labelF  = createDIMLabel(label);
+
+                // label   = strPrintf("IF_%d_end", i);
+                // labelE  = createDIMLabel(label);
+
+                // generateInstruction(_commands, I_JUMP    , labelE, NULL   , NULL);
+                // generateInstruction(_commands, LABEL     , labelF, NULL   , NULL);
+                //
+                // free(label);
+                unused(i);
+                stateMain = PARSER_DEFINE_FUNCTION_STATMENTS;
+
+                // <commandsBlock>
+            } break;
+
+            case PARSER_STATMENT_IF_END: {
+
+                tok = scanner_next_token();
+				if (tok.flag != TOKEN_IF) {
+				    LineErrorException(tok, ERROR_SYNTAX, "END >IF< is missing");
+				}
 
 				tok = scanner_next_token();
 				if (tok.flag != TOKEN_END_OF_LINE) {
 				    LineErrorException(tok, ERROR_SYNTAX, "after THEN must be end of line");
 				}
 
-				in_if = 1;
+				///////////////////////////////////
+                //
+                // LABEL  IF_[i]_end
+                //
 
-				Dump("IF START");
-                		stateMain   = PARSER_START;
-				break;
+                // string       label;
+                // struct DIM * labelE;
+
+                // label   = strPrintf("IF_%d_end", pIter);
+                // labelE  = createDIMLabel(label);
+
+                // generateInstruction(_commands, LABEL     , labelF, NULL   , NULL);
+                //
+                // free(label);
+
+				stateMain = PARSER_DEFINE_FUNCTION_STATMENTS;
+
+            break;
 
 		/////////////////////////////////
 		// Print label instruction
 		/////////////////////////////////
 		}
 
-		if(in_if == 1 ){
-/*		        while(tok.flag != TOKEN_ELSE){
-		            tok = scanner_next_token();
-		            if (tok.flag == TOKEN_END_OF_FILE ||  tok.flag == TOKEN_END) {
-		                LineErrorException(tok, ERROR_SYNTAX, "reached end, ELSE is missing");
-		            }
-		        }*/
-
-		        //IF výraz = false skip till ELSE
-
-		        /*tok = scanner_next_token();
-			Dump("token je:%d\n",tok.flag);
-		        if (tok.flag != TOKEN_ELSE) {
-		            LineErrorException(tok, ERROR_SYNTAX, "missing ELSE statement");
-		        }*/
-		        //tu se vyhodnoti dalsi prikazy
-
-		        //ending of if statement (END IF)
-			if(tok.flag != TOKEN_ELSE){
-				    LineErrorException(tok, ERROR_SYNTAX, "missing ELSE statement");
-			}
-			Dump("ELSE");
-			in_if = 2;
-			stateMain = PARSER_START;
-			break;
-		}
-
-		if(in_if == 2){
-
-			tok = scanner_next_token();
-			Dump("token je:%d\n",tok.flag);
-			if (tok.flag != TOKEN_IF) {
-			    LineErrorException(tok, ERROR_SYNTAX, "missing END IF statement");
-			}
-			in_if = 0;
-			Dump("END IF");
-
-                	stateMain   = PARSER_START;
-			break;
-		}
-
-
-
-            }; break;
 
             ///////////////////////////////////////////////////////////////////////
-            // DO WHILE výraz EOL
-            // příkazy
+            // DO WHILE <expression> EOL
             // LOOP
-            case PARSER_STATMENT_WHILE:
-		if(in_while == 0){
+            case PARSER_STATMENT_WHILE: {
+
+                // DO >WHILE< <extension>
 		        tok = scanner_next_token();
 		        if (tok.flag != TOKEN_WHILE) {
-		            LineErrorException(tok, ERROR_SYNTAX, "missing WHILE statement");
+		            LineErrorException(tok, ERROR_SYNTAX, "WHILE is missing");
 		        }
 
-		        //tu se vola PA pro vyhodnocení výrazu
-		        struct DIM * _return        = malloc(sizeof(struct DIM));
-		        struct tree * commandsBlock = new_tree(TREE_PLAIN);
 
-		        _return->dataType = DATA_TYPE_INT;
+                // Call getExpression
+                struct DIM * _return   = malloc(sizeof(struct DIM));
+                struct tree * commands = new_tree(TREE_PLAIN);
+                string        result   = strPrintf("result", pIter);
 
-		        getExpression(commandsBlock, _return);
-			Dump("WHILE start ");
+                _return->name     = result;
+                _return->dataType = DATA_TYPE_INT;
 
-		        /*tok = scanner_next_token();
-		        if (tok.flag != TOKEN_END_OF_LINE) {
-		            LineErrorException(tok, ERROR_SYNTAX, "must be nd of line");
-		        }*/
-			in_while = 1;
+		        //////////////////////////////////////////////////////////////////////////////////
+				//
+                // LABEL     WHILE_[i]_start LF@result int@0
 
+                // string    label;
 
-		        stateMain = PARSER_START;
-		}
-		else{
-			Dump("I'm in WHILE!");   //check condition, loop here for it
-			in_while = 0;
-		        stateMain = PARSER_START;
+                // label     = strPrintf("WHILE_%d_start", pIter);
+                // struct DIM * labelS = createDIMLabel(label);
 
-		}
+                // generateInstruction(_commands, LABEL     , labelT, NULL   , int@0);
+                //
+                ///////////////////////////////////////////////////////////////////////////////////
+
+                ///////////////////////////////////////////////////////////////////////////////////
+                //
+                // EXPRESSION
+
+                getExpression(commands, _return);
+
+                ///////////////////////////////////////////////////////////////////////////////////
+				//
+                // JUMPIFEQ IF_[i]_end LF@result int@0
+
+                // label   = strPrintf("WHILE_%d_end", pIter);
+                // struct DIM * labelE = createDIMLabel(label);
+
+                // generateInstruction(_commands, I_JUMPIFEQ, labelE, _return, int@0);
+                //
+                ///////////////////////////////////////////////////////////////////////////////////
+
+                plumStackPush(STAT_WHILE, PARSER_STATMENT_IF_ELSE);
+
+                stateMain = PARSER_DEFINE_FUNCTION_STATMENTS;
+            break;
+
+            ///////////////////////////////////////////////////////////////////////
+            // DO WHILE <expression> EOL
+            // LOOP
+            case PARSER_STATMENT_WHILE_END: {
+
+                if (tok.flag != TOKEN_LOOP) {
+                    LineErrorException(tok, ERROR_SYNTAX, "WHILE is missing");
+                }
+
+                stateMain = PARSER_DEFINE_FUNCTION_STATMENTS;
             break;
 
             case PARSER_PARAMS : {
@@ -553,6 +621,49 @@ void parser_run() {
     exit(0);
 }
 
+
+void plumStackPush(int statType, int statMain) {
+
+    struct plumStat plum = {
+        .statIter = pIter++,
+        .statMain = statMain,
+        .statType = statType
+    };
+
+    stack_push(pStack, &plum);
+}
+
+
+int plumStackPeek(int statType, int statMain) {
+
+    struct plumStat plum;
+
+    stack_peek(pStack, (void*) &plum);
+
+    if (plum.statType != statType) {
+        LineErrorException(tok, ERROR_SYNTAX, "ENDING STATMENT BLOCK");
+    }
+
+    plum.statMain = statMain;
+
+    return plum.statIter;
+}
+
+int plumStackPop() {
+
+    struct plumStat * plum;
+
+    stack_pop(pStack, (void*) plum);
+
+    return plum->statMain;
+}
+
+struct DIM * createDIMLabel(string * name) {
+    struct DIM * label = malloc(sizeof(struct DIM));
+    strCopyString(&label->name, name);
+    return label;
+};
+
 void parse_stmt_dim()
 {
     struct DIM *var;
@@ -580,7 +691,7 @@ void parse_stmt_dim()
     tok = scanner_next_token();
     if (tok.flag == TOKEN_EQUALS) {
         // DIM id AS type [ = >expr< ] EOL
-        getExpression(NULL, var);
+        getExpression(_commands, var);
     }
 
     // DIM id AS type [ = expr ] >EOL<

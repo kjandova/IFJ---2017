@@ -172,6 +172,29 @@ string strUpper(string *s) {
 }
 
 /*
+*	@function strPrintf
+*	@param char* format
+*	@param arguments
+*	@description Vytvori string z printf
+*/
+string strPrintf(char* format,...) {
+    char * buffer;
+    size_t size;
+
+    va_list args;
+    va_start (args, format);
+
+    size   = vsnprintf(NULL, 0, format, args) + 1;
+    buffer = (char *) malloc(size);
+
+    vsnprintf(buffer, size, format, args);
+
+    va_end (args);
+
+    return strChars(buffer);
+}
+
+/*
 *	@function strConcat
 *	@param string *s1
 *	@param string *s2

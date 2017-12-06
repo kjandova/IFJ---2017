@@ -86,7 +86,7 @@ struct TWCode {
 };
 
 
-void generateInstruction(stack * commands, Instructions i, struct DIM * var1, struct DIM * var2, struct DIM * var3);
+void generateInstruction(list * commands, Instructions i, struct DIM * var1, struct DIM * var2, struct DIM * var3);
 //void translateInstuctions(FILE * f, struct stack * commands);
 void writeInstuction(FILE * f, struct TWCode command);
 
