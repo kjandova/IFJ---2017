@@ -46,15 +46,61 @@ struct tree *new_tree(enum tree_type type)
   __attribute__((warn_unused_result));
 void del_tree(struct tree **t);
 
+/**
+ * \brief Initialises tree structure
+ * \param t tree to be acted upon
+ * \param type type of tree
+ * \return pointer to tree
+ */
 struct tree *tree_init(struct tree *t, enum tree_type type);
+
+/**
+ * \brief Tear down tree structure
+ * \param t tree to be acted upon
+ * \post
+ *  - `ẗ́' can be safely deallocated
+ */
 void tree_tear(struct tree *t);
 
+/**
+ * \brief Tries to add record to tree
+ * \param t tree to be acted upon
+ * \param key added key
+ * \param payload value of new record
+ * \return success boolean, false if `t' already contained `key'
+ */
 int tree_add(struct tree *t, char *key, void *payload);
+
+/**
+ * \brief Sets record in tree to new value
+ * \param t tree to be acted upon
+ * \param key searched key
+ * \param payload new value of record
+ * \return success boolean, false if record was not found
+ */
 int tree_set(struct tree *t, char *key, void *payload);
+
+/**
+ * \brief Deletes record from tree
+ * \param t tree to be acted upon
+ * \param key searched key
+ * \return success boolean, false if record was not found
+ */
 int tree_del(struct tree *t, char *key);
 
+/**
+ * \brief Gets record from tree
+ * \param t tree to be searched
+ * \param key searched key
+ * \param payload address of output variable or NULL
+ * \return boolean if record was found
+ */
 int tree_get(struct tree *t, char *key, void **payload);
 
+/**
+ * \brief Makes tree balanced
+ * \param t tree to be acted upon
+ */
 void tree_balance(struct tree *t);
 
 /*
