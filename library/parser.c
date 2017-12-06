@@ -313,8 +313,7 @@ void parser_run() {
 
                 switch (tok.flag) {
                     case TOKEN_DIM:
-                        stateMain = PARSER_STATMENT_DIM;
-                        stateReturn = PARSER_DEFINE_FUNCTION_STATMENTS;
+                        parse_stmt_dim();
                     break;
                     case TOKEN_IF:
                         stateMain = PARSER_STATMENT_IF;
@@ -543,56 +542,56 @@ void parser_run() {
                     default: LineErrorException(tok, ERROR_SYNTAX, ") is missing");
                 }
             } break;
-            case PARSER_STATMENT_DIM : {
-                struct DIM *var;
-                NEW(var);
-                strInit(&var->name);
-                var->frame = FRAME_LOCAL;
-                // >DIM< id AS type [ = expr ] EOL
-                // DIM >id< AS type [ = expr ] EOL
-                tok = scanner_next_token();
-                if (tok.flag != TOKEN_ID)
-                    LineErrorException(tok, ERROR_SYNTAX, "ID of variable is missing");
-
-                strCopyString(&var->name, &tok.ID);
-                // DIM id >AS< type [ = expr ] EOL
-                tok = scanner_next_token();
-                if (tok.flag != TOKEN_AS)
-                    LineErrorException(tok, ERROR_SYNTAX, "AS is missing");
-
-                // DIM id AS >type< [ = expr ] EOL
-                tok = scanner_next_token();
-                if ((var->dataType = getDataTypeFromToken(tok.flag)) == -1)
-                    LineErrorException(tok, ERROR_SYNTAX, "type of variable is missing");
-
-                // DIM id AS type [ >=< expr ] EOL
-                tok = scanner_next_token();
-                if (tok.flag == TOKEN_EQUALS) {
-                    // DIM id AS type [ = >expr< ] EOL
-                    getExpression(NULL, var);
-                }
-
-                // DIM id AS type [ = expr ] >EOL<
-                if (tok.flag != TOKEN_END_OF_LINE)
-                    LineErrorException(tok, ERROR_SYNTAX, "Garbage after variable definition");
-
-                // Test for id collision w/fns and try to add variable
-                if (tree_get(__parser_program->functions, var->name.str, NULL) ||
-                    localVariableExists(__parser_function, &var->name))
-                    LineErrorException(tok, ERROR_DEFINE, "Name already used");
-
-                tree_add(__parser_function->variables, var->name.str, var);
-                Dump("> DEFINE variable %s COMPLETE\n", var->name.str);
-
-                stateMain   = stateReturn;
-            } break;
         }
     }
 
     program_dump(__parser_program);
+    writeProgram(stdout, __parser_program);
     exit(0);
 }
 
+void parse_stmt_dim()
+{
+    struct DIM *var;
+    NEW(var);
+    strInit(&var->name);
+    var->frame = FRAME_LOCAL;
+    // >DIM< id AS type [ = expr ] EOL
+    // DIM >id< AS type [ = expr ] EOL
+    tok = scanner_next_token();
+    if (tok.flag != TOKEN_ID)
+        LineErrorException(tok, ERROR_SYNTAX, "ID of variable is missing");
+
+    strCopyString(&var->name, &tok.ID);
+    // DIM id >AS< type [ = expr ] EOL
+    tok = scanner_next_token();
+    if (tok.flag != TOKEN_AS)
+        LineErrorException(tok, ERROR_SYNTAX, "AS is missing");
+
+    // DIM id AS >type< [ = expr ] EOL
+    tok = scanner_next_token();
+    if ((var->dataType = getDataTypeFromToken(tok.flag)) == -1)
+        LineErrorException(tok, ERROR_SYNTAX, "type of variable is missing");
+
+    // DIM id AS type [ >=< expr ] EOL
+    tok = scanner_next_token();
+    if (tok.flag == TOKEN_EQUALS) {
+        // DIM id AS type [ = >expr< ] EOL
+        getExpression(NULL, var);
+    }
+
+    // DIM id AS type [ = expr ] >EOL<
+    if (tok.flag != TOKEN_END_OF_LINE)
+        LineErrorException(tok, ERROR_SYNTAX, "Garbage after variable definition");
+
+    // Test for id collision w/fns and try to add variable
+    if (tree_get(__parser_program->functions, var->name.str, NULL) ||
+        localVariableExists(__parser_function, &var->name))
+        LineErrorException(tok, ERROR_DEFINE, "Name already used");
+
+    tree_add(__parser_function->variables, var->name.str, var);
+    Dump("> DEFINE variable %s COMPLETE\n", var->name.str);
+}
 
 ///////////////////////////////////////////////////////////////////////////////////
 //

@@ -66,6 +66,9 @@ struct Program {
 //
 void              program_init(struct Program ** p);
 
+// Subparsers
+void parse_stmt_dim();
+
 // FUNCTTIONS DECLARED
 struct Function * functionDeclare(struct Program * p, string * name);
 void              functionDeclareParameters(struct Function * f, string * name, DataType dType);
