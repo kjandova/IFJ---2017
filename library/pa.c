@@ -20,7 +20,6 @@
 
 
 
-
 void init_list(PAList *l) {
     l->first = NULL;
     l->last = NULL;
@@ -133,9 +132,9 @@ unsigned int getTableIndex(int flag) {
         case TOKEN_NON_EQUAL:               return 10;  // <>
         case TOKEN_BRACKET_LEFT:            return 11;  // (
         case TOKEN_BRACKET_RIGHT:           return 12;  // )
-        case TOKEN_INTEGER:
         case DATA_TYPE_DOUBLE:
         case DATA_TYPE_STRING:
+        case DATA_TYPE_INT:
         case TOKEN_ID:                      return 13;  // i
         case TOKEN_END_OF_LINE:
         case TOKEN_THEN:                    return 14;  // $
@@ -151,10 +150,10 @@ char getTable(int i, int j) {
 int expeRetype(int typeA, int typeB) {
 
     switch (typeA) {
-        case TOKEN_INTEGER:
+        case DATA_TYPE_INT:
             switch (typeB) {
-                case TOKEN_INTEGER:
-                    return TOKEN_INTEGER;
+                case DATA_TYPE_INT:
+                    return DATA_TYPE_INT;
 
                 case DATA_TYPE_DOUBLE:
                     return DATA_TYPE_DOUBLE;
@@ -166,7 +165,7 @@ int expeRetype(int typeA, int typeB) {
                 case DATA_TYPE_DOUBLE:
                     return DATA_TYPE_DOUBLE;
 
-                case TOKEN_INTEGER:
+                case DATA_TYPE_INT:
                     return DATA_TYPE_DOUBLE;
             }
             break;
@@ -190,65 +189,114 @@ int expeRetype(int typeA, int typeB) {
     return 0;
 }
 
+
+
+//im going to hell for this
+int returnCommands(struct DIM * item1, struct DIM * item2, int flag){
+
+
+    int instruct;
+
+    switch(flag){
+
+        case TOKEN_ADD:
+            if(item1->dataType == DATA_TYPE_STRING){
+                instruct = I_CONCAT;
+                generateInstruction(_commands, instruct, item1, item1, item2);
+            }
+            if((item1->dataType == DATA_TYPE_DOUBLE) || (item1->dataType == DATA_TYPE_INT)){
+                instruct = I_ADD;
+                generateInstruction(_commands, instruct, item1, item1, item2);
+            }
+        break;
+
+        case TOKEN_SUB:
+            instruct = I_SUB;
+            generateInstruction(_commands, instruct, item1, item1, item2);
+        break;
+
+        case TOKEN_MUL:
+            instruct = I_MUL;
+            generateInstruction(_commands, instruct, item1, item1, item2);
+        break;
+
+        case TOKEN_DIV:
+
+            if(item1->dataType != DATA_TYPE_DOUBLE){
+                instruct = I_INT2FLOAT;
+                generateInstruction(_commands, instruct, item1, item1, item2);
+            }
+            instruct = I_DIV;
+            generateInstruction(_commands, instruct, item1, item1, item2);
+        break;
+
+        case TOKEN_BACKSLASH:
+            if(item1->dataType == DATA_TYPE_INT){
+                instruct = I_DIV;
+                generateInstruction(_commands, instruct, item1, item1, item2);
+            }
+            else{
+                ErrorException(ERROR_SYNTAX, "Backslash devide operands not INT");
+                return(ERROR_SYNTAX);
+            }
+        break;
+
+
+        case TOKEN_LESS:
+            instruct = I_LT;
+            generateInstruction(_commands, instruct, item1, item1, item2);
+        break;
+
+
+        case TOKEN_MORE:
+            instruct = I_GT;
+            generateInstruction(_commands, instruct, item1, item1, item2);
+        break;
+
+
+        case TOKEN_EQUALS:
+            instruct = I_EQ;
+            generateInstruction(_commands, instruct, item1, item1, item2);
+        break;
+
+
+        case TOKEN_MORE_OR_EQUAL:
+            instruct = I_EQ;
+            generateInstruction(_commands, instruct, item1, item1, item2);
+            instruct = I_GT;
+            generateInstruction(_commands, instruct, item1, item1, item2);
+            instruct = I_OR;
+            generateInstruction(_commands, instruct, item1, item1, item2);
+        break;
+
+        case TOKEN_LESS_OR_EQUAL:
+            instruct = I_EQ;
+            generateInstruction(_commands, instruct, item1, item1, item2);
+            instruct = I_LT;
+            generateInstruction(_commands, instruct, item1, item1, item2);
+            instruct = I_OR;
+            generateInstruction(_commands, instruct, item1, item1, item2);
+        break;
+
+        case TOKEN_NON_EQUAL:
+            instruct = I_NOT;
+            generateInstruction(_commands, instruct, item1, item2, NULL);
+        break;
+
+    }
+
+return SUCCESS;
+}
+
+
+
 /*
 *   @function      prec_anal
 *   @param         struct Statment * s
 *   @param         DIM * _return
 */
             
-int prec_anal(){
-
-    //
-    //
-    // dummy vstupny parameter
-    //
-    //
-
-    string vysledok;
-    vysledok.str = "vysledok";
-
-    struct DIM * _return = malloc(sizeof(struct DIM));
-    _return->dataType = DATA_TYPE_DOUBLE;
-    _return->frame = FRAME_LOCAL;
-    _return->name =  vysledok;
-
-
-
-    //dummy premenna prem1
-    string variable;
-    variable.str = "variable";
-
-    struct DIM * _prem1 = malloc(sizeof(struct DIM));
-    _prem1->dataType = DATA_TYPE_DOUBLE;
-    _prem1->frame = FRAME_LOCAL;
-    _prem1->name =  variable;
-    _prem1->valueDouble = 5.2;
-
-
-    //dummy premenna prem2
-    string beta;
-    beta.str = "beta";
-
-    struct DIM * _prem2 = malloc(sizeof(struct DIM));
-    _prem2->dataType = DATA_TYPE_INT;
-    _prem2->frame = FRAME_LOCAL;
-    _prem2->name =  beta;
-    _prem2->valueInteger = 1;
-
-    //dummy premenna prem3
-    string alpha;
-    vysledok.str = "alpha";
-
-    struct DIM * _prem3 = malloc(sizeof(struct DIM));
-    _prem3->dataType = DATA_TYPE_DOUBLE;
-    _prem3->frame = FRAME_LOCAL;
-    _prem3->name =  alpha;
-    _prem3->valueDouble = 5.0;
-
-
-
-
-
+int getExpression(struct DIM * _return){
 
     //
     //
@@ -256,7 +304,7 @@ int prec_anal(){
     //
     //
 
-    scanner_init("./tests/PA/Test_1.bas");
+    //scanner_init("./tests/PA/Test_1.bas");
     Token b;
     
     PAList *a = malloc(sizeof(PAList));        //zasobnik - os y v tabulke
@@ -277,13 +325,10 @@ int prec_anal(){
     int run = 0;
 
 
-
-
-
-
-
-
     while (!((b.flag == TOKEN_END_OF_LINE) && (a->lastTerminal->flag == TOKEN_END_OF_LINE))){ 
+
+
+
 
 
         unsigned int j = getTableIndex(b.flag);
@@ -295,11 +340,15 @@ int prec_anal(){
 
         
 
+
+        
         unsigned int i = getTableIndex(lastTerminal->flag);
+        
+
+
         char precedence = PATable[i][j];
 
         run++;
-
 
         switch(precedence){
  
@@ -326,13 +375,26 @@ int prec_anal(){
 
 
                 //ak je vo vyraze ciste iba jedna premenna
-                if((run == 1) && (b.flag == TOKEN_END_OF_LINE)){
-                    printf("E-> %s\n", a->last->name.str);
+
+                if((run == 1) && ((b.flag == TOKEN_END_OF_LINE) || (b.flag == TOKEN_THEN))){
+                    Dump("E-> %s\n", a->last->name.str);
+
+                    struct DIM * var = searchVariable(__parser_program, __parser_function, &a->last->name);
+                    if(var){
+                        a->last->prem = var;
+                    }
+                    else{
+
+                        LineErrorException(b, ERROR_UNINIT, "Unitialized variable used in expression");
+                    }
+
+                    generateInstruction(_commands, I_MOVE, _return, a->last->prem, NULL);
+                    delete_list(a);
                     return SUCCESS;
                 }
 
 
-                if((isTokenID(a->last->flag)) || a->last->flag == TOKEN_INTEGER){
+                if(isTokenID(a->last->flag)){
                         a->last->is_startOfExpr = true;
                         a->last->is_expression = true;
                         a->last->is_terminal = true;
@@ -356,7 +418,7 @@ int prec_anal(){
                         (isTokenOperator(b.flag))){
 
                         LineErrorException(b, ERROR_SYNTAX, "Two operators in row");
-                        return(ERROR_SYNTAX);
+                        //return(ERROR_SYNTAX);
                     }
 
                     a->last->is_startOfExpr = false;
@@ -374,9 +436,9 @@ int prec_anal(){
                 //
                 //
                 //  pravidlo E -> E
-                //  TODO: vyhladat ci existuje premenna, vlozit hodnoty, popr. vytvorit novu
+                //  vyhladat ci existuje premenna, vlozit hodnoty, popr. vytvorit novu
                 //
-                //
+                
 
                 if((a->lastTerminal->is_startOfExpr == true) && 
                     (a->lastTerminal->flag != TOKEN_BRACKET_LEFT)){
@@ -386,11 +448,40 @@ int prec_anal(){
 
 
                     //ak je ID                    
-                    if(!(isTokenID(a->lastTerminal->flag)) || !(a->lastTerminal->flag == TOKEN_INTEGER)) {
-                        printf("E-> %s \n", a->lastTerminal->name.str);
+                    if(isTokenID(a->lastTerminal->flag)) {
+
+
+                        //ak je to samotny int, double, alebo string
+                        if((a->lastTerminal->flag == DATA_TYPE_INT) || (a->lastTerminal->flag == DATA_TYPE_DOUBLE) ||
+                           (a->lastTerminal->flag == DATA_TYPE_STRING)){
+
+                            //int iterator;
+                            string name;
+                            name.str = "pomocna";
+                            string value;
+                            value.str = "nieco";
+
+                            createVariable(&name, &value, a->lastTerminal->flag, _return->frame);
+                            Dump("Creating new variable for %s", a->lastTerminal->name.str);
+                        }
+
+                        //ak to je premenna, vyhlada, ci existuje
+                        struct DIM * var = searchVariable(__parser_program, __parser_function, &a->lastTerminal->name);
+                        
+
+                        //premenna existuje, narvem ju do item
+                        if(var){
+                            a->lastTerminal->prem = var;
+                            Dump("variable OK; already exists in symtable");
+                            }
+
+                        //premmenna neexistuje, error    
+                        else{
+                            LineErrorException(b, ERROR_UNINIT, "Unitialized variable used in expression");
+                            return ERROR_UNINIT;
+                        }
+                    
                     }
-
-
 
                 }
 
@@ -408,21 +499,32 @@ int prec_anal(){
                         while (startExp->is_startOfExpr == false) {
                             startExp = startExp->prev;
                         }
-     
-                        a->startExp = startExp;
+                    a->startExp = startExp;
 
 
-                    //priradovat mozme iba operandy (ak nie je ID)
-                    if(! ((isTokenID(startExp->flag)) || (isTokenID(a->last->flag)) ||
-                        (startExp->flag == TOKEN_INTEGER) || (a->last->flag == TOKEN_INTEGER))){
-                        LineErrorException(b, ERROR_SYNTAX, "Unexpected expression 2");
+                    //priradovat mozme iba operandy
+                    if(!((isTokenID(startExp->flag)) || (isTokenID(a->last->flag)))) {
+                        LineErrorException(b, ERROR_SYNTAX, "Unexpected expression operands");
                         delete_list(a);
                         return ERROR_SYNTAX;
                     }
 
 
+                    //ak je jeden z operandov string 
+                    //mozme pouzit + (ktore sa neskor musi vyhodnotit ako concat), <> alebo =
+
+                    if((a->startExp->flag == DATA_TYPE_STRING) || (a->last->flag == DATA_TYPE_STRING)){
+                        if (!((a->lastTerminal->flag == TOKEN_ADD) || (a->lastTerminal->flag == TOKEN_NON_EQUAL) ||
+                            (a->lastTerminal->flag == TOKEN_EQUALS))){
+                            LineErrorException(b, ERROR_SYNTAX, "Illegal operation");
+                            delete_list(a);
+                            //return ERROR_SYNTAX;
+                        }
+                    }
+
+
                     //pretypuje vysledok, ak pretypovat nejde, error
-                    int retType = expeRetype(a->startExp->flag, a->last->flag);
+                    /*int retType = expeRetype(a->startExp->flag, a->last->flag);
                     if(retType == 0){
                         LineErrorException(b, ERROR_CONVERT, "Can't retype %s to %s\n", getTokenName(a->startExp->flag), getTokenName(a->last->flag));
                         delete_list(a);
@@ -433,18 +535,22 @@ int prec_anal(){
                     a->startExp->flag = retType;
                     a->last->flag = retType;
 
+                    */
 
 
-
-                    // TODO: podla operatoru (a->lastTerminal->flag) vlozit instrukciu
+                    // podla operatoru (a->lastTerminal->flag) vlozit instrukciu
                     // premenna1 (a->startExp->name.str) = kam vlozit
                     // premenna2 (a->last->name.str) = s cim premennu hore zoperovat
                     //
                     // napr. ADD premenna1 premenna1 premenna2
-                    printf("%s = %s %s %s\n", a->startExp->name.str, a->startExp->name.str, getTokenName(a->lastTerminal->flag), a->last->name.str);
+
+                    int p;
+                    if((p = (returnCommands(a->startExp->prem, a->last->prem, a->lastTerminal->flag)) == 0)){
+                        Dump("succesfully returned commands");
+                    }
+                    Dump("%s = %s %s %s\n", a->startExp->name.str, a->startExp->name.str, getTokenName(a->lastTerminal->flag), a->last->name.str);
                     
-                    
-                                       
+                                                       
 
                     free(a->last);
                     free(a->lastTerminal);
@@ -465,8 +571,7 @@ int prec_anal(){
                 //  pravidlo E -> ( E )
                 //
                 //
-
-                  
+                        
                         //zarazka (start of expression) bude na predoslom operatore
                         a->startExp = a->startExp->prev->prev;
                         a->startExp->is_startOfExpr = true;
@@ -484,11 +589,15 @@ int prec_anal(){
 
 
                         //pomocny print, redukcia zatvorky
-                        printf("%s -> ( %s )\n", a->lastTerminal->prev->name.str, a->lastTerminal->prev->name.str);
+                        Dump("%s -> ( %s )\n", a->lastTerminal->prev->name.str, a->lastTerminal->prev->name.str);
                         
-
+                        //printList(a);
                         //ponastavujem flagy a pointry
                         a->lastTerminal = a->last->prev;
+
+
+                        //ak nie je posledny terminal $
+                        if(a->lastTerminal->flag != TOKEN_END_OF_LINE){
                         a->startExp = a->last->prev->prev;
 
                         a->startExp->is_startOfExpr = true;
@@ -502,9 +611,10 @@ int prec_anal(){
                         a->last->is_expression = true;
                         a->last->is_terminal = false;
                         a->last->is_startOfExpr = false;
-                        
+                        }
 
-                }
+
+                    }
 
                 break;
 
@@ -512,11 +622,9 @@ int prec_anal(){
 
             case 'E':
 
-                //koniec, $ == $
-
-                //TODO: vysledok vyrazu je a->startExp
                 //vysledna instrukcia: MOVE (vstup) (vysledok)
-                printf("\nReturn: MOVE %s@%s LF@%s\n", getFrameName(_return->frame) ,_return->name.str, a->startExp->name.str);
+                generateInstruction(_commands, I_MOVE, _return, a->startExp->prem, NULL);
+                //Dump("\nReturn: MOVE %s@%s LF@%s\n", getFrameName(_return->frame) ,_return->name.str, a->startExp->name.str);
                 ErrorException(SUCCESS, "Precedence okay");
                 return(SUCCESS);
                 break;
@@ -525,13 +633,12 @@ int prec_anal(){
 
 
             default:
-                
+               // Dump("[%d][%d]\n", i, j);
                 LineErrorException(b, ERROR_SYNTAX, "Unexpected expression");
                 return(ERROR_SYNTAX);
                 break;
 
         }
-    
     }
 
 

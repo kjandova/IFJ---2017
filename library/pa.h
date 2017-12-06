@@ -26,6 +26,9 @@ typedef struct items{
     bool is_terminal;
     bool is_expression;
     bool is_startOfExpr;
+
+    //toto je skarede ale bohuzial
+    struct DIM * prem;
     struct items *next;
     struct items *prev;
 }PAItem;
@@ -39,8 +42,8 @@ typedef struct PAList{
     PAItem *startExp;
 }PAList;
 
-
-int prec_anal();
+int returnCommands(struct DIM * item1, struct DIM * item2, int flag);
+//int prec_anal(struct DIM * _return);
 void delete_list(PAList *a);
 void init_list(PAList *l);
 PAItem * last_terminal(PAList *l);
