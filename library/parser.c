@@ -311,26 +311,26 @@ void parser_run() {
 
             case PARSER_DEFINE_FUNCTION_STATMENTS: {
 
+                switch (tok.flag) {
+                    case TOKEN_IF:
+                        stateMain = PARSER_STATMENT_IF;
+                        stateReturn = PARSER_DEFINE_FUNCTION_STATMENTS;
+                    break;
+                    case TOKEN_END:
+                        tok = scanner_next_token();
 
-                while (tok.flag != TOKEN_END && tok.flag != TOKEN_END_OF_FILE && tok.flag != TOKEN_IF) {
-                    tok = scanner_next_token();
-                }
-
-
-                if (tok.flag == TOKEN_IF) {
-                    stateMain = PARSER_STATMENT_IF;
+                        if (tok.flag == TOKEN_FUNCTION)
+                            stateMain = PARSER_DEFINE_FUNCTION_END;
+//                         else
+//                             LineErrorException(tok, ERROR_SYNTAX, "Unexpected END");
+                    break;
+                    case TOKEN_END_OF_FILE:
+                        LineErrorException(tok, ERROR_SYNTAX, "End of file while processing FUNCTION");
+                    break;
+                    default:
+                        tok = scanner_next_token();
                     break;
                 }
-
-
-                tok = scanner_next_token();
-
-                if (tok.flag == TOKEN_FUNCTION) {
-                    stateMain = PARSER_DEFINE_FUNCTION_END;
-                } else {
-                    stateMain = PARSER_DEFINE_FUNCTION_STATMENTS;
-                }
-
             } break;
 
             case PARSER_DEFINE_FUNCTION_END: {
