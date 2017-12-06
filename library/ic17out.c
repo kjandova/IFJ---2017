@@ -108,6 +108,7 @@ static void writeFunction(FILE *f, struct Function *fn)
 
 	fprintf(f, "LABEL %s\n", fn->name.str);
 	fputs("CREATEFRAME\nPUSHFRAME\n", f);
+	fputs("DEFVAR LF@&tmp1\nDEFVAR LF@&tmp2\n", f);
 	writeDeclareReturn(f, fn->_return);
 	// variable definitions
 	writeVariables(f, fn->variables);
