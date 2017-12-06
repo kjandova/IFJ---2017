@@ -39,6 +39,12 @@ static char *ifjcode_escape(const char *s)
 	char *ret;
 	size_t i, j;
 
+	if (!s) {
+		if (!(ret = calloc(1, sizeof(*ret))))
+			ErrorException(ERROR_RUNTIME, "RUNTIME ERROR :: Allocation error");
+		return ret;
+	}
+
 	for (i = 0; us[i]; i++) {
 		if (CHAR_OK(us[i]))
 			len += 1;
