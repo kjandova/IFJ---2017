@@ -108,10 +108,6 @@ void parser_init(char * fileNameSource) {
 
 }
 
-
-#define FUNCTION_DECLARE 0
-#define FUNCTION_DEFINE  1
-
 #define STAT_FUNCTION 0
 #define STAT_IF       1
 #define STAT_WHILE    2
@@ -133,8 +129,7 @@ void parser_run() {
         stateReturn = PARSER_START;
 
     int dType,
-        counterDefineParams = 0,
-        functionStats       = FUNCTION_DECLARE;
+        counterDefineParams = 0;
 
     struct tree * _commands = new_tree(TREE_PLAIN);
 
@@ -582,9 +577,9 @@ void parser_run() {
 
                     /////////////////////////////////////
                     //
-                    switch(functionStats) {
-                        case FUNCTION_DECLARE: functionDeclareParameters(__parser_function, &tmpID, dType); break;
-                        case FUNCTION_DEFINE:  functionDefineParameters(__parser_function, &tmpID, dType, counterDefineParams); break;
+                    switch(stateReturn) {
+                        case PARSER_DECLARE_FUNCTION_END:     functionDeclareParameters(__parser_function, &tmpID, dType); break;
+                        case PARSER_DEFINE_FUNCTION_RETURN:  functionDefineParameters(__parser_function, &tmpID, dType, counterDefineParams); break;
                         default: ErrorException(ERROR_INTERN, "Unknown function stats");
                     }
                     //
