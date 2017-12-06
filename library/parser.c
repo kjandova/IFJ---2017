@@ -818,9 +818,9 @@ struct DIM * localVariableExists(struct Function * f, string * name) {
 
     struct DIM * variable = NULL;
 
-    tree_get(vars, name->str, (void *) variable);
+    tree_get(vars, name->str, (void *) &variable);
 
-    if (!variable) return variable;
+    if (variable) return variable;
 
     for(int i = 0; i < list_size(params); i++) {
         variable = list_index(params, i);
