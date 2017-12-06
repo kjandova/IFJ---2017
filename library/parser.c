@@ -429,6 +429,9 @@ void parser_run() {
 		        //tu se vyhodnoti dalsi prikazy
 
 		        //ending of if statement (END IF)
+			if(tok.flag != TOKEN_ELSE){
+				    LineErrorException(tok, ERROR_SYNTAX, "missing ELSE statement");
+			}
 			Dump("ELSE");
 			in_if = 2;
 			stateMain = PARSER_START;
@@ -440,7 +443,7 @@ void parser_run() {
 			tok = scanner_next_token();
 			Dump("token je:%d\n",tok.flag);
 			if (tok.flag != TOKEN_IF) {
-			    LineErrorException(tok, ERROR_SYNTAX, "missing END >IF< statement");
+			    LineErrorException(tok, ERROR_SYNTAX, "missing END IF statement");
 			}
 			in_if = 0;
 			Dump("END IF");
