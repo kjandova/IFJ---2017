@@ -129,8 +129,6 @@ struct plumStat {
 
 void parser_run() {
 
-    int in_if = 0;
-    int in_while = 0;
     int stateMain   = PARSER_START,
         stateReturn = PARSER_START;
 
@@ -140,6 +138,7 @@ void parser_run() {
 
     struct tree * _commands = new_tree(TREE_PLAIN);
 
+    NEW(pStack);
     stack_new(pStack, sizeof(plumStat));
 
 
@@ -328,7 +327,7 @@ void parser_run() {
 
                     // DIM <ID> AS <DT> [= <expression> ]
                     case TOKEN_DIM:
-                        parse_stmt_dim();
+                        parse_stmt_dim(_commands);
                     break;
 
                     // IF <expression> THEN EOL <statment_list>
@@ -364,6 +363,7 @@ void parser_run() {
             } break;
 
             case PARSER_DEFINE_FUNCTION_END: {
+                tok = scanner_next_token();
 
                 if (tok.flag != TOKEN_FUNCTION) {
                     LineErrorException(tok, ERROR_SYNTAX, "FUNCTION is missing");
@@ -426,7 +426,7 @@ void parser_run() {
                 plumStackPush(STAT_IF, PARSER_STATMENT_IF_ELSE);
 
                 stateMain = PARSER_DEFINE_FUNCTION_STATMENTS;
-            }
+            } break;
 
             case PARSER_STATMENT_IF_ELSE: {
 
@@ -547,7 +547,7 @@ void parser_run() {
                 plumStackPush(STAT_WHILE, PARSER_STATMENT_IF_ELSE);
 
                 stateMain = PARSER_DEFINE_FUNCTION_STATMENTS;
-            break;
+            } break;
 
             ///////////////////////////////////////////////////////////////////////
             // DO WHILE <expression> EOL
@@ -559,7 +559,7 @@ void parser_run() {
                 }
 
                 stateMain = PARSER_DEFINE_FUNCTION_STATMENTS;
-            break;
+            } break;
 
             case PARSER_PARAMS : {
 
@@ -651,20 +651,20 @@ int plumStackPeek(int statType, int statMain) {
 
 int plumStackPop() {
 
-    struct plumStat * plum;
+    struct plumStat plum;
 
-    stack_pop(pStack, (void*) plum);
+    stack_pop(pStack, (void*) &plum);
 
-    return plum->statMain;
+    return plum.statMain;
 }
 
 struct DIM * createDIMLabel(string * name) {
     struct DIM * label = malloc(sizeof(struct DIM));
     strCopyString(&label->name, name);
     return label;
-};
+}
 
-void parse_stmt_dim()
+void parse_stmt_dim(struct tree *cmds)
 {
     struct DIM *var;
     NEW(var);
@@ -691,7 +691,7 @@ void parse_stmt_dim()
     tok = scanner_next_token();
     if (tok.flag == TOKEN_EQUALS) {
         // DIM id AS type [ = >expr< ] EOL
-        getExpression(_commands, var);
+        getExpression(cmds, var);
     }
 
     // DIM id AS type [ = expr ] >EOL<
