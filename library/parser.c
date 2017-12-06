@@ -357,8 +357,29 @@ void parser_run() {
 
                 _return->dataType = DATA_TYPE_INT;
 
+                // EXPRESSION
                 getExpression(commandsBlock, _return);
 
+                ////////////////////////////////////////////
+                // ADD JUMP INSTRUCTION
+                //
+                // #
+                // <expressionBlock>
+                //
+                // JUMPIFNEQ IF_[i]_true LF@result int@0
+                // JUMP      IF_[i]_false
+                // LABEL     IF_[i]_true
+                //
+                // <commandsBlock>
+                //
+                // JUMP      IF_[i]_end
+                // LABEL     IF_[i]_false
+                //
+                // <commandsBlock>
+                //
+                // LABEL     IF_[i]_end
+                //
+                ////////////////////////////////////////////
 
                 /////////////////////////////////
                 // IF výraz = true
@@ -375,7 +396,9 @@ void parser_run() {
 				if (tok.flag != TOKEN_END_OF_LINE) {
 				    LineErrorException(tok, ERROR_SYNTAX, "after THEN must be end of line");
 				}
+
 				in_if = 1;
+
 				Dump("IF START");
                 		stateMain   = PARSER_START;
 				break;
@@ -384,6 +407,7 @@ void parser_run() {
 		// Print label instruction
 		/////////////////////////////////
 		}
+
 		if(in_if == 1 ){
 /*		        while(tok.flag != TOKEN_ELSE){
 		            tok = scanner_next_token();
@@ -407,6 +431,7 @@ void parser_run() {
 			stateMain = PARSER_START;
 			break;
 		}
+
 		if(in_if == 2){
 
 			tok = scanner_next_token();
@@ -702,8 +727,7 @@ struct DIM * declareParameter(string * name, DataType dType) {
 *   @description
 */
 struct DIM * searchVariable (struct Program * p, struct Function * f, string * name) {
-    struct DIM * variable;
-    variable = localVariableExists(f, name);
+    struct DIM * variable = localVariableExists(f, name);
     if (variable) return variable;
     return globalVariableExists(p, name);
 }
@@ -860,6 +884,7 @@ void program_dump(struct Program * p) {
     printf("::\n:: SCOPE\n");
 
     printf("::\n:: FUNCTIONS::\n");
+
     dumpFunctions(p);
 }
 
