@@ -202,38 +202,38 @@ int returnCommands(struct DIM * item1, struct DIM * item2, int flag){
         case TOKEN_ADD:
             if(item1->dataType == DATA_TYPE_STRING){
                 instruct = I_CONCAT;
-                generateInstruction(_commands, instruct, item1, item1, item2);
+                generateInstruction(__parser->function_commands, instruct, item1, item1, item2);
             }
             if((item1->dataType == DATA_TYPE_DOUBLE) || (item1->dataType == DATA_TYPE_INT)){
                 instruct = I_ADD;
-                generateInstruction(_commands, instruct, item1, item1, item2);
+                generateInstruction(__parser->function_commands, instruct, item1, item1, item2);
             }
         break;
 
         case TOKEN_SUB:
             instruct = I_SUB;
-            generateInstruction(_commands, instruct, item1, item1, item2);
+            generateInstruction(__parser->function_commands, instruct, item1, item1, item2);
         break;
 
         case TOKEN_MUL:
             instruct = I_MUL;
-            generateInstruction(_commands, instruct, item1, item1, item2);
+            generateInstruction(__parser->function_commands, instruct, item1, item1, item2);
         break;
 
         case TOKEN_DIV:
 
             if(item1->dataType != DATA_TYPE_DOUBLE){
                 instruct = I_INT2FLOAT;
-                generateInstruction(_commands, instruct, item1, item1, item2);
+                generateInstruction(__parser->function_commands, instruct, item1, item1, item2);
             }
             instruct = I_DIV;
-            generateInstruction(_commands, instruct, item1, item1, item2);
+            generateInstruction(__parser->function_commands, instruct, item1, item1, item2);
         break;
 
         case TOKEN_BACKSLASH:
             if(item1->dataType == DATA_TYPE_INT){
                 instruct = I_DIV;
-                generateInstruction(_commands, instruct, item1, item1, item2);
+                generateInstruction(__parser->function_commands, instruct, item1, item1, item2);
             }
             else{
                 ErrorException(ERROR_SYNTAX, "Backslash devide operands not INT");
@@ -244,43 +244,43 @@ int returnCommands(struct DIM * item1, struct DIM * item2, int flag){
 
         case TOKEN_LESS:
             instruct = I_LT;
-            generateInstruction(_commands, instruct, item1, item1, item2);
+            generateInstruction(__parser->function_commands, instruct, item1, item1, item2);
         break;
 
 
         case TOKEN_MORE:
             instruct = I_GT;
-            generateInstruction(_commands, instruct, item1, item1, item2);
+            generateInstruction(__parser->function_commands, instruct, item1, item1, item2);
         break;
 
 
         case TOKEN_EQUALS:
             instruct = I_EQ;
-            generateInstruction(_commands, instruct, item1, item1, item2);
+            generateInstruction(__parser->function_commands, instruct, item1, item1, item2);
         break;
 
 
         case TOKEN_MORE_OR_EQUAL:
             instruct = I_EQ;
-            generateInstruction(_commands, instruct, item1, item1, item2);
+            generateInstruction(__parser->function_commands, instruct, item1, item1, item2);
             instruct = I_GT;
-            generateInstruction(_commands, instruct, item1, item1, item2);
+            generateInstruction(__parser->function_commands, instruct, item1, item1, item2);
             instruct = I_OR;
-            generateInstruction(_commands, instruct, item1, item1, item2);
+            generateInstruction(__parser->function_commands, instruct, item1, item1, item2);
         break;
 
         case TOKEN_LESS_OR_EQUAL:
             instruct = I_EQ;
-            generateInstruction(_commands, instruct, item1, item1, item2);
+            generateInstruction(__parser->function_commands, instruct, item1, item1, item2);
             instruct = I_LT;
-            generateInstruction(_commands, instruct, item1, item1, item2);
+            generateInstruction(__parser->function_commands, instruct, item1, item1, item2);
             instruct = I_OR;
-            generateInstruction(_commands, instruct, item1, item1, item2);
+            generateInstruction(__parser->function_commands, instruct, item1, item1, item2);
         break;
 
         case TOKEN_NON_EQUAL:
             instruct = I_NOT;
-            generateInstruction(_commands, instruct, item1, item2, NULL);
+            generateInstruction(__parser->function_commands, instruct, item1, item2, NULL);
         break;
 
     }
@@ -388,7 +388,7 @@ int getExpression(struct DIM * _return){
                         LineErrorException(b, ERROR_UNINIT, "Unitialized variable used in expression");
                     }
 
-                    generateInstruction(_commands, I_MOVE, _return, a->last->prem, NULL);
+                    generateInstruction(__parser->function_commands, I_MOVE, _return, a->last->prem, NULL);
                     delete_list(a);
                     return SUCCESS;
                 }
@@ -623,7 +623,7 @@ int getExpression(struct DIM * _return){
             case 'E':
 
                 //vysledna instrukcia: MOVE (vstup) (vysledok)
-                generateInstruction(_commands, I_MOVE, _return, a->startExp->prem, NULL);
+                generateInstruction(__parser->function_commands, I_MOVE, _return, a->startExp->prem, NULL);
                 //Dump("\nReturn: MOVE %s@%s LF@%s\n", getFrameName(_return->frame) ,_return->name.str, a->startExp->name.str);
                 ErrorException(SUCCESS, "Precedence okay");
                 return(SUCCESS);
