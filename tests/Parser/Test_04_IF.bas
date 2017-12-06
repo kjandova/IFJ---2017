@@ -6,13 +6,14 @@ If a > b tHen
 	a=25
 elSE 
 	a=31
-ENDIf
+END If
 
 'if bez else - vypíše chybu
 If 1 thEn
 	a=b
+else
 	a=31
-ENDIf
+END If
 
 'if bez endif - vypíše chybu
 
@@ -20,6 +21,7 @@ IF a > b theN
 	a=25
 Else
 	a=31
+end if
 
 'if který funguje bez expr
 

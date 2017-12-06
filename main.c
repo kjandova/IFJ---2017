@@ -14,15 +14,15 @@
 ///////////////////////////////////////////////////////////////////////////////////
 
 
-#include "./library/init.h"
+#include "init.h"
 
 int main(int argc, char ** argv) {
 
     init(argc, argv);
 
-    DebugConfigure(DEBUG_ENABLE | DEBUG_LINE /* | DEBUG_TIME */ );
+    /*DebugConfigure(DEBUG_ENABLE | DEBUG_LINE  | DEBUG_TIME * );
 
-    globalArgs.filePathInput = "./tests/Parser/Test_02_Define_Function.bas";
+    globalArgs.filePathInput = "./tests/Parser/Test_04_IF.bas";*/
 
     parser_init(globalArgs.filePathInput);
     parser_run();

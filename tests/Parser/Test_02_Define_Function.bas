@@ -22,3 +22,5 @@ asdasd
 end
 
 End Function
+
+dim a as integer

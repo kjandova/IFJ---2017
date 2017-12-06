@@ -1,30 +1,39 @@
-1. <PROGRAM>			    ->		<FUCTION_LIST> SCOPE EOL <STATEMENT_LIST> END SCOPE <FUNCTION_LIST>
-2. <FUNCTION_LIST>		->		eps
+1. <PROGRAM>			->		<FUCTION_LIST> SCOPE EOL <STATEMENT_LIST> END SCOPE <FUNCTION_LIST>
+2. <FUNCTION_LIST>		->		ε
 3. <FUNCTION_LIST>		->		<FUNCTION> <FUNCTION_LIST>
-4. <FUNCTION>			    ->		DECLARE FUNCTION (id) lb <PARAM> rb AS <TYPE> EOL
-5. <FUNCTION>			    ->		FUNCTION (id) lb <PARAM> AS <TYPE> EOL <STATEMENT_LIST> END FUNCTION
+4. <FUNCTION>			->		DECLARE FUNCTION (id) lb <PARAM> rb AS <TYPE> EOL
+5. <FUNCTION>			->		FUNCTION (id) lb <PARAM> AS <TYPE> EOL <STATEMENT_LIST> END FUNCTION
 
-6. <PARAM>				    ->		eps
-7. <PARAM>				    ->		(id) AS <TYPE> <PARAM>
-8. <PARAM>				    ->		, (id) AS <TYPE> <PARAM>
+6. <PARAM>			->		ε
+7. <PARAM>			->		(id) AS <TYPE> <PARAM>
+8. <PARAM>			->		, (id) AS <TYPE> <PARAM>
 
-9. <STATEMENT_LIST>		->		eps
-10. <STATEMENT_LIST>	->		<STATEMENT> <STATEMENT_LIST>
+9. <STATEMENT_LIST>		->		ε
+10. <STATEMENT_LIST>		->		<STATEMENT> <STATEMENT_LIST>
 
 11. <STATEMENT>			->		DIM (id) AS <TYPE> EOL
 12. <STATEMENT>			->		DIM (id) AS <TYPE> <EXPRESSION> EOL
 
-13. <STATEMENT>			->		RETURN <EXPRESSION> EOL		//prikaz navratu z fce
-14. <STATEMENT>			->		(id) = <EXPRESSION> EOL		//prikaz priradenia    
-15. <STATEMENT>			->		INPUT (id) EOL			//prikaz pre nacitanie hodnot
-16. <STATEMENT>			->		PRINT <EXPRESSION> EOL	//prikaz pre vypis hodnot
-17. <STATEMENT>			->		(id) = (func_id) lb <PARAM> rb EOL 		//volanie vstavanej/uzivatelskej fce
-
+13. <STATEMENT>			->		RETURN <EXPRESSION> EOL
+14. <STATEMENT>			->		(id) = <EXPRESSION> EOL	
+15. <STATEMENT>			->		INPUT (id) EOL	
+16. <STATEMENT>			->		PRINT <TERM> EOL
+17. <STATEMENT>			->		(id) = (func_id) lb <PARAM> rb EOL
 
 18. <STATEMENT>			->		IF <EXPRESSION> THEN EOL <STATEMENT_LIST> <ELSEIF> <ELSE> END IF
-19. <STATEMENT>			->		DO WHILE <EXPRESSION> EOL <STATEMENT_LIST> <LOOP>
+19. <STATEMENT>			->		DO WHILE <EXPRESSION> EOL <STATEMENT_LIST> LOOP
 
-20. <ELSEIF>			->		eps
+20. <ELSEIF>			->		ε
 21. <ELSEIF>			->		ELSE IF <EXPRESSION> THEN EOL <STATEMENT_LIST> <ELSEIF>
-22. <ELSE>				->		eps
-23. <ELSE>				->		ELSE EOL <STATEMENT LIST> END IF
+22. <ELSE>			->		ε
+23. <ELSE>			->		ELSE EOL <STATEMENT LIST> END IF
+
+24. <TERM>			->		;
+25. <TERM>			->		(id) <TERM>
+26. <TERM>			->		;(id) <TERM>
+27. <TERM>			->		<STRING> <TERM>
+28. <TERM>			->		; <STRING> <TERM>
+
+29. <TYPE>			->		INTEGER
+30. <TYPE>			->		DOUBLE
+31. <TYPE>			->		STRING
