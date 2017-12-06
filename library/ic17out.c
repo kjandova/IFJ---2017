@@ -79,6 +79,28 @@ static void writeInstructions(FILE *f, list *ins)
 	}
 }
 
+static void writeDeclareReturn(FILE *f, struct DIM *var)
+{
+	if (var->dataType == DATA_TYPE_VOID)
+		return;
+
+	fputs("DEFVAR LF@&ret\n", f);
+	switch (var->dataType) {
+		case DATA_TYPE_BOOL:
+			fputs("MOVE LF@&ret bool@false\n", f);
+			return;
+		case DATA_TYPE_INT:
+			fputs("MOVE LF@&ret int@0\n", f);
+			return;
+		case DATA_TYPE_DOUBLE:
+			fputs("MOVE LF@&ret float@0.0\n", f);
+			return;
+		case DATA_TYPE_STRING:
+			fputs("MOVE LF@&ret string@\n", f);
+			return;
+	}
+}
+
 static void writeFunction(FILE *f, struct Function *fn)
 {
 	if (!fn)
@@ -86,6 +108,7 @@ static void writeFunction(FILE *f, struct Function *fn)
 
 	fprintf(f, "LABEL %s\n", fn->name.str);
 	fputs("CREATEFRAME\nPUSHFRAME\n", f);
+	writeDeclareReturn(f, fn->_return);
 	// variable definitions
 	writeVariables(f, fn->variables);
 
@@ -95,6 +118,8 @@ static void writeFunction(FILE *f, struct Function *fn)
 
 	// end of function
 	fprintf(f, "LABEL %s%%&end\n", fn->name.str);
+	if (fn->_return->dataType != DATA_TYPE_VOID)
+		fputs("PUSHS LF@&ret\n", f);
 	fputs("POPFRAME\nRETURN\n", f);
 }
 
