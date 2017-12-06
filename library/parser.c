@@ -137,8 +137,6 @@ void parser_run() {
     int dType,
         counterDefineParams = 0;
 
-    struct tree * _commands = new_tree(TREE_PLAIN);
-
     NEW(pStack);
     stack_new(pStack, sizeof(plumStat));
 
@@ -334,7 +332,7 @@ void parser_run() {
 
                     // DIM <ID> AS <DT> [= <expression> ]
                     case TOKEN_DIM:
-                        parse_stmt_dim(_commands);
+                        parse_stmt_dim();
                     break;
 
                     // IF <expression> THEN EOL <statment_list>
@@ -401,7 +399,6 @@ void parser_run() {
 
                 // Call getExpression
                 struct DIM * _return   = malloc(sizeof(struct DIM));
-                struct tree * commands = new_tree(TREE_PLAIN);
 
                 string result = strPrintf("IF_%d_result", pIter);
 
@@ -412,7 +409,7 @@ void parser_run() {
                 // <expressionBlock>
                 //
                 // EXPRESSION
-                getExpression(commands, _return);
+                getExpression(_return);
 
                 if (tok.flag != TOKEN_THEN) {
 				    LineErrorException(tok, ERROR_SYNTAX, "THEN is missing");
@@ -434,9 +431,9 @@ void parser_run() {
                 // label   = strPrintf("IF_%d_false", pIter);
                 // labelF  = createDIMLabel(label);
 
-                // generateInstruction(_commands, I_JUMPIFNEQ, labelT, _return, NULL);
-                // generateInstruction(_commands, I_JUMP     , labelF, NULL   , NULL);
-                // generateInstruction(_commands, LABEL      , labelT, NULL   , NULL);
+                // generateInstruction(__parser_function->commands, I_JUMPIFNEQ, labelT, _return, NULL);
+                // generateInstruction(__parser_function->commands, I_JUMP     , labelF, NULL   , NULL);
+                // generateInstruction(__parser_function->commands, LABEL      , labelT, NULL   , NULL);
                 //
                 // free(label);
                 ///////////////////////////////////////////////////////////////////////////////////
@@ -465,8 +462,8 @@ void parser_run() {
                 // label   = strPrintf("IF_%d_end", i);
                 // labelE  = createDIMLabel(label);
 
-                // generateInstruction(_commands, I_JUMP    , labelE, NULL   , NULL);
-                // generateInstruction(_commands, LABEL     , labelF, NULL   , NULL);
+                // generateInstruction(__parser_function->commands, I_JUMP    , labelE, NULL   , NULL);
+                // generateInstruction(__parser_function->commands, LABEL     , labelF, NULL   , NULL);
                 //
                 // free(label);
                 unused(i);
@@ -498,7 +495,7 @@ void parser_run() {
                 // label   = strPrintf("IF_%d_end", pIter);
                 // labelE  = createDIMLabel(label);
 
-                // generateInstruction(_commands, LABEL     , labelF, NULL   , NULL);
+                // generateInstruction(__parser_function->commands, LABEL     , labelF, NULL   , NULL);
                 //
                 // free(label);
 
@@ -526,7 +523,6 @@ void parser_run() {
 
                 // Call getExpression
                 struct DIM * _return   = malloc(sizeof(struct DIM));
-                struct tree * commands = new_tree(TREE_PLAIN);
                 string        result   = strPrintf("result", pIter);
 
                 _return->name     = result;
@@ -541,7 +537,7 @@ void parser_run() {
                 // label     = strPrintf("WHILE_%d_start", pIter);
                 // struct DIM * labelS = createDIMLabel(label);
 
-                // generateInstruction(_commands, LABEL     , labelT, NULL   , int@0);
+                // generateInstruction(__parser_function->commands, LABEL     , labelT, NULL   , int@0);
                 //
                 ///////////////////////////////////////////////////////////////////////////////////
 
@@ -549,7 +545,7 @@ void parser_run() {
                 //
                 // EXPRESSION
 
-                getExpression(commands, _return);
+                getExpression( _return);
 
                 ///////////////////////////////////////////////////////////////////////////////////
 				//
@@ -558,7 +554,7 @@ void parser_run() {
                 // label   = strPrintf("WHILE_%d_end", pIter);
                 // struct DIM * labelE = createDIMLabel(label);
 
-                // generateInstruction(_commands, I_JUMPIFEQ, labelE, _return, int@0);
+                // generateInstruction(__parser_function->commands, I_JUMPIFEQ, labelE, _return, int@0);
                 //
                 ///////////////////////////////////////////////////////////////////////////////////
 
@@ -583,7 +579,7 @@ void parser_run() {
                 // label   = strPrintf("WHILE_%d_end", pIter);
                 // struct DIM * labelE = createDIMLabel(label);
 
-                // generateInstruction(_commands, I_LABEL, labelE, NULL, NULL);
+                // generateInstruction(__parser_function->commands, I_LABEL, labelE, NULL, NULL);
                 //
                 ///////////////////////////////////////////////////////////////////////////////////
                 stateMain = PARSER_DEFINE_FUNCTION_STATMENTS;
@@ -708,7 +704,7 @@ void parser_init_main_scope()
     __parser_function->_return = NULL;
 }
 
-void parse_stmt_dim(struct tree *cmds)
+void parse_stmt_dim()
 {
     struct DIM *var;
     NEW(var);
@@ -735,7 +731,7 @@ void parse_stmt_dim(struct tree *cmds)
     tok = scanner_next_token();
     if (tok.flag == TOKEN_EQUALS) {
         // DIM id AS type [ = >expr< ] EOL
-        getExpression(cmds, var);
+        getExpression(var);
     }
 
     // DIM id AS type [ = expr ] >EOL<
@@ -995,7 +991,7 @@ struct DIM * localVariableExists(struct Function * f, string * name) {
 //  EXPRESION
 //
 
-void getExpression(struct tree * commands, struct DIM * _return) {
+void getExpression(struct DIM * _return) {
 
     Dump("Expression");
 
@@ -1033,7 +1029,7 @@ void getExpression(struct tree * commands, struct DIM * _return) {
     _return->valueDouble  = 3.14;
     _return->valueString  = strChars("3.14");
 
-    unused(commands);
+    unused(__parser_function->commands);
 
 }
 

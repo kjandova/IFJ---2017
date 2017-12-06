@@ -86,7 +86,7 @@ struct DIM * searchVariable(struct Program * p, struct Function * f, string * na
 struct DIM * globalVariableExists(struct Program * p, string * name);
 struct DIM * localVariableExists(struct Function * f, string * name);
 
-void getExpression(struct tree * commands, struct DIM * _return);
+void getExpression(struct DIM * _return);
 
 void plumStackPush(int statType, int statMain);
 int  plumStackPeek(int statType, int statMain);
