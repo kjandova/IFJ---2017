@@ -640,8 +640,8 @@ void parser_run() {
         }
     }
 
-    program_dump(__parser_program);
-    writeProgram(stdout, __parser_program);
+    //program_dump(__parser_program);
+    writeProgram(globalArgs.filePathOutput, __parser_program);
     exit(0);
 }
 
