@@ -1,0 +1,143 @@
+## Returns minimum
+## &min(x:*t, y:*t) -> *t
+LABEL &min
+	CREATEFRAME
+	PUSHFRAME
+	DEFVAR LF@x
+	DEFVAR LF@y
+	DEFVAR LF@acc
+	DEFVAR LF@ret
+	# retrieve parameter from stack
+	POPS LF@x
+	POPS LF@y
+
+	GT LF@ret LF@x LF@y
+	JUMPIFEQ &min%b1 LF@ret bool@true
+	MOVE LF@ret LF@x
+	JUMP &min%end
+	LABEL &min%b1
+	MOVE LF@ret LF@y
+
+	LABEL &min%end
+	PUSHS LF@ret
+	POPFRAME
+RETURN
+## end &min
+
+## Returns maximum
+## &max(x:*t, y:*t) -> *t
+LABEL &max
+	CREATEFRAME
+	PUSHFRAME
+	DEFVAR LF@x
+	DEFVAR LF@y
+	DEFVAR LF@ret
+	# retrieve parameter from stack
+	POPS LF@x
+	POPS LF@y
+
+	LT LF@ret LF@x LF@y
+	JUMPIFEQ &max%b1 LF@ret bool@true
+	MOVE LF@ret LF@x
+	JUMP &max%end
+	LABEL &max%b1
+	MOVE LF@ret LF@y
+
+	LABEL &max%end
+	PUSHS LF@ret
+	#cleanup
+	POPFRAME
+RETURN
+## end &max
+
+## Corresponds to Asc fn from IFJ2017
+## &asc(s:string, i:int) -> int
+LABEL &asc
+	CREATEFRAME
+	PUSHFRAME
+	DEFVAR LF@s
+	DEFVAR LF@i
+	DEFVAR LF@ret
+	# retrieve parameters from stack
+	POPS LF@s
+	POPS LF@i
+	SUB LF@i LF@i int@1
+
+	PUSHS LF@i
+	PUSHS int@0
+	LTS
+
+	STRLEN LF@ret LF@s
+	PUSHS LF@ret
+	PUSHS LF@i
+	LTS
+
+	ORS
+	POPS LF@ret
+
+	JUMPIFEQ &asc%b1 LF@ret bool@true
+	STRI2INT LF@ret LF@s LF@i
+	JUMP &asc%end
+	LABEL &asc%b1
+	MOVE LF@ret int@0
+
+	LABEL &asc%end
+	PUSHS LF@ret
+	#cleanup
+	POPFRAME
+RETURN
+## end &asc
+
+## Corresponds to Substr fn from IFJ2017
+## &substr(s:string, i:int, n:int) -> string
+LABEL &substr
+	CREATEFRAME
+	PUSHFRAME
+	DEFVAR LF@s
+	DEFVAR LF@i
+	DEFVAR LF@n
+	DEFVAR LF@acc
+	DEFVAR LF@ret
+	# retrieve parameter from stack
+	POPS LF@s
+	POPS LF@i
+	POPS LF@n
+
+	MOVE LF@ret string@
+
+	SUB LF@i LF@i int@1
+	LT LF@acc LF@i int@0
+	JUMPIFEQ &substr%end LF@acc bool@true
+
+	#get length of the string
+	STRLEN LF@acc LF@s
+	SUB LF@acc LF@acc LF@i
+	PUSHS LF@n
+	PUSHS LF@acc
+	PUSHS int@0
+	CALL &max
+	CALL &min
+	POPS LF@n
+
+	# while (n != 0) {
+	#     acc = s[i];
+	#     ret = ret .. acc;
+	#     i++;
+	#     n--;
+	# }
+	LABEL &substr%l1
+	JUMPIFEQ &substr%end LF@n int@0
+
+	GETCHAR LF@acc LF@s LF@i
+	CONCAT LF@ret LF@ret LF@acc
+
+	ADD LF@i LF@i int@1
+	SUB LF@n LF@n int@1
+	JUMP &substr%l1
+
+	LABEL &substr%end
+	PUSHS LF@ret
+	#cleanup
+	POPFRAME
+RETURN
+## end &substr
