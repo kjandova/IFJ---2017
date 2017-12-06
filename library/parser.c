@@ -45,6 +45,11 @@ enum ParserStats {
     PARSER_DEFINE_FUNCTION_STATMENTS,
     PARSER_DEFINE_FUNCTION_END,
 
+    // FUNCTION (ID) ( <PARAM> ) AS <TYPE> EOL
+    PARSER_SCOPE_START,
+    PARSER_SCOPE_STATMENTS,
+    PARSER_SCOPE_END,
+
     //
     // IF <EXPRESSION> THEN EOL <STATEMENT_LIST> <ELSEIF> <ELSE> END IF
     PARSER_STATMENT_IF,
@@ -111,6 +116,7 @@ void parser_init(char * fileNameSource) {
 #define STAT_FUNCTION 0
 #define STAT_IF       1
 #define STAT_WHILE    2
+#define STAT_SCOPE    3
 
 /*
 *   @function      parser_run
@@ -150,6 +156,11 @@ void parser_run() {
                     break;
                     case TOKEN_FUNCTION:
                         stateMain = PARSER_DEFINE_FUNCTION_START;
+                    break;
+                    case TOKEN_SCOPE:
+                        parser_init_main_scope();
+                        plumStackPush(STAT_SCOPE, PARSER_SCOPE_END);
+                        stateMain = PARSER_SCOPE_STATMENTS;
                     break;
                     case TOKEN_END_OF_LINE:
                         stateMain = PARSER_START;
@@ -316,6 +327,7 @@ void parser_run() {
 
             } break;
 
+            case PARSER_SCOPE_STATMENTS:
             case PARSER_DEFINE_FUNCTION_STATMENTS: {
 
                 switch (tok.flag) {
@@ -365,6 +377,17 @@ void parser_run() {
                 }
 
                 Dump("> DEFINE Function %s() COMPLETE\n", (__parser_function->name).str);
+
+                stateMain   = PARSER_START;
+            } break;
+            case PARSER_SCOPE_END: {
+                tok = scanner_next_token();
+
+                if (tok.flag != TOKEN_SCOPE) {
+                    LineErrorException(tok, ERROR_SYNTAX, "SCOPE is missing");
+                }
+
+                Dump("> DEFINE Scope COMPLETE\n");
 
                 stateMain   = PARSER_START;
             } break;
@@ -667,6 +690,22 @@ struct DIM * createDIMLabel(string * name) {
     struct DIM * label = malloc(sizeof(struct DIM));
     strCopyString(&label->name, name);
     return label;
+}
+
+void parser_init_main_scope()
+{
+    if (__parser_program->scope)
+        LineErrorException(tok, ERROR_DEFINE, "Trying to redefine scope");
+
+    NEW(__parser_program->scope);
+    __parser_function = __parser_program->scope;
+    __parser_function->name = strChars("&main");
+    __parser_function->parameters = NULL;
+    NEW(__parser_function->variables);
+    tree_init(__parser_function->variables, TREE_PLAIN);
+    NEW(__parser_function->commands);
+    list_new(__parser_function->commands, sizeof(struct TWCode));
+    __parser_function->_return = NULL;
 }
 
 void parse_stmt_dim(struct tree *cmds)

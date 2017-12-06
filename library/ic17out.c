@@ -57,6 +57,9 @@ static void writeGetArguments(FILE *f, list *args)
 	int i, n;
 	struct DIM *arg;
 
+	if (!args)
+		return;
+
 	n = list_size(args);
 	for (i = 0; i < n; i++) {
 		arg = list_index(args, i);
@@ -81,7 +84,7 @@ static void writeInstructions(FILE *f, list *ins)
 
 static void writeDeclareReturn(FILE *f, struct DIM *var)
 {
-	if (var->dataType == DATA_TYPE_VOID)
+	if (!var || var->dataType == DATA_TYPE_VOID)
 		return;
 
 	fputs("DEFVAR LF@&ret\n", f);
@@ -119,7 +122,7 @@ static void writeFunction(FILE *f, struct Function *fn)
 
 	// end of function
 	fprintf(f, "LABEL %s%%&end\n", fn->name.str);
-	if (fn->_return->dataType != DATA_TYPE_VOID)
+	if (fn->_return && fn->_return->dataType != DATA_TYPE_VOID)
 		fputs("PUSHS LF@&ret\n", f);
 	fputs("POPFRAME\nRETURN\n", f);
 }
@@ -147,7 +150,8 @@ void writeProgram(FILE *f, struct Program *p)
 
 	writeFunctions(f, p->functions);
 
+	writeFunction(f, p->scope);
 	fputs("LABEL &%body\n", f);
 	writeVariables(f, p->globalVariables);
-	writeFunction(f, p->scope);
+	fputs("CALL &main\n", f);
 }

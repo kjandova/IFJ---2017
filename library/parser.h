@@ -68,6 +68,7 @@ void              program_init(struct Program ** p);
 
 // Subparsers
 void parse_stmt_dim();
+void parser_init_main_scope();
 
 // FUNCTTIONS DECLARED
 struct Function * functionDeclare(struct Program * p, string * name);
