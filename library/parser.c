@@ -539,7 +539,7 @@ void parser_run() {
                 //
                 ///////////////////////////////////////////////////////////////////////////////////
 
-                plumStackPush(STAT_WHILE, PARSER_STATMENT_IF_ELSE);
+                plumStackPush(STAT_WHILE, PARSER_STATMENT_WHILE_END);
 
                 stateMain = PARSER_DEFINE_FUNCTION_STATMENTS;
             } break;
@@ -553,6 +553,16 @@ void parser_run() {
                     LineErrorException(tok, ERROR_SYNTAX, "WHILE is missing");
                 }
 
+                ///////////////////////////////////////////////////////////////////////////////////
+				//
+                // LABEL IF_[i]_end
+
+                // label   = strPrintf("WHILE_%d_end", pIter);
+                // struct DIM * labelE = createDIMLabel(label);
+
+                // generateInstruction(_commands, I_LABEL, labelE, NULL, NULL);
+                //
+                ///////////////////////////////////////////////////////////////////////////////////
                 stateMain = PARSER_DEFINE_FUNCTION_STATMENTS;
             } break;
 
